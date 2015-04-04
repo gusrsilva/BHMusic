@@ -1,0 +1,67 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:layout_height="128dp">
+
+    <ImageView android:id="@+id/notificationImage"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="10dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/test_cover"
+        android:background="@color/cyanSwatch"
+        android:scaleType="centerCrop" />
+    <TextView android:id="@+id/notificationTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/notificationImage"
+        android:textColor="@color/black"
+        android:text="Title"
+        android:textSize="16dp"
+        android:layout_alignTop="@+id/notificationImage"
+        android:layout_marginTop="10dp"
+        android:maxLines="2" />
+    <TextView android:id="@+id/notificationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/notificationImage"
+        android:layout_below="@+id/notificationTitle"
+        style="Custom Notification Text"
+        android:textColor="#77000000"
+        android:text="This is the subtitle"
+        android:layout_marginTop="3dp" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="56dp"
+        android:layout_toRightOf="@+id/notificationImage"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationPrev"
+            android:layout_toLeftOf="@+id/notificationPlayPause"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_skip_previous_black_48dp"
+            android:layout_marginRight="10dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationPlayPause"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_pause_black_48dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationNext"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/notificationPlayPause"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_skip_next_black_48dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

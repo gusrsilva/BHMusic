@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DefaultTheme" parent="android:Theme.Material.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/statusbar_color</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:actionBarStyle">@style/TranslucentActionBar</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="SettingsTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/statusbar_color</item>
+    </style>
+
+    <style name="TranslucentActionBar" parent="android:Widget.Material.ActionBar">
+        <item name="android:elevation">0dp</item>
+        <item name="android:colorPrimary">@android:color/transparent</item>
+    </style>
+
+    <style name="PrimaryActionBar" parent="android:Widget.Material.ActionBar">
+        <item name="android:colorPrimary">@color/primary_color</item>
+    </style>
+
+</resources>

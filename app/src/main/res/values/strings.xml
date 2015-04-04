@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">BH Music</string>
+    <string name="music">MUSIC</string>
+
+    <string name="action_exit">Exit</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_shuffle_all">Shuffle All</string>
+    <string name="action_now_playing">Now Playing</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_delete">delete</string>
+    <string name="title_activity_now_playing"> </string>
+    <string name="title_section1">Songs</string>
+    <string name="title_section2">Albums</string>
+    <string name="title_section3">Artists</string>
+    <string name="empty_string"> </string>
+    <string name="title_activity_view_album">ViewAlbumActivity</string>
+
+
+    <!-- Notification Strings -->
+    <string name="stop_casting">Stop Casting</string>
+    <string name="label_pause">Pause</string>
+    <string name="label_play">Play</string>
+    <string name="label_previous">Previous</string>
+    <string name="label_next">Next</string>
+
+
+</resources>

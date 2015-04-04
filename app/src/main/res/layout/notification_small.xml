@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal">
+
+    <ImageView android:id="@+id/small_notificationImage"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="10dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/test_cover"
+        android:background="@color/cyanSwatch" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1">
+
+        <TextView android:id="@+id/small_notificationTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/notificationImage"
+            android:textColor="@color/black"
+            android:text="Title"
+            android:layout_alignTop="@+id/notificationImage"
+            android:layout_marginTop="10dp"
+            android:textSize="16dp"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <TextView android:id="@+id/small_notificationText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/notificationImage"
+            android:layout_below="@+id/notificationTitle"
+            style="Custom Notification Text"
+            android:textColor="#77000000"
+            android:text="This is the subtitle"
+            android:singleLine="true"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/small_notificationPlayPause"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_pause_black_36dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="15dp" />
+
+</LinearLayout>

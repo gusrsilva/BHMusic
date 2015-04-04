@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="com.blockhead.bhmusic.MainActivity">
+    <!-- Search, should appear as action button -->
+    <item android:id="@+id/action_now_playing"
+        android:icon="@drawable/ic_action_now_playing"
+        android:title="@string/action_now_playing"
+        android:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="100" android:showAsAction="never" />
+
+    <item android:id="@+id/action_exit" android:title="@string/action_exit"
+        android:orderInCategory="1" android:showAsAction="never" />
+    <item android:id="@+id/action_shuffle_all" android:title="@string/action_shuffle_all"
+        android:orderInCategory="2" android:showAsAction="never" />
+</menu>

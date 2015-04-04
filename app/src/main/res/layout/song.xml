@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:onClick="songPicked"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/rect_ripple_background_color">
+
+    <ImageView
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/artImage"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/default_cover"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp" />
+
+    <LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:layout_weight="1"
+    android:layout_gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/song_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#bb000000"
+        android:textSize="17sp"
+        android:textAlignment="gravity"
+        android:layout_marginRight="20dp"
+        android:gravity="left"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/song_artist"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#66000000"
+        android:textSize="14sp"
+        android:textAlignment="gravity"
+        android:layout_marginRight="20dp"
+        android:gravity="left"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+</LinearLayout>
+
+</LinearLayout>
