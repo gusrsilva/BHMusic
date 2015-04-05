@@ -103,6 +103,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static ArtistAdapter artistAdt;
     public static android.support.v4.view.PagerTitleStrip pagerTitleStrip;
     public static Album currAlbum;
+    public static Artist currArtist;
     public static ActionBar mActionBar;
     public static boolean artworkHeader = true;
     private static String abTitle;
@@ -533,6 +534,20 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         currAlbum = albumList.get(pos);
 
         Intent intent = new Intent(this, ViewAlbumActivity.class);
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                Pair.create((View)fab, "fab"));
+
+        startActivity(intent, options.toBundle());
+    }
+
+    public void artistPicked(View view)
+    {
+        //musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+
+        int pos = Integer.parseInt(view.getTag().toString());
+        currArtist = artistList.get(pos);
+
+        Intent intent = new Intent(this, ViewArtistActivity.class);
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View)fab, "fab"));
 

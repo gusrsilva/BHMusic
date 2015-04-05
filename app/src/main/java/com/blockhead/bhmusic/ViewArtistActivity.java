@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ViewArtistActivity extends Activity {
 
-    private Album currAlbum;
-    private ImageView coverView, fadeCoverView;
+    private Artist currArtist;
+    private ImageView artistImageView, fadeCoverView;
     private TextView tracksView, headerTrackCount;
     private Drawable mActionBarBackgroundDrawable, mActionBarCoverDrawable;
     private ActionBar actionBar;
@@ -53,37 +53,37 @@ public class ViewArtistActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_album);
+        setContentView(R.layout.activity_view_artist);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-        currAlbum = MainActivity.currAlbum;
-        trackList = currAlbum.tracks;
-        coverView = (ImageView) findViewById(R.id.coverArtAlbum);
-        fadeCoverView = (ImageView)findViewById(R.id.fadeCover);
+        currArtist = MainActivity.currArtist;
+        trackList = currArtist.tracks;
+        artistImageView = (ImageView) findViewById(R.id.artistImage);
+        fadeCoverView = (ImageView)findViewById(R.id.artist_fadeCover);
         actionBar = getActionBar();
-        abBackground = (RelativeLayout)findViewById(R.id.ab_background);
-        header = (RelativeLayout)findViewById(R.id.header);
-        fab = (ImageButton)findViewById(R.id.albumFab);
+        abBackground = (RelativeLayout)findViewById(R.id.artist_ab_background);
+        header = (RelativeLayout)findViewById(R.id.artist_header);
+        fab = (ImageButton)findViewById(R.id.artistFab);
         musicSrv = MainActivity.getMusicService();
         if(!musicSrv.isPng())
             fab.setImageDrawable(getResources().getDrawable(R.drawable.play));
 
         //Setup Show ActionBar Variables
-        contentGapper = (FrameLayout)findViewById(R.id.content_gapper);
+        contentGapper = (FrameLayout)findViewById(R.id.artist_content_gapper);
 
         //Set ActionBar Title & Cover Image
-        if (currAlbum != null)
+        if (currArtist != null)
         {
             if (actionBar != null)
                 actionBar.setTitle("");
-            if (currAlbum.getCover() != null)
-                coverView.setImageBitmap(currAlbum.getCover());
-           // coverView.notify();
+            if (currArtist.getImage() != null)
+                artistImageView.setImageBitmap(currArtist.getImage());
+            // artistImageView.notify();
         }
 
         //Set Track List
         tracksAdt = new TracksAdapter(this, trackList);
-        trackListView = (ListView)findViewById(R.id.trackListView);
+        trackListView = (ListView)findViewById(R.id.artist_trackListView);
         trackListView.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
             @Override
@@ -98,15 +98,15 @@ public class ViewArtistActivity extends Activity {
         trackListView.setFocusable(false);
 
         //Set Header Info
-        TextView headerTitle = (TextView)findViewById(R.id.header_title);
-        TextView abTitle = (TextView)findViewById(R.id.ab_title);
-        headerTrackCount = (TextView)findViewById(R.id.header_track_count);
-        headerTitle.setText(currAlbum.getTitle());
-        abTitle.setText(currAlbum.getTitle());
-        headerTrackCount.setText(currAlbum.getArtist() + " (" + trackList.size() + " songs)");
+        TextView headerTitle = (TextView)findViewById(R.id.artist_header_title);
+        TextView abTitle = (TextView)findViewById(R.id.artist_ab_title);
+        headerTrackCount = (TextView)findViewById(R.id.artist_header_track_count);
+        headerTitle.setText(currArtist.getName());
+        abTitle.setText(currArtist.getName());
+        headerTrackCount.setText(trackList.size() + " songs");
 
         //Set Colors
-        vibrantColor = currAlbum.getAccentColor();
+        vibrantColor = currArtist.getAccentColor();
         if(vibrantColor == Color.WHITE)
             vibrantColor = MainActivity.primaryColor;
 
@@ -127,10 +127,10 @@ public class ViewArtistActivity extends Activity {
 
         fadeCoverView.setImageDrawable(mActionBarCoverDrawable);
 
-        scrollView = ((NotifyingScrollView) findViewById(R.id.scroll_view));
+        scrollView = ((NotifyingScrollView) findViewById(R.id.artist_scroll_view));
 
         scrollView.setOnScrollChangedListener(mOnScrollChangedListener);
-        bgScrollView = (NotifyingScrollView) findViewById(R.id.bg_scroll_view);
+        bgScrollView = (NotifyingScrollView) findViewById(R.id.artist_bg_scroll_view);
 
         ScheduledExecutorService myScheduledExecutorService = Executors.newScheduledThreadPool(1);
 
@@ -187,7 +187,7 @@ public class ViewArtistActivity extends Activity {
 
     private NotifyingScrollView.OnScrollChangedListener mOnScrollChangedListener = new NotifyingScrollView.OnScrollChangedListener() {
         public void onScrollChanged(ScrollView who, int l, int t, int oldl, int oldt) {
-            final int headerHeight = coverView.getHeight() - getActionBar().getHeight();
+            final int headerHeight = artistImageView.getHeight() - getActionBar().getHeight();
             final float ratio = (float) Math.min(Math.max(t, 0), headerHeight) / headerHeight;
             final int newAlpha = (int) (ratio * 255);
             final int coverAlpha = (int) (newAlpha * 1.15);
@@ -209,7 +209,7 @@ public class ViewArtistActivity extends Activity {
             bgScrollView.scrollTo(0, (int)(t * .4));
         }
     };
-        //End Cyril Code
+    //End Cyril Code
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -279,7 +279,7 @@ public class ViewArtistActivity extends Activity {
         int pos = Integer.parseInt(view.getTag().toString());
         currTrack = trackList.get(pos);
         musicSrv.setSong(pos);
-        musicSrv.playAlbum(currAlbum, pos);
+        musicSrv.playAlbum(currArtist.getTracks().get(pos).getAlbumObj(), pos);
 
         Intent intent = new Intent(this, NowPlaying.class);
 

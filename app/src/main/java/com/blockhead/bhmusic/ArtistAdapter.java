@@ -2,6 +2,7 @@ package com.blockhead.bhmusic;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,27 +76,19 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
         if(cover != null)
             coverView.setImageBitmap(cover);
         else
-            Log.d("BHCA", "Null");
+        {
+            //set random cover color
+            coverView.setBackgroundColor(parent.getResources().getColor(MainActivity.randomColor()));
+        }
 
         //Accent Color
-        //int accentColor = currArtist.getAccentColor();
-        //if(accentColor != Color.WHITE) {
-        //    cardView.setCardBackgroundColor(accentColor);
-        //    artistTitleView.setTextColor(parent.getResources().getColor(R.color.white));
-        //    artistView.setTextColor(parent.getResources().getColor(R.color.hint_white));
-        //}
+        int accentColor = currArtist.getAccentColor();
+        if(accentColor != Color.WHITE) {
+            cardView.setCardBackgroundColor(accentColor);
+            artistTitleView.setTextColor(parent.getResources().getColor(R.color.white));
+            artistTrackNumView.setTextColor(parent.getResources().getColor(R.color.hint_white));
+        }
 
-        //set album artwork
-        //Bitmap cover = currArtist.getCover();
-        //if(cover != null)
-        //{
-        //    coverView.setImageBitmap(cover);
-        //}
-        //else
-        //{
-            //set random cover color
-        //    coverView.setBackgroundColor(parent.getResources().getColor(MainActivity.randomColor()));
-        //}
 
         //set position as tag
         albumLay.setTag(postion);

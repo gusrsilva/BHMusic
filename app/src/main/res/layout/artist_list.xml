@@ -8,8 +8,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/artistGrid"
         android:numColumns="2"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="3dp"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="10dp"
         android:stretchMode="columnWidth"
-        android:gravity="center" />
+        android:gravity="top"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 </RelativeLayout>

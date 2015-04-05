@@ -30,9 +30,9 @@
         <activity
             android:name=".NowPlaying"
             android:label="@string/title_activity_now_playing"
+            android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/DefaultTheme"
-            android:launchMode="singleTop">
+            android:theme="@style/DefaultTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.blockhead.bhmusic.MainActivity" />
@@ -50,17 +50,26 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/SettingsTheme">
+            android:theme="@style/SettingsTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.blockhead.bhmusic.MainActivity" />
         </activity>
-        <receiver android:name=".MusicIntentReceiver">
+
+        <receiver android:name=".MusicIntentReceiver" >
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".ViewArtistActivity"
+            android:label="@string/title_activity_view_artist"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blockhead.bhmusic.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

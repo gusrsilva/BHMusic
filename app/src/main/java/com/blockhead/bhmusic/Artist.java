@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class Artist {
 
     private String name;
-    private Bitmap artistImage;
+    private int accentColor;
     public ArrayList<Song> tracks = new ArrayList<Song>();
     public ArrayList<Album> albums = new ArrayList<Album>();
     private Bitmap image;
@@ -44,7 +44,20 @@ public class Artist {
 
     public ArrayList<Album> getAlbums(){ return albums; }
 
-    public Bitmap getArtistImage(){ return artistImage; }
+    public int getAccentColor()
+    {
+        if(image != null ) {
+            Palette.generateAsync(image, new Palette.PaletteAsyncListener() {
+                public void onGenerated(Palette palette) {
+                    accentColor = palette.getVibrantColor(Color.WHITE);
+                    if(accentColor == Color.WHITE)
+                        accentColor = palette.getMutedColor(Color.WHITE);
+                }
+            });
+        }
+
+        return accentColor;
+    }
 
     public void addAlbum(Album newAlbum)
     {
