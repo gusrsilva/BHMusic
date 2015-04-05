@@ -2,9 +2,6 @@ package com.blockhead.bhmusic;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,15 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
@@ -32,13 +20,13 @@ import java.util.ArrayList;
  */
 public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
 
-    private ArrayList<mArtist> artists;
+    private ArrayList<Artist> artists;
     private LayoutInflater artistInflater;
     private Context context;
     private String mSections = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private ImageView coverView;
 
-    public ArtistAdapter(Context c, ArrayList<mArtist> theArtists)
+    public ArtistAdapter(Context c, ArrayList<Artist> theArtists)
     {
         artists = theArtists;
         artistInflater = LayoutInflater.from(c);
@@ -76,7 +64,7 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
         CardView cardView = (CardView)albumLay.findViewById(R.id.artistCard);
 
         //get song using position
-        mArtist currArtist = artists.get(postion);
+        Artist currArtist = artists.get(postion);
 
         //get/set title and artist strings
         artistTitleView.setText(currArtist.getName());

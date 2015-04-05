@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -19,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -64,16 +66,19 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.widget.Toast;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.blockhead.bhmusic.cacheutils.*;
+
 
 public class MainActivity extends Activity implements MediaPlayerControl {
 
     private ArrayList<Song> songList;
-    public static ArrayList<mArtist> artistList;
+    public static ArrayList<Artist> artistList;
     public static ArrayList<Album> albumList;
     private static ListView songView;
     private static GridView albumView, artistView;
@@ -106,6 +111,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private Animation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
     private static ArtistArtUtil runner;
+
+    private DiskLruImageCache mDiskLruCache;
+    private final Object mDiskCacheLock = new Object();
+    private boolean mDiskCacheStarting = true;
+    private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -141,7 +152,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         songList = new ArrayList<Song>();
         albumList = new ArrayList<Album>();
-        artistList = new ArrayList<mArtist>();
+        artistList = new ArrayList<Artist>();
         getAlbumList();
         getSongList();
         getArtistList();
@@ -158,9 +169,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
-        Collections.sort(artistList, new Comparator<mArtist>() {
+        Collections.sort(artistList, new Comparator<Artist>() {
             @Override
-            public int compare(mArtist a, mArtist b) {
+            public int compare(Artist a, Artist b) {
                 return a.getName().compareTo(b.getName());
             }
         });
@@ -480,7 +491,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             matchResult = artistMatch(current);
             if (matchResult == -1)
             {   //If its a new artist
-                mArtist temp = new mArtist(current);
+                Artist temp = new Artist(current);
                 temp.addAlbum(albumList.get(i));
                 artistList.add(temp);
             }
@@ -718,25 +729,49 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         private String key = "89b0d2bf4200f9b85e3741e5c07b807d";
         long t1,t2;
+        private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
+        private int mCompressQuality = 100;
 
         @Override
         protected String doInBackground(Void... artists) {
 
             t1 = System.currentTimeMillis();
-            String artistArtUrl = "", artist;
+            String artistArtUrl = "", artistName, encodedArtistName="", key;
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
+            Bitmap artistImage = null;
+            mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
+                    1024*1024*10, mCompressFormat, mCompressQuality);
 
-            for(int i=0; i < artistList.size(); i++) {
-                artist = artistList.get(i).getName();
-                try {
-                    artist = URLEncoder.encode(artist, "UTF-8");
-                } catch (Exception e) {
-                    e.getMessage();
+
+            for(int i=0; i < artistList.size(); i++)
+            {
+                artistName = artistList.get(i).getName();
+                key = artistName.toLowerCase();
+                key = key.replaceAll("[^a-z0-9_-]+", "");
+
+                if(mDiskLruCache.containsKey(key))
+                {
+                    artistImage = mDiskLruCache.getBitmap(key);
+                    artistList.get(i).setImage(artistImage);
+                    Log.d("BHCA", key + " in cache.");
                 }
-                artistArtUrl = getArtURL(BaseURL + artist);
-                artistList.get(i).setImageURL(artistArtUrl);
-                artistList.get(i).setImage(getBitmapFromURL(artistArtUrl));
+                else
+                {
+                    Log.d("BHCA", key + " NOT in cache.");
+                    try {
+                        encodedArtistName = URLEncoder.encode(artistName, "UTF-8");
+                    } catch (Exception e) {
+                        e.getMessage();
+                    }
+                    artistArtUrl = getArtURL(BaseURL + encodedArtistName);
+                    artistImage = getBitmapFromURL(artistArtUrl);
+                    artistList.get(i).setImage(artistImage);
+                    if (artistImage != null)
+                        mDiskLruCache.put(key, artistImage);
+                }
             }
+
+            mDiskLruCache.put("null", artistImage);
 
             return artistArtUrl;
 
@@ -747,6 +782,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             Log.d("BHCA", "Async Complete: " + (t2 - t1) + " ms");
         }
 
+    }
+
+    // Creates a unique subdirectory of the designated app cache directory. Tries to use external
+    // but if not mounted, falls back on internal storage.
+
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
+        // otherwise use internal cache dir
+        final String cachePath = context.getCacheDir().getPath();
+
+        return new File(cachePath + File.separator + uniqueName);
     }
 
 
