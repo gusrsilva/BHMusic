@@ -1,62 +1,61 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_album_main"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity"
     android:background="@color/background_color"
-    android:id="@+id/view_album_main">
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity">
 
 
     <ImageButton
         android:id="@+id/artistFab"
         android:layout_width="@dimen/fab_radius"
         android:layout_height="@dimen/fab_radius"
-        android:layout_gravity="end|bottom"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_gravity="end|bottom"
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:src="@drawable/pause"
-        android:tint="@android:color/white"
         android:background="@drawable/oval_ripple_accent_color"
-        android:stateListAnimator="@anim/button_animation"
-        android:layout_alignParentBottom="true"
         android:clickable="true"
-        android:transitionName="fab"
         android:elevation="8dp"
-        android:onClick="albumFabPressed" />
+        android:onClick="albumFabPressed"
+        android:src="@drawable/pause"
+        android:stateListAnimator="@anim/button_animation"
+        android:tint="@android:color/white"
+        android:transitionName="fab" />
 
 
     <RelativeLayout
+        android:id="@+id/artist_ab_background"
         android:layout_width="fill_parent"
         android:layout_height="80dp"
         android:layout_alignParentTop="true"
-        android:id="@+id/artist_ab_background"
         android:background="@color/primary_color"
         android:elevation="5dp"
         android:paddingLeft="60dp"
         android:paddingRight="60dp">
 
         <TextView
+            android:id="@+id/artist_ab_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Album Name"
-            android:id="@+id/artist_ab_title"
-            android:textColor="@color/white"
-            android:layout_marginBottom="15dp"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="15dp"
+            android:singleLine="true"
+            android:text="Album Name"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/white"
             android:textSize="22sp"
-            android:textStyle="bold"
-            android:singleLine="true" />
+            android:textStyle="bold" />
     </RelativeLayout>
 
-    <com.blockhead.bhmusic.NotifyingScrollView
+    <com.blockhead.bhmusic.utils.NotifyingScrollView
+        android:id="@+id/artist_bg_scroll_view"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/artist_bg_scroll_view">
+        android:layout_height="fill_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,39 +67,39 @@
                 android:layout_height="fill_parent">
 
                 <ImageView
+                    android:id="@+id/artistImage"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/artistImage"
-                    android:transitionName="coverArtAlbum"
+                    android:adjustViewBounds="false"
+                    android:background="@color/tealSwatch"
+                    android:minHeight="300dp"
                     android:scaleType="centerCrop"
+                    android:src="@drawable/default_cover_xlarge"
                     android:tint="@color/cover_tint"
                     android:tintMode="multiply"
-                    android:adjustViewBounds="false"
-                    android:src="@drawable/default_cover_xlarge"
-                    android:background="@color/tealSwatch"
-                    android:minHeight="300dp" />
+                    android:transitionName="artistImage" />
 
                 <ImageView
+                    android:id="@+id/artist_fadeCover"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/artist_fadeCover"
-                    android:src="@drawable/ab_background"
+                    android:layout_alignBottom="@+id/artistImage"
                     android:layout_alignTop="@+id/artistImage"
-                    android:layout_alignBottom="@+id/artistImage" />
+                    android:src="@drawable/ab_background" />
             </RelativeLayout>
 
             <FrameLayout
+                android:id="@+id/artist_bg_gapper"
                 android:layout_width="fill_parent"
-                android:layout_height="600dp"
-                android:id="@+id/artist_bg_gapper"></FrameLayout>
+                android:layout_height="600dp"></FrameLayout>
 
         </LinearLayout>
-    </com.blockhead.bhmusic.NotifyingScrollView>
+    </com.blockhead.bhmusic.utils.NotifyingScrollView>
 
-    <com.blockhead.bhmusic.NotifyingScrollView
+    <com.blockhead.bhmusic.utils.NotifyingScrollView
+        android:id="@+id/artist_scroll_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/artist_scroll_view"
         android:layout_marginTop="-50dp"
         android:background="@color/transparent">
 
@@ -110,73 +109,70 @@
             android:background="@color/transparent">
 
             <RelativeLayout
-                android:orientation="horizontal"
+                android:id="@+id/artist_header"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_alignTop="@+id/artist_trackListView"
+                android:background="@color/primary_color"
+                android:divider="@color/semi_transparent"
                 android:elevation="3dp"
+                android:orientation="horizontal"
                 android:paddingLeft="60dp"
                 android:paddingRight="20dp"
-                android:paddingTop="10dp"
-                android:divider="@color/semi_transparent"
-                android:id="@+id/artist_header"
-                android:background="@color/primary_color">
+                android:paddingTop="10dp">
 
                 <TextView
+                    android:id="@+id/artist_header_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trilogy"
-                    android:id="@+id/artist_header_title"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textAlignment="gravity"
-                    android:gravity="top"
-                    android:textStyle="bold"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:singleLine="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginTop="-5dp" />
+                    android:layout_marginTop="-5dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="top"
+                    android:singleLine="true"
+                    android:text="Trilogy"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/artist_header_track_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/artist_header_title"
+                    android:gravity="left|center_vertical"
+                    android:singleLine="true"
+                    android:text="16 Songs"
+                    android:textAlignment="gravity"
                     android:textColor="@color/hint_white"
                     android:textSize="12sp"
-                    android:textAlignment="gravity"
-                    android:gravity="left|center_vertical"
-                    android:textStyle="bold"
-                    android:text="16 Songs"
-                    android:singleLine="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_below="@+id/artist_header_title" />
+                    android:textStyle="bold" />
             </RelativeLayout>
 
             <ListView
+                android:id="@+id/artist_trackListView"
                 android:layout_width="fill_parent"
                 android:layout_height="600dp"
-                android:id="@+id/artist_trackListView"
-                android:layout_marginTop="40dp"
                 android:layout_below="@+id/artist_content_gapper"
+                android:layout_marginTop="40dp"
                 android:background="@color/white"
-                android:paddingTop="60dp"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:dividerHeight="1dp"
                 android:divider="@color/transparent"
-                android:elevation="2dp" />
+                android:dividerHeight="1dp"
+                android:elevation="2dp"
+                android:paddingTop="60dp" />
 
             <FrameLayout
+                android:id="@+id/artist_content_gapper"
                 android:layout_width="fill_parent"
                 android:layout_height="300dp"
-                android:id="@+id/artist_content_gapper"
                 android:background="@color/transparent" />
 
         </RelativeLayout>
-    </com.blockhead.bhmusic.NotifyingScrollView>
-
+    </com.blockhead.bhmusic.utils.NotifyingScrollView>
 
 
 </RelativeLayout>

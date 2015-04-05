@@ -1,73 +1,72 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:onClick="artistPicked"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:onClick="artistPicked"
+    android:orientation="vertical">
     <!-- A CardView that contains a TextView -->
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/artistCard"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        card_view:cardCornerRadius="2dp"
-        android:orientation="vertical"
-        android:elevation="5dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rect_ripple_background_color"
+        android:elevation="5dp"
+        android:orientation="vertical"
         android:stateListAnimator="@anim/card_animation"
-        android:layout_marginTop="10dp">
+        card_view:cardCornerRadius="2dp">
 
         <RelativeLayout
+            android:id="@+id/artist_cardRelLay"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_gravity="center_vertical"
-            android:id="@+id/artist_cardRelLay">
+            android:orientation="vertical">
 
             <ImageView
+                android:id="@+id/artistImage"
                 android:layout_width="180dp"
                 android:layout_height="180dp"
-                android:id="@+id/artistImage"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/default_cover_xlarge"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
-                android:transitionName="coverArtAlbum"
                 android:background="@drawable/rect_ripple_background_color"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_cover_xlarge"
+                android:transitionName="artistImage" />
 
             <TextView
                 android:id="@+id/artist_title"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/artistImage"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center_horizontal"
+                android:singleLine="true"
+                android:text="TEST"
+                android:textAlignment="gravity"
                 android:textColor="#bb000000"
                 android:textSize="17sp"
-                android:textAlignment="gravity"
-                android:layout_below="@+id/artistImage"
-                android:text="TEST"
-                android:gravity="center_horizontal"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp" />
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/artist_tracknum"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="New Text"
-                android:id="@+id/artist_tracknum"
                 android:layout_below="@+id/artist_title"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:gravity="center_horizontal"
                 android:singleLine="true"
+                android:text="New Text"
                 android:textAlignment="gravity"
                 android:textColor="#88000000"
                 android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp" />
+                android:textStyle="bold" />
 
         </RelativeLayout>
 

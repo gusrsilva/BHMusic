@@ -1,10 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.blockhead.bhmusic.ViewAlbumActivity">
-    <item android:id="@+id/action_now_playing"
+    tools:context="com.blockhead.bhmusic.activities.ViewAlbumActivity">
+    <item
+        android:id="@+id/action_now_playing"
         android:icon="@drawable/ic_action_now_playing"
-        android:title="@string/action_now_playing"
-        android:showAsAction="ifRoom" />
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" android:showAsAction="never" />
+        android:showAsAction="ifRoom"
+        android:title="@string/action_now_playing" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings" />
 </menu>

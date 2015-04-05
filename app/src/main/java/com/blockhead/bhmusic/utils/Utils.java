@@ -1,4 +1,4 @@
-package com.blockhead.bhmusic.cacheutils;
+package com.blockhead.bhmusic.utils;
 
 import android.content.Context;
 import android.os.Build;
@@ -12,7 +12,10 @@ import java.io.File;
 public class Utils {
     public static final int IO_BUFFER_SIZE = 8 * 1024;
 
-    private Utils() {};
+    private Utils() {
+    }
+
+    ;
 
     public static boolean isExternalStorageRemovable() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {

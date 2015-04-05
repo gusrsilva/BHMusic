@@ -1,84 +1,38 @@
-package com.blockhead.bhmusic;
+package com.blockhead.bhmusic.objects;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
  * Created by Gus on 2/26/2015.
  */
-public class Artist {
+public class Album {
 
-    private String name;
-    private int accentColor;
     public ArrayList<Song> tracks = new ArrayList<Song>();
-    public ArrayList<Album> albums = new ArrayList<Album>();
-    private Bitmap image;
-    private String imageURL;
+    private String title, artist;
+    private Bitmap cover, smallCover;
+    private int accentColor = Color.WHITE;
 
-    public Artist(String artistName)
-    {
-        name = artistName;
-    }
+    public Album(String albumTitle, String albumCoverURI, String artistTitle) {
+        title = albumTitle;
+        artist = artistTitle;
+        cover = decodeSampledBitmapFromResource(albumCoverURI, 500, 500);
+        smallCover = decodeSampledBitmapFromResource(albumCoverURI, 100, 100);
 
-    public String getName()
-    {
-        return name;
-    }
-
-    public ArrayList<Song> getTracks(){ return tracks; }
-
-    public ArrayList<Album> getAlbums(){ return albums; }
-
-    public int getAccentColor()
-    {
-        if(image != null ) {
-            Palette.generateAsync(image, new Palette.PaletteAsyncListener() {
+        if (smallCover != null) {
+            Palette.generateAsync(smallCover, new Palette.PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
                     accentColor = palette.getVibrantColor(Color.WHITE);
-                    if(accentColor == Color.WHITE)
+                    if (accentColor == Color.WHITE)
                         accentColor = palette.getMutedColor(Color.WHITE);
                 }
             });
         }
-
-        return accentColor;
-    }
-
-    public void addAlbum(Album newAlbum)
-    {
-        try {
-            albums.add(newAlbum);
-            tracks.addAll(newAlbum.getTracks());
-        }
-        catch(NullPointerException e)
-        {
-            Log.d("BHCA","EXCEPTION CAUGHT:" + e.getMessage());
-        }
-    }
-
-    public void setImage(Bitmap bitmap)
-    {
-        image = bitmap;
-    }
-
-    public Bitmap getImage()
-    {
-        return image;
     }
 
     public static int calculateInSampleSize(
@@ -120,6 +74,35 @@ public class Artist {
         return BitmapFactory.decodeFile(pathName, options);
     }
 
+    public String getTitle() {
+        return title;
+    }
 
+    public String getArtist() {
+        return artist;
+    }
 
+    public Bitmap getCover() {
+        return cover;
+    }
+
+    public ArrayList<Song> getTracks() {
+        return tracks;
+    }
+
+    public Bitmap getSmallCover() {
+        return smallCover;
+    }
+
+    public int getAccentColor() {
+        return accentColor;
+    }
+
+    public void addSong(Song newSong) {
+        try {
+            tracks.add(newSong);
+        } catch (NullPointerException e) {
+            Log.d("BHCA", "EXCEPTION CAUGHT:" + e.getMessage());
+        }
+    }
 }

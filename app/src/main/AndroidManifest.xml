@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.blockhead.bhmusic" >
+    package="com.blockhead.bhmusic">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,12 +12,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/DefaultTheme" >
+        android:theme="@style/DefaultTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,50 +25,50 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".MusicService" />
+        <service android:name=".activities.MusicService" />
 
         <activity
-            android:name=".NowPlaying"
+            android:name=".activities.NowPlayingActivity"
             android:label="@string/title_activity_now_playing"
             android:launchMode="singleTop"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/DefaultTheme" >
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/DefaultTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.blockhead.bhmusic.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".ViewAlbumActivity"
+            android:name=".activities.ViewAlbumActivity"
             android:label="@string/title_activity_view_album"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/DefaultTheme" >
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/DefaultTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.blockhead.bhmusic.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/SettingsTheme" >
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/SettingsTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.blockhead.bhmusic.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
 
-        <receiver android:name=".MusicIntentReceiver" >
+        <receiver android:name=".utils.MusicIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name=".ViewArtistActivity"
+            android:name=".activities.ViewArtistActivity"
             android:label="@string/title_activity_view_artist"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.blockhead.bhmusic.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
     </application>
 
