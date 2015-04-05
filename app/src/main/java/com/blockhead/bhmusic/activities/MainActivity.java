@@ -61,7 +61,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -96,7 +95,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static ListView songView;
     private static GridView albumView, artistView;
     private static MusicService musicSrv = new MusicService();
-    private static boolean playbackPaused=false;
+    private static boolean playbackPaused = false;
     private static SeekBar seekBar;
     private static IndexableListView mListView, mListView2;
     private static SongAdapter songAdt;
@@ -142,8 +141,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    public static String prettyTime(int n)
-    {
+    public static String prettyTime(int n) {
         String mins, secs;
         n = n / 1000;
         mins = (n / 60) + "";
@@ -154,18 +152,15 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return (mins + ":" + secs);
     }
 
-    public static MusicService getMusicService()
-    {
+    public static MusicService getMusicService() {
         return musicSrv;
     }
 
-    public static ImageButton getFAB()
-    {
+    public static ImageButton getFAB() {
         return fab;
     }
 
-    public static int randomColor()
-    {
+    public static int randomColor() {
         Random rand = new Random();
         int color = rand.nextInt(4);
 
@@ -184,40 +179,27 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     }
 
-    public static File getDiskCacheDir(Context context, String uniqueName) {
-        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
-        // otherwise use internal cache dir
-        final String cachePath = context.getCacheDir().getPath();
-
-        return new File(cachePath + File.separator + uniqueName);
-    }
-
     public static void fabPressed(View v) {
 
-        if (playbackPaused)
-        {
+        if (playbackPaused) {
             musicSrv.resumePlayer();
             //seekBar.setMax(musicSrv.getDur());
             playbackPaused = false;
-        } else
-        {
+        } else {
             musicSrv.pausePlayer();
             playbackPaused = true;
         }
     }
 
-    public static void prevPressed(View v)
-    {
+    public static void prevPressed(View v) {
         playPrev();
     }
 
-    public static void nextPressed(View v)
-    {
+    public static void nextPressed(View v) {
         playNext();
     }
 
-    public static void updatePrefs()
-    {
+    public static void updatePrefs() {
         artworkHeader = sharedPref.getBoolean("artwork_header", true);
         abTitle = sharedPref.getString("main_title", "MUSIC");
 
@@ -350,8 +332,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
 
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser)
-            {
+            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
                 if (fromUser)
                     progress = progressValue;
             }
@@ -384,8 +365,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     }
 
-    private void mediaPlayerMonitor()
-    {
+    private void mediaPlayerMonitor() {
         //set FAB icon
         if (musicSrv != null) {
             if (musicSrv.isPng()) {
@@ -406,8 +386,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 if (!musicSrv.getSongTitle().equalsIgnoreCase(nowPlayingTitle.getText().toString())) {
                     setNowPlayingInfo();
                 }
-            }
-            else {
+            } else {
                 if (fab.getDrawable() != playDrawable) {
                     fab.setImageDrawable(playDrawable);
                 }
@@ -428,8 +407,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
         paused = true;
     }
@@ -460,8 +438,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_exit)
-        {
+        if (id == R.id.action_exit) {
             finish();
             return true;
         }
@@ -482,8 +459,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         stopService(playIntent);
         musicSrv = null;
         super.onDestroy();
@@ -561,8 +537,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     }
 
-    private void getArtistList()
-    {
+    private void getArtistList() {
         String current;
         int matchResult;
         for (int i = 0; i < albumList.size(); i++) {
@@ -578,8 +553,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    private int artistMatch(String current)
-    {
+    private int artistMatch(String current) {
         //check for match
         for (int j = 0; j < artistList.size(); j++) {
             if (artistList.get(j).getName().equalsIgnoreCase(current))
@@ -647,8 +621,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    public int getCurrentPosition()
-    {
+    public int getCurrentPosition() {
         if (musicSrv != null && musicBound && musicSrv.isPng())
             return musicSrv.getPosn();
         else
@@ -656,8 +629,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    public int getDuration()
-    {
+    public int getDuration() {
         if (musicSrv != null && musicBound && musicSrv.isPng())
             return musicSrv.getDur();
         else
@@ -708,8 +680,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     //////////////////////////////////////////// PRESSED
     ////////////////////////////////////////////////////// ACTIONS
 
-    public void setNowPlayingInfo()
-    {
+    public void setNowPlayingInfo() {
         nowPlayingTitle.setText(musicSrv.getSongTitle());
         nowPlayingArtist.setText(musicSrv.getSongArtist());
     }
@@ -729,8 +700,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    private String getArtURL(String url)
-    {
+    private String getArtURL(String url) {
         try {
             XMLParser parser = new XMLParser();
             String xml = parser.getXmlFromUrl(url); // getting XML from URL
@@ -752,8 +722,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return null;
     }
 
-    public void shufflePressed(View v)
-    {
+    public void shufflePressed(View v) {
         musicSrv.setShuffle();
         if (musicSrv.shuffle) {
             musicSrv.resumePlayer();
@@ -769,37 +738,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    public void repeatPressed(View v)
-    {
+    public void repeatPressed(View v) {
         musicSrv.setRepeat();
 
-        if(musicSrv.getRepeat() == MusicService.REPEAT_ALL)
-        {
+        if (musicSrv.getRepeat() == MusicService.REPEAT_ALL) {
             repeatButton.startAnimation(repeatRotationAnimation);
             repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
             repeatButton.setSelected(true);
-        }
-        else if(musicSrv.getRepeat() == MusicService.REPEAT_ONE)
-        {
+        } else if (musicSrv.getRepeat() == MusicService.REPEAT_ONE) {
             repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_once_white_24dp));
             repeatButton.startAnimation(repeatRotationAnimation);
             repeatButton.setSelected(true);
-        }
-        else
-        {
+        } else {
             repeatButton.startAnimation(repeatRotationAnimation);
             repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
             repeatButton.setSelected(false);
         }
     }
 
-    public void nowPlayingButtonPressed(View v)
-    {
+    public void nowPlayingButtonPressed(View v) {
         Intent intent = new Intent(this, NowPlayingActivity.class);
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View) fab, "fab"));
 
-        if( musicSrv.getCurrSong().getCover() != null ) {
+        if (musicSrv.getCurrSong().getCover() != null) {
             options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) coverArt, "coverArt"),
                     Pair.create((View) fab, "fab"));

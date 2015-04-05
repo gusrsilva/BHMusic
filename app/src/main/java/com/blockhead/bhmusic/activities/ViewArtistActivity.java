@@ -12,11 +12,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -27,7 +29,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.blockhead.bhmusic.R;
-import com.blockhead.bhmusic.adapters.SongAdapter;
+import com.blockhead.bhmusic.adapters.ArtistsTracksAdapter;
+import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
 import com.blockhead.bhmusic.objects.Song;
 import com.blockhead.bhmusic.utils.NotifyingScrollView;
@@ -50,13 +53,13 @@ public class ViewArtistActivity extends Activity {
     };
     private Artist currArtist;
     private ImageView artistImageView, fadeCoverView;
-    private TextView tracksView, headerTrackCount;
+    private TextView tracksView;
     private Drawable mActionBarBackgroundDrawable, mActionBarCoverDrawable;
     private ActionBar actionBar;
-    private ArrayList<Song> trackList;
+    private ArrayList<Album> albumList;
     private NotifyingScrollView bgScrollView, scrollView;
-    private SongAdapter songAdapter;
-    private ListView trackListView;
+    private ArtistsTracksAdapter artistsTracksAdapter;
+    private ExpandableListView trackListView;
     private Song currTrack;
     private MusicService musicSrv;
     private ImageButton fab;
@@ -125,7 +128,7 @@ public class ViewArtistActivity extends Activity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         currArtist = MainActivity.currArtist;
-        trackList = currArtist.tracks;
+        albumList = currArtist.getAlbums();
         artistImageView = (ImageView) findViewById(R.id.artistImage);
         fadeCoverView = (ImageView) findViewById(R.id.artist_fadeCover);
         actionBar = getActionBar();
@@ -149,8 +152,14 @@ public class ViewArtistActivity extends Activity {
         }
 
         //Set Track List
-        songAdapter = new SongAdapter(this, trackList);
-        trackListView = (ListView) findViewById(R.id.artist_trackListView);
+        artistsTracksAdapter = new ArtistsTracksAdapter(this, albumList);
+        trackListView = (ExpandableListView) findViewById(R.id.artist_trackListView);
+
+        //Move Indicator
+        Display newDisplay = getWindowManager().getDefaultDisplay();
+        int width = newDisplay.getWidth();
+        trackListView.setIndicatorBoundsRelative(width - 100, width);
+
         trackListView.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
             @Override
@@ -160,17 +169,15 @@ public class ViewArtistActivity extends Activity {
                 return false;
             }
         });
-        trackListView.setAdapter(songAdapter);
-        setListViewHeightBasedOnChildren(trackListView, getApplicationContext());
+        trackListView.setAdapter(artistsTracksAdapter);
+        setListViewHeightBasedOnChildren(trackListView, getApplicationContext()); //TODO adjust for expandable
         trackListView.setFocusable(false);
 
         //Set Header Info
         TextView headerTitle = (TextView) findViewById(R.id.artist_header_title);
         TextView abTitle = (TextView) findViewById(R.id.artist_ab_title);
-        headerTrackCount = (TextView) findViewById(R.id.artist_header_track_count);
         headerTitle.setText(currArtist.getName());
         abTitle.setText(currArtist.getName());
-        headerTrackCount.setText(trackList.size() + " songs");
 
         //Set Colors
         vibrantColor = currArtist.getAccentColor();
@@ -194,7 +201,7 @@ public class ViewArtistActivity extends Activity {
 
         fadeCoverView.setImageDrawable(mActionBarCoverDrawable);
 
-        scrollView = ((NotifyingScrollView) findViewById(R.id.artist_scroll_view));
+        scrollView = ((NotifyingScrollView) findViewById(R.id.artist_scroll_view)); // TODO adjust for expandable
 
         scrollView.setOnScrollChangedListener(mOnScrollChangedListener);
         bgScrollView = (NotifyingScrollView) findViewById(R.id.artist_bg_scroll_view);
@@ -274,7 +281,7 @@ public class ViewArtistActivity extends Activity {
     public void trackPicked(View view) {
 
         int pos = Integer.parseInt(view.getTag().toString());
-        currTrack = trackList.get(pos);
+        currTrack = currArtist.getTracks().get(pos);
         musicSrv.setSong(pos);
         musicSrv.playAlbum(currArtist.getTracks().get(pos).getAlbumObj(), pos);
 

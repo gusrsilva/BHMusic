@@ -116,18 +116,17 @@
                 android:background="@color/primary_color"
                 android:divider="@color/semi_transparent"
                 android:elevation="3dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingLeft="60dp"
-                android:paddingRight="20dp"
-                android:paddingTop="10dp">
+                android:paddingRight="20dp">
 
-                <TextView
+            <TextView
                     android:id="@+id/artist_header_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginTop="-5dp"
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:gravity="top"
@@ -138,22 +137,9 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/artist_header_track_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_below="@+id/artist_header_title"
-                    android:gravity="left|center_vertical"
-                    android:singleLine="true"
-                    android:text="16 Songs"
-                    android:textAlignment="gravity"
-                    android:textColor="@color/hint_white"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
             </RelativeLayout>
 
-            <ListView
+            <ExpandableListView
                 android:id="@+id/artist_trackListView"
                 android:layout_width="fill_parent"
                 android:layout_height="600dp"
@@ -163,6 +149,7 @@
                 android:divider="@color/transparent"
                 android:dividerHeight="1dp"
                 android:elevation="2dp"
+                android:nestedScrollingEnabled="false"
                 android:paddingTop="60dp" />
 
             <FrameLayout
