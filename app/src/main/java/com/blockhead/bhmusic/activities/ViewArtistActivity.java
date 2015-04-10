@@ -15,18 +15,17 @@ import android.util.Pair;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.ArtistsTracksAdapter;
@@ -95,27 +94,27 @@ public class ViewArtistActivity extends Activity {
      * *** Hack to fix the issue of not showing all the items of the ListView
      * *** when placed inside a ScrollView  ***
      */
-    public static void setListViewHeightBasedOnChildren(ListView listView, Context context) {
-        ListAdapter listAdapter = listView.getAdapter();
+    public static void setListViewHeightBasedOnChildren(ExpandableListView listView, Context context) {
+        ExpandableListAdapter listAdapter = listView.getExpandableListAdapter();
         if (listAdapter == null)
             return;
 
         int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
         int totalHeight = 0;
-        View view = null;
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            view = listAdapter.getView(i, view, listView);
-            if (i == 0)
-                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
+        int groupCount = listAdapter.getGroupCount();
+        int groupHeight = 200;
+        Toast.makeText(context, "groupHeight: " + groupHeight, Toast.LENGTH_SHORT).show();
+        //view = listAdapter.getChildView(0, 0, false, view, listView);
+        int childHeight = (int) (groupHeight * 0.4);
+        Toast.makeText(context, "childHeight: " + groupHeight, Toast.LENGTH_SHORT).show();
+        int childrenCount = 0;
+        for (int i = 0; i < groupCount; i++)
+            childrenCount += listAdapter.getChildrenCount(i);
 
-            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += view.getMeasuredHeight();
-            if (i == listAdapter.getCount() - 1) {
-                totalHeight += view.getMeasuredHeight() * 2;
-            }
-        }
+
         ViewGroup.LayoutParams params = listView.getLayoutParams();
-        totalHeight += (listView.getDividerHeight() * (listAdapter.getCount()));
+        totalHeight += (listView.getDividerHeight() * (listAdapter.getGroupCount()));
+        totalHeight += (groupHeight * groupCount) + (childHeight * childrenCount);
         params.height = totalHeight;
         listView.setLayoutParams(params);
         listView.requestLayout();
@@ -160,15 +159,7 @@ public class ViewArtistActivity extends Activity {
         int width = newDisplay.getWidth();
         trackListView.setIndicatorBoundsRelative(width - 100, width);
 
-        trackListView.setOnTouchListener(new View.OnTouchListener() {
-            // Setting on Touch Listener for handling the touch inside ScrollView
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // Disallow the touch request for parent scroll on touch of child view
-                v.getParent().requestDisallowInterceptTouchEvent(true);
-                return false;
-            }
-        });
+
         trackListView.setAdapter(artistsTracksAdapter);
         setListViewHeightBasedOnChildren(trackListView, getApplicationContext()); //TODO adjust for expandable
         trackListView.setFocusable(false);

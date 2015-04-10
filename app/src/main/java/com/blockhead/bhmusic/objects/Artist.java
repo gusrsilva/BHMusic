@@ -78,13 +78,17 @@ public class Artist {
     {
 
         if (image != null || !accentColorSet) {
-            Palette.generateAsync(image, new Palette.PaletteAsyncListener() {
-                public void onGenerated(Palette palette) {
-                    accentColor = palette.getVibrantColor(Color.WHITE);
-                    if (accentColor == Color.WHITE)
-                        accentColor = palette.getMutedColor(Color.WHITE);
-                }
-            });
+            try {
+                Palette.generateAsync(image, new Palette.PaletteAsyncListener() {
+                    public void onGenerated(Palette palette) {
+                        accentColor = palette.getVibrantColor(Color.WHITE);
+                        if (accentColor == Color.WHITE)
+                            accentColor = palette.getMutedColor(Color.WHITE);
+                    }
+                });
+            } catch (Exception e) {
+                //TODO: Handle Exception
+            }
         }
         accentColorSet = true;
 
