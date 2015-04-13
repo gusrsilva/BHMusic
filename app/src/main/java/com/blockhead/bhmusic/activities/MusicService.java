@@ -612,7 +612,7 @@ public class MusicService extends Service implements
                     playPrev();
                     break;
                 case ACTION_CLOSE:
-                    System.exit(0);
+                    stopPlayer();
                     break;
             }
             notificationManager.notify(NOTIFICATION_ID, notification);

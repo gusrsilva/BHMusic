@@ -24,5 +24,8 @@
     <string name="label_next">Next</string>
     <string name="title_activity_view_artist">ViewArtistActivity</string>
 
+    <!-- Tag String -->
+    <string name="artist_track_postion">artistTrackPos</string>
+    <string name="artist_album_object">artistAlbumObj</string>
 
 </resources>

@@ -10,7 +10,27 @@
         app:circular_parallax="false"
         app:alpha_factor="0.9"
         tools:context=".ViewArtistActivity"
-        android:id="@+id/expandableListView" />
+        android:id="@+id/expandableListView"
+        android:overScrollMode="never" />
+
+    <ImageButton
+        android:id="@+id/artistFab"
+        android:layout_width="@dimen/fab_radius"
+        android:layout_height="@dimen/fab_radius"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:background="@drawable/oval_ripple_accent_color"
+        android:clickable="true"
+        android:elevation="8dp"
+        android:src="@drawable/pause"
+        android:stateListAnimator="@anim/button_animation"
+        android:tint="@android:color/white"
+        android:transitionName="fab"
+        android:onClick="artistFabPressed" />
+
     <RelativeLayout
         android:id="@+id/artist_ab_background"
         android:layout_width="fill_parent"

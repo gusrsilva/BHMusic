@@ -74,11 +74,14 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
 
                 resultView = inflater.inflate(R.layout.artist_tracks_child, null);
 
+                LinearLayout trackLay = (LinearLayout)resultView.findViewById(R.id.artist_track_lay);
                 TextView title = (TextView) resultView.findViewById(R.id.artist_songTitle);
                 TextView dur = (TextView) resultView.findViewById(R.id.artist_songDur);
 
                 title.setText(song.getTitle());
                 dur.setText(song.getDuration());
+
+                trackLay.setTag(song.getTitle());
             }
         } catch(Exception e)
         {

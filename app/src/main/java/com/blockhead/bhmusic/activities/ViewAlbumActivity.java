@@ -226,15 +226,6 @@ public class ViewAlbumActivity extends Activity {
                 fab.setImageDrawable(playDrawable);
             }
         }
-        /*
-        else
-        {
-            //set playButton icon to play
-            Drawable playDrawable = getResources().getDrawable(R.drawable.play);
-            fab.setImageDrawable(playDrawable);
-        }
-        */
-
     }
 
     @Override
