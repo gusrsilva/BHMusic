@@ -15,7 +15,7 @@ public class Artist {
 
     public ArrayList<Song> tracks = new ArrayList<Song>();
     public ArrayList<Album> albums = new ArrayList<Album>();
-    private String name;
+    private String name, summaryHTML;
     private int accentColor = Color.WHITE;
     private Bitmap image;
     private boolean accentColorSet = false;
@@ -95,6 +95,20 @@ public class Artist {
         return accentColor;
     }
 
+    public boolean addDummyAlbum(String artist)
+    {
+        Album dummy = new Album("","",artist);
+        dummy.setArtistObj(this);
+        Song dummySong = new Song(0,"dummy",artist, "", -1, "0");
+        dummySong.setAlbumObj(dummy);
+        dummy.addSong(dummySong);
+        albums.add(dummy);
+        if(albums.size() == 1)
+            return true;
+        else
+            return false;
+    }
+
     public void addAlbum(Album newAlbum) {
         try {
             albums.add(newAlbum);
@@ -125,6 +139,16 @@ public class Artist {
 
     public void setImage(Bitmap bitmap) {
         image = bitmap;
+    }
+
+    public void setSummary(String sum)
+    {
+        summaryHTML = sum;
+    }
+
+    public String getSummaryHTML()
+    {
+        return summaryHTML;
     }
 
 

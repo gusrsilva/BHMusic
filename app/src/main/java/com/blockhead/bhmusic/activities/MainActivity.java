@@ -59,7 +59,9 @@ import com.blockhead.bhmusic.utils.XMLParser;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -545,7 +547,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             matchResult = artistMatch(current);
             if (matchResult == -1) {   //If its a new artist
                 Artist temp = new Artist(current);
+                temp.addDummyAlbum(current); //Add placeholder to new artists
                 temp.addAlbum(albumList.get(i));
+                albumList.get(i).setArtistObj(temp);
                 artistList.add(temp);
             } else {   //If its an existing artist add album to repo
                 artistList.get(matchResult).addAlbum(albumList.get(i));
@@ -710,13 +714,38 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             for (int i = 0; i < nl.getLength(); i++) {
                 Element e = (Element) nl.item(i);
                 //Log.d("BHCA","Size = " + e.getAttribute("size") + " = " + parser.getElementValue(e));
-                if (e.getAttribute("size").contentEquals("extralarge")) {
+                if (e.getAttribute("size").contentEquals("mega")) {
                     return parser.getElementValue(e);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("BHCA", e.getMessage());
+        }
+
+        return null;
+    }
+
+    private String getArtistSummary(String url) {
+        try {
+            XMLParser parser = new XMLParser();
+            String xml = parser.getXmlFromUrl(url); // getting XML from URL
+            Document doc = parser.getDomElement(xml);
+            NodeList nl = doc.getElementsByTagName("bio");
+            nl = nl.item(0).getChildNodes();
+
+            for(int i=0; i < nl.getLength(); i++)
+            {
+                Node n = nl.item(i);
+
+                if(n.getNodeName().equals("summary")) {
+                    Text t = (Text)n.getFirstChild();
+                    return t.getWholeText();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("BHCA1", e.getMessage());
         }
 
         return null;
@@ -848,41 +877,53 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         protected String doInBackground(Void... artists) {
 
             t1 = System.currentTimeMillis();
-            String artistArtUrl = "", artistName, encodedArtistName = "", key;
+            String artistArtUrl = "", artistName, encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
             Bitmap artistImage = null;
             mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
                     1024 * 1024 * 10, mCompressFormat, mCompressQuality);
+            SharedPreferences.Editor mEditor = sharedPref.edit();
 
 
             for (int i = 0; i < artistList.size(); i++) {
                 artistName = artistList.get(i).getName();
                 key = artistName.toLowerCase();
                 key = key.replaceAll("[^a-z0-9_-]+", "");
+                sumKey = key + "summary";
 
                 if (mDiskLruCache.containsKey(key)) {
                     artistImage = mDiskLruCache.getBitmap(key);
                     artistList.get(i).setImage(artistImage);
                     artistList.get(i).setAccentColor();
-                    Log.d("BHCA", key + " in cache.");
+                    if(sharedPref.contains(sumKey))
+                    {
+                        artistSummary = sharedPref.getString(sumKey, artistSummary);
+                        artistList.get(i).setSummary(artistSummary);
+                    }
                 } else {
-                    Log.d("BHCA", key + " NOT in cache.");
                     try {
                         encodedArtistName = URLEncoder.encode(artistName, "UTF-8");
                     } catch (Exception e) {
                         e.getMessage();
                     }
                     artistArtUrl = getArtURL(BaseURL + encodedArtistName);
+                    artistSummary = getArtistSummary(BaseURL + encodedArtistName);
                     artistImage = getBitmapFromURL(artistArtUrl);
                     artistList.get(i).setImage(artistImage);
                     artistList.get(i).setAccentColor();
+                    artistList.get(i).setSummary(artistSummary);
                     if (artistImage != null)
                         mDiskLruCache.put(key, artistImage);
+                    if(artistSummary != null)
+                    {
+                        mEditor.putString(sumKey, artistSummary);
+                        mEditor.apply();
+                    }
+
                 }
             }
 
             mDiskLruCache.put("null", artistImage);
-
             return artistArtUrl;
 
         }

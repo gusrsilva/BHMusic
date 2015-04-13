@@ -4,7 +4,9 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingTop="10dp">
+    android:paddingTop="5dp"
+    android:background="@drawable/rect_ripple_background_color"
+    android:paddingBottom="5dp">
 
     <ImageView
         android:id="@+id/artist_albumImage"
@@ -28,7 +30,8 @@
             android:layout_marginTop="20dp"
             android:text="College Dropout"
             android:textSize="17sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/black" />
 
         <TextView
             android:id="@+id/artist_albumInfo"
@@ -37,6 +40,7 @@
             android:layout_marginLeft="10dp"
             android:text="16 songs - 67 mins"
             android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/black" />
     </LinearLayout>
 </LinearLayout>

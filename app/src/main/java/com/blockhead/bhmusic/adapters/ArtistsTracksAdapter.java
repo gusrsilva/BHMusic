@@ -1,15 +1,19 @@
 package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
+import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Album;
+import com.blockhead.bhmusic.objects.Artist;
 import com.blockhead.bhmusic.objects.Song;
 
 import java.util.ArrayList;
@@ -48,19 +52,38 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
                              final ViewGroup parent) {
         View resultView = convertView;
         Song song = getChild(groupPosition, childPosition);
+        Artist mArtist = albumList.get(groupPosition).getArtistObj();
 
+        try {
+            if (groupPosition == 0) {
+                resultView = inflater.inflate(R.layout.view_artist_header_child, null);
 
-        if (resultView == null) {
+                TextView info = (TextView) resultView.findViewById(R.id.view_artist_header_child_text);
+                LinearLayout lin = (LinearLayout) resultView.findViewById(R.id.view_artist_header_child_lin);
 
-            resultView = inflater.inflate(R.layout.artist_tracks_child, null);
+                if (mArtist != null) {
+                    Log.d("BHCA1", "Artist: " + mArtist.getName());
+                    if(mArtist.getSummaryHTML() != null)
+                        info.setText(Html.fromHtml(mArtist.getSummaryHTML()));
+                    else{
+                        lin.removeAllViews();
+                    }
+                    lin.setBackgroundColor(mArtist.getAccentColor());
+                }
+            } else {
 
+                resultView = inflater.inflate(R.layout.artist_tracks_child, null);
+
+                TextView title = (TextView) resultView.findViewById(R.id.artist_songTitle);
+                TextView dur = (TextView) resultView.findViewById(R.id.artist_songDur);
+
+                title.setText(song.getTitle());
+                dur.setText(song.getDuration());
+            }
+        } catch(Exception e)
+        {
+            Log.d("BHCA1", e.getMessage());
         }
-
-        TextView title = (TextView) resultView.findViewById(R.id.artist_songTitle);
-        TextView dur = (TextView) resultView.findViewById(R.id.artist_songDur);
-
-        title.setText(song.getTitle());
-        dur.setText(song.getDuration());
 
         return resultView;
     }
@@ -85,17 +108,39 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
         View resultView = theConvertView;
         Album album = getGroup(groupPosition);
 
-        if (resultView == null)
-            resultView = inflater.inflate(R.layout.artist_tracks_parent, null);
+        try {
+            if (groupPosition == 0) {
+                Artist artistObj = album.getArtistObj();
+                resultView = inflater.inflate(R.layout.view_artist_header, null);
+                resultView.setMinimumHeight(245);
+                TextView title = (TextView) resultView.findViewById(R.id.view_artist_header_title);
+                LinearLayout linLay = (LinearLayout) resultView.findViewById(R.id.view_artist_header_lin);
 
-        ImageView cover = (ImageView) resultView.findViewById(R.id.artist_albumImage);
-        TextView title = (TextView) resultView.findViewById(R.id.artist_albumTitle);
-        TextView info = (TextView) resultView.findViewById(R.id.artist_albumInfo);
+                title.setText(album.getArtist());
+                if (artistObj != null)
+                    linLay.setBackgroundColor(artistObj.getAccentColor());
 
-        if (album.getCover() != null)
-            cover.setImageBitmap(album.getCover());
-        title.setText(album.getTitle());
-        info.setText(album.getTracks().size() + " songs");
+            } else {
+                resultView = inflater.inflate(R.layout.artist_tracks_parent, null);
+
+                ImageView cover = (ImageView) resultView.findViewById(R.id.artist_albumImage);
+                TextView title = (TextView) resultView.findViewById(R.id.artist_albumTitle);
+                TextView info = (TextView) resultView.findViewById(R.id.artist_albumInfo);
+
+                if (album.getCover() != null && cover!=null)
+                    cover.setImageBitmap(album.getCover());
+                if(title != null)
+                    title.setText(album.getTitle());
+                if(info != null)
+                    info.setText(album.getTracks().size() + " songs");
+            }
+        }
+        catch(Exception e)
+        {
+            Log.d("BHCA1", "Cause: " + e.getCause());
+            Log.d("BHCA1", "Caught: " + e.getMessage());
+            Log.d("BHCA1", e.getLocalizedMessage());
+        }
 
         return resultView;
     }

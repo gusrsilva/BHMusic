@@ -77,6 +77,8 @@ public class Song {
         return albumObj;
     }
 
+    public void setAlbumObj(Album a){albumObj = a;}
+
     public int getAccentColor() {
         return accentColor;
     }

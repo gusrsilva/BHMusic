@@ -17,6 +17,7 @@ public class Album {
     private String title, artist;
     private Bitmap cover, smallCover;
     private int accentColor = Color.WHITE;
+    private Artist artistObj;
 
     public Album(String albumTitle, String albumCoverURI, String artistTitle) {
         title = albumTitle;
@@ -104,5 +105,14 @@ public class Album {
         } catch (NullPointerException e) {
             Log.d("BHCA", "EXCEPTION CAUGHT:" + e.getMessage());
         }
+    }
+
+    public void setArtistObj(Artist aObj)
+    {
+        artistObj = aObj;
+    }
+    public Artist getArtistObj()
+    {
+        return artistObj;
     }
 }
