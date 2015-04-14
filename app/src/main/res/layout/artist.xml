@@ -33,7 +33,7 @@
                 android:adjustViewBounds="true"
                 android:background="@drawable/rect_ripple_background_color"
                 android:scaleType="centerCrop"
-                android:src="@drawable/default_cover_xlarge"
+                android:src="@drawable/default_artist_xlarge"
                 android:transitionName="artistImage" />
 
             <TextView

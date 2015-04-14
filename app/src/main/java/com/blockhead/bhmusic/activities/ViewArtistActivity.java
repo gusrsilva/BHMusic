@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -91,7 +92,12 @@ public class ViewArtistActivity extends Activity {
         };
 
         ImageView header = new ImageView(this);
-        header.setImageBitmap(currArtist.getImage());
+        if(currArtist.getImage() == null) { //Set default artist art if none
+            header.setImageResource(R.drawable.default_artist_xlarge);
+            header.setBackgroundColor(MainActivity.randomColor());
+        }
+        else
+            header.setImageBitmap(currArtist.getImage());
         header.setAdjustViewBounds(true);
         header.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
@@ -107,14 +113,19 @@ public class ViewArtistActivity extends Activity {
         //Set Expanded List View Properties
         xLV.addParallaxedHeaderView(header);
         xLV.setDivider(null);
-        xLV.setBackgroundColor(currArtist.getAccentColor());
+        if(currArtist.getAccentColor() == Color.WHITE)
+            xLV.setBackgroundColor(MainActivity.primaryColor);
+        else
+            xLV.setBackgroundColor(currArtist.getAccentColor());
+
         ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums);
         xLV.setAdapter(mArtistsTracksAdapter);
         xLV.setOnScrollListener(mOnScrollListener);
         ExpandableListView.OnChildClickListener mOnClickedListener = new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                artistTrackPicked(groupPosition,childPosition);
+                if(groupPosition != 0)
+                    artistTrackPicked(groupPosition,childPosition);
                 return true;
             }
         };

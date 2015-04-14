@@ -1,6 +1,7 @@
 package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -120,8 +121,10 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
                 LinearLayout linLay = (LinearLayout) resultView.findViewById(R.id.view_artist_header_lin);
 
                 title.setText(album.getArtist());
-                if (artistObj != null)
-                    linLay.setBackgroundColor(artistObj.getAccentColor());
+                if (artistObj != null) {
+                    if(artistObj.getAccentColor() != Color.WHITE)
+                        linLay.setBackgroundColor(artistObj.getAccentColor());
+                }
 
             } else {
                 resultView = inflater.inflate(R.layout.artist_tracks_parent, null);

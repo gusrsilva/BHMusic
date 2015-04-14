@@ -8,8 +8,6 @@
 
     <color name="hint_white">#bbffffff</color>
     <color name="primary_text">#ffffff</color>
-    <color name="secondary_white">#ccffffff</color>
-    <color name="primary_text_hint">#44000000</color>
     <color name="black">#000000</color>
     <color name="background_color">#ededed</color>
     <color name="card_background">#ffffff</color>
@@ -18,25 +16,49 @@
     <color name="dark_grey">#232323</color>
     <color name="divider_color">#22000000</color>
     <color name="semi_transparent">#22000000</color>
-    <color name="actionBar_color">#5677fc</color>
-    <color name="mtrl_green">#1de9b6</color>
-    <color name="mtrl_finished">#00E676</color>
-    <color name="mtrl_cancel">#E53935</color>
-    <color name="red">#e51c23</color>
-    <color name="mtrl_pink">#ff0054</color>
     <color name="note_bg">#f0f0f0</color>
     <color name="notification_bg">#414141</color>
-    <color name="redSwatch">#F44336</color>
-    <color name="orangeSwatch">#FF9800</color>
-    <color name="tealSwatch">#009688</color>
-    <color name="cyanSwatch">#00BCD4</color>
-    <color name="blueSwatch">#ff359ff2</color>
     <color name="ripple_black">#22000000</color>
     <color name="ripple_white">#22ffffff</color>
     <color name="statusbar_color">#33000000</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="transparent_white">#33FFFFFF</color>
     <color name="white">#ffffffff</color>
+
+    <!-- Swatches for Random Color Generator -->
+    <!--TODO: Use Material Colors Below Instead -->
+    <color name="redSwatch">#F44336</color>
+    <color name="orangeSwatch">#FF9800</color>
+    <color name="tealSwatch">#009688</color>
+    <color name="cyanSwatch">#00BCD4</color>
+    <color name="blueSwatch">#ff359ff2</color>
+
+
+    <!-- Material Colors for Users to Choose From -->
+    <color name="material_red">#F44336</color>
+    <color name="material_pink">#FF4081</color>
+    <color name="material_purple">#9C27B0</color>
+    <color name="material_deeppurple">#673AB7</color>
+    <color name="material_indigo">#3F51B5</color>
+    <color name="material_blue">#2196F3</color>
+    <color name="material_lightblue">#03A9F4</color>
+    <color name="material_cyan">#00BCD4</color>
+    <color name="material_teal">#009688</color>
+    <color name="material_green">#4CAF50</color>
+    <color name="material_lightgreen">#8BC34A</color>
+    <color name="material_lime">#CDDC39</color>
+    <color name="material_yellow">#FFEB3B</color>
+    <color name="material_amber">#FFC107</color>
+    <color name="material_orange">#FF9800</color>
+    <color name="material_deeporange">#FF5722</color>
+    <color name="material_grey">#9E9E9E</color>
+    <color name="material_bluegrey">#607D8B</color>
+    <color name="material_neongreen">#1de9b6</color>
+
+    <color name="mtrl_finished">#00E676</color>
+
+
+
 
 
 
