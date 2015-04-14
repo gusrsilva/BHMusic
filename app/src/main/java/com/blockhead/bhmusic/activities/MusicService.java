@@ -417,8 +417,12 @@ public class MusicService extends Service implements
         return songCover;
     }
 
-    public Song getCurrSong() {
-        return songs.get(songPosn);
+    public Song getCurrSong()
+    {
+        if(isPngAlbum)
+            return albumSong;
+        else
+            return songs.get(songPosn);
     }
 
     public Bitmap getSmallSongCover() {
@@ -485,17 +489,18 @@ public class MusicService extends Service implements
             player.reset();
             isPngAlbum = true;
 
-            Song playSong = albumSongs.get(albumPosn);
+            albumSong = albumSongs.get(albumPosn);
 
-            songTitle = playSong.getTitle();
-            songArtist = playSong.getArtist();
-            songAlbum = playSong.getAlbum();
-            songCover = playSong.getCover();
-            smallCover = playSong.getSmallCover();
+
+            songTitle = albumSong.getTitle();
+            songArtist = albumSong.getArtist();
+            songAlbum = albumSong.getAlbum();
+            songCover = albumSong.getCover();
+            smallCover = albumSong.getSmallCover();
             blurredCover = blurBitmap(smallCover);
             superBlurredCover = blurBitmapStrong(smallCover);
 
-            long currSong = playSong.getID();
+            long currSong = albumSong.getID();
             Uri trackUri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
 

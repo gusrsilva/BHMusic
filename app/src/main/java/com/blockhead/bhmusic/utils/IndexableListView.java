@@ -10,17 +10,14 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 
-public class IndexableListView extends ListView {
+import com.nirhart.parallaxscroll.views.ParallaxListView;
+
+public class IndexableListView extends ParallaxListView {
 
     private boolean mIsFastScrollEnabled = false;
     private IndexScroller mScroller = null;
     private GestureDetector mGestureDetector = null;
-
-    public IndexableListView(Context context) {
-        super(context);
-    }
 
     public IndexableListView(Context context, AttributeSet attrs) {
         super(context, attrs);

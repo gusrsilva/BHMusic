@@ -99,7 +99,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static MusicService musicSrv = new MusicService();
     private static boolean playbackPaused = false;
     private static SeekBar seekBar;
-    private static IndexableListView mListView, mListView2;
+    private static IndexableListView mListView;
     private static SongAdapter songAdt;
     private static AlbumAdapter albumAdt;
     private static ArtistAdapter artistAdt;
