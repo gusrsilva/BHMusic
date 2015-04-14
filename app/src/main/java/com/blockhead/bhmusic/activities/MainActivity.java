@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -128,7 +127,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private Animation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
     private DiskLruImageCache mDiskLruCache;
-    private static Resources mResources;
 
     //DEFINE COLORS FOR USERS TO CHOOSE
     public final static int MATERIAL_RED = 0,MATERIAL_PINK=1,MATERIAL_PURPLE=2,MATERIAL_DEEPPURPLE=3,
@@ -136,129 +134,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     MATERIAL_GREEN=9,MATERIAL_LIGHTGREEN=10,MATERIAL_LIME=12,MATERIAL_YELLOW=13,MATERIAL_AMBER=14,
     MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18,MATERIAL_NEONGREEN=19;
 
-    private static void playNext() {
-        musicSrv.playNext();
-        if (playbackPaused) {
-            playbackPaused = false;
-        }
-    }
-
-    private static void playPrev() {
-        musicSrv.playPrev();
-        if (playbackPaused) {
-            playbackPaused = false;
-        }
-    }
-
-    public static String prettyTime(int n) {
-        String mins, secs;
-        n = n / 1000;
-        mins = (n / 60) + "";
-        secs = (n % 60) + "";
-        if (n % 60 < 10)
-            secs = "0" + secs;
-
-        return (mins + ":" + secs);
-    }
-
-    public static MusicService getMusicService() {
-        return musicSrv;
-    }
-
-    public static ImageButton getFAB() {
-        return fab;
-    }
-
-    public static int randomColor() {
-        Random rand = new Random();
-        int color = rand.nextInt(18);
-        return getColor(color);
-    }
-
-    public static int getColor(int color)
-    {
-        switch(color) {
-            case MATERIAL_RED:
-                return (mResources.getColor(R.color.material_red));
-            case MATERIAL_PINK:
-                return (mResources.getColor(R.color.material_pink));
-            case MATERIAL_PURPLE:
-                return (mResources.getColor(R.color.material_purple));
-            case MATERIAL_DEEPPURPLE:
-                return (mResources.getColor(R.color.material_deeppurple));
-            case MATERIAL_INDIGO:
-                return (mResources.getColor(R.color.material_indigo));
-            case MATERIAL_BLUE:
-                return (mResources.getColor(R.color.material_blue));
-            case MATERIAL_LIGHTBLUE:
-                return (mResources.getColor(R.color.material_lightblue));
-            case MATERIAL_CYAN:
-                return (mResources.getColor(R.color.material_cyan));
-            case MATERIAL_TEAL:
-                return (mResources.getColor(R.color.material_teal));
-            case MATERIAL_GREEN:
-                return (mResources.getColor(R.color.material_green));
-            case MATERIAL_LIGHTGREEN:
-                return (mResources.getColor(R.color.material_lightgreen));
-            case MATERIAL_LIME:
-                return (mResources.getColor(R.color.material_lime));
-            case MATERIAL_YELLOW:
-                return (mResources.getColor(R.color.material_yellow));
-            case MATERIAL_AMBER:
-                return (mResources.getColor(R.color.material_amber));
-            case MATERIAL_ORANGE:
-                return (mResources.getColor(R.color.material_orange));
-            case MATERIAL_DEEPORANGE:
-                return (mResources.getColor(R.color.material_deeporange));
-            case MATERIAL_GREY:
-                return (mResources.getColor(R.color.material_grey));
-            case MATERIAL_BLUEGREY:
-                return (mResources.getColor(R.color.material_bluegrey));
-            case MATERIAL_NEONGREEN:
-                return (mResources.getColor(R.color.material_neongreen));
-            default:
-                return (mResources.getColor(R.color.material_indigo));
-
-        }
-    }
-
-    public static void fabPressed(View v) {
-
-        if (playbackPaused) {
-            musicSrv.resumePlayer();
-            //seekBar.setMax(musicSrv.getDur());
-            playbackPaused = false;
-        } else {
-            musicSrv.pausePlayer();
-            playbackPaused = true;
-        }
-    }
-
-    public static void prevPressed(View v) {
-        playPrev();
-    }
-
-    public static void nextPressed(View v) {
-        playNext();
-    }
-
-    public static void updatePrefs() {
-        artworkHeader = sharedPref.getBoolean("artwork_header", true);
-        abTitle = sharedPref.getString("main_title", "MUSIC");
-
-
-        //Set ActionBar Title
-        if (mActionBar != null)
-            mActionBar.setTitle(abTitle);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         mActionBar = getActionBar();
-        mResources = getResources();
 
         //Read Preferences
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -406,6 +287,122 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 200, //delay
                 TimeUnit.MILLISECONDS);
 
+    }
+
+    private static void playNext() {
+        musicSrv.playNext();
+        if (playbackPaused) {
+            playbackPaused = false;
+        }
+    }
+
+    private static void playPrev() {
+        musicSrv.playPrev();
+        if (playbackPaused) {
+            playbackPaused = false;
+        }
+    }
+
+    public static String prettyTime(int n) {
+        String mins, secs;
+        n = n / 1000;
+        mins = (n / 60) + "";
+        secs = (n % 60) + "";
+        if (n % 60 < 10)
+            secs = "0" + secs;
+
+        return (mins + ":" + secs);
+    }
+
+    public static MusicService getMusicService() {
+        return musicSrv;
+    }
+
+    public static ImageButton getFAB() {
+        return fab;
+    }
+
+    public static int randomColor() {
+        Random rand = new Random();
+        int color = rand.nextInt(18);
+        return getColor(color);
+    }
+
+    public static int getColor(int color)
+    {
+        switch(color) {
+            case MATERIAL_RED:
+                return (R.color.material_red);
+            case MATERIAL_PINK:
+                return (R.color.material_pink);
+            case MATERIAL_PURPLE:
+                return (R.color.material_purple);
+            case MATERIAL_DEEPPURPLE:
+                return (R.color.material_deeppurple);
+            case MATERIAL_INDIGO:
+                return (R.color.material_indigo);
+            case MATERIAL_BLUE:
+                return (R.color.material_blue);
+            case MATERIAL_LIGHTBLUE:
+                return (R.color.material_lightblue);
+            case MATERIAL_CYAN:
+                return (R.color.material_cyan);
+            case MATERIAL_TEAL:
+                return (R.color.material_teal);
+            case MATERIAL_GREEN:
+                return (R.color.material_green);
+            case MATERIAL_LIGHTGREEN:
+                return (R.color.material_lightgreen);
+            case MATERIAL_LIME:
+                return (R.color.material_lime);
+            case MATERIAL_YELLOW:
+                return (R.color.material_yellow);
+            case MATERIAL_AMBER:
+                return (R.color.material_amber);
+            case MATERIAL_ORANGE:
+                return (R.color.material_orange);
+            case MATERIAL_DEEPORANGE:
+                return (R.color.material_deeporange);
+            case MATERIAL_GREY:
+                return (R.color.material_grey);
+            case MATERIAL_BLUEGREY:
+                return (R.color.material_bluegrey);
+            case MATERIAL_NEONGREEN:
+                return (R.color.material_neongreen);
+            default:
+                return (R.color.material_indigo);
+
+        }
+    }
+
+    public static void fabPressed(View v) {
+
+        if (playbackPaused) {
+            musicSrv.resumePlayer();
+            //seekBar.setMax(musicSrv.getDur());
+            playbackPaused = false;
+        } else {
+            musicSrv.pausePlayer();
+            playbackPaused = true;
+        }
+    }
+
+    public static void prevPressed(View v) {
+        playPrev();
+    }
+
+    public static void nextPressed(View v) {
+        playNext();
+    }
+
+    public static void updatePrefs() {
+        artworkHeader = sharedPref.getBoolean("artwork_header", true);
+        abTitle = sharedPref.getString("main_title", "MUSIC");
+
+
+        //Set ActionBar Title
+        if (mActionBar != null)
+            mActionBar.setTitle(abTitle);
     }
 
     private void mediaPlayerMonitor() {
@@ -950,7 +947,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     artistArtUrl = getArtURL(BaseURL + encodedArtistName);
                     artistSummary = getArtistSummary(BaseURL + encodedArtistName);
                     if(artistName.contains("<")){
-                        //Blank Image
+                        artistImage = null;
                     } else
                         artistImage = getBitmapFromURL(artistArtUrl);
 
