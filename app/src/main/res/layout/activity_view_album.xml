@@ -35,8 +35,8 @@
         android:layout_alignParentTop="true"
         android:background="@color/primary_color"
         android:elevation="5dp"
-        android:paddingLeft="60dp"
-        android:paddingRight="60dp">
+        android:paddingLeft="50dp"
+        android:paddingRight="70dp">
 
         <TextView
             android:id="@+id/ab_title"
@@ -112,7 +112,7 @@
                 android:divider="@color/semi_transparent"
                 android:elevation="3dp"
                 android:orientation="horizontal"
-                android:paddingLeft="60dp"
+                android:paddingLeft="50dp"
                 android:paddingRight="20dp"
                 android:paddingTop="10dp">
 

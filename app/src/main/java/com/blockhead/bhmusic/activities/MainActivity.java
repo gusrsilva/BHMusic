@@ -12,9 +12,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -126,13 +128,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private ViewPager mViewPager;
     private Animation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
+    private static Drawable fabDrawable;
     private DiskLruImageCache mDiskLruCache;
 
     //DEFINE COLORS FOR USERS TO CHOOSE
     public final static int MATERIAL_RED = 0,MATERIAL_PINK=1,MATERIAL_PURPLE=2,MATERIAL_DEEPPURPLE=3,
     MATERIAL_INDIGO=4,MATERIAL_BLUE=5,MATERIAL_LIGHTBLUE=6,MATERIAL_CYAN=7,MATERIAL_TEAL=8,
-    MATERIAL_GREEN=9,MATERIAL_LIGHTGREEN=10,MATERIAL_LIME=12,MATERIAL_YELLOW=13,MATERIAL_AMBER=14,
-    MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18,MATERIAL_NEONGREEN=19;
+    MATERIAL_GREEN=9,MATERIAL_LIGHTGREEN=10,MATERIAL_NEONGREEN=11,MATERIAL_LIME=12,MATERIAL_YELLOW=13,MATERIAL_AMBER=14,
+    MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,10 +148,22 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         artworkHeader = sharedPref.getBoolean("artwork_header", true);
         abTitle = sharedPref.getString("main_title", "MUSIC");
+        int primaryColorKey, accentColorKey;
+        try {
+            primaryColorKey = Integer.parseInt(sharedPref.getString("primary_color_key", "4"));
+            accentColorKey = Integer.parseInt(sharedPref.getString("accent_color_key", "1"));
+        }
+        catch(Exception e )
+        {
+            Log.d("BHCA", "CRASH: " + e.getMessage());
+            primaryColorKey = 4;
+            accentColorKey = 1;
+        }
 
+        //Toast.makeText(getApplicationContext(), "Primary:" + primaryColorKey + " Accent: " + accentColorKey, Toast.LENGTH_LONG).show();
         //Set Colors
-        accentColor = getResources().getColor(R.color.accent_color);
-        primaryColor = getResources().getColor(R.color.primary_color);
+        primaryColor = getResources().getColor(getColor(primaryColorKey));
+        accentColor = getResources().getColor(getColor(accentColorKey));
 
         //Set ActionBar Title
         if (mActionBar != null)
@@ -196,6 +211,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         /////////////////
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
+        fauxAB.setBackgroundColor(primaryColor);
         fauxAB.setOnTouchListener(new OnSwipeTouchListener(this) {
             public void onSwipeBottom() {
                 nowPlayingButtonPressed(null);
@@ -242,6 +258,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         nowPlayingArtist = (TextView) findViewById(R.id.trackArtist);
         coverArt = (ImageView) findViewById(R.id.coverArt);
 
+        //Set Colors
+        fabDrawable = fab.getBackground();
+        fabDrawable.setColorFilter(accentColor, PorterDuff.Mode.SRC_ATOP);
+        pagerTitleStrip.setBackgroundColor(primaryColor);
+
         //Set Animations
         repeatRotationAnimation = AnimationUtils.loadAnimation(this, R.anim.repeat_rotate_animation);
         shuffleAnimation = AnimationUtils.loadAnimation(this, R.anim.shuffle_rotate_animation);
@@ -283,7 +304,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                         monitorHandler.sendMessage(monitorHandler.obtainMessage());
                     }
                 },
-                200, //initialDelay
+                0, //initialDelay
                 200, //delay
                 TimeUnit.MILLISECONDS);
 
@@ -376,15 +397,19 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     public static void fabPressed(View v) {
-
-        if (playbackPaused) {
-            musicSrv.resumePlayer();
-            //seekBar.setMax(musicSrv.getDur());
-            playbackPaused = false;
-        } else {
-            musicSrv.pausePlayer();
-            playbackPaused = true;
+        if(musicSrv == null){
+            musicSrv = new MusicService();
+            musicSrv.initMusicPlayer();
         }
+
+            if (playbackPaused) {
+                musicSrv.resumePlayer();
+                //seekBar.setMax(musicSrv.getDur());
+                playbackPaused = false;
+            } else {
+                musicSrv.pausePlayer();
+                playbackPaused = true;
+            }
     }
 
     public static void prevPressed(View v) {
@@ -399,10 +424,34 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         artworkHeader = sharedPref.getBoolean("artwork_header", true);
         abTitle = sharedPref.getString("main_title", "MUSIC");
 
-
         //Set ActionBar Title
         if (mActionBar != null)
             mActionBar.setTitle(abTitle);
+        if(currAlbum != null) {
+            if ((currAlbum.getCover() != null) && artworkHeader == false){
+                fauxAB.setBackgroundColor(primaryColor);
+                pagerTitleStrip.setBackgroundColor(primaryColor);
+            }
+        }
+
+    }
+
+    public static void updateColors(Resources res)
+    {
+
+        primaryColor = res.getColor(getColor(Integer.parseInt(sharedPref.getString("primary_color_key", "4"))));
+        accentColor = res.getColor(getColor(Integer.parseInt(sharedPref.getString("accent_color_key", "1"))));
+
+        fabDrawable.setColorFilter(accentColor, PorterDuff.Mode.SRC_ATOP);
+        if(currAlbum != null ) {
+            if (currAlbum.getCover() == null) {
+                fauxAB.setBackgroundColor(primaryColor);
+                pagerTitleStrip.setBackgroundColor(primaryColor);
+            }
+        } else {
+            fauxAB.setBackgroundColor(primaryColor);
+            pagerTitleStrip.setBackgroundColor(primaryColor);
+        }
     }
 
     private void mediaPlayerMonitor() {

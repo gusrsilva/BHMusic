@@ -6,6 +6,7 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,6 +61,8 @@ public class ViewArtistActivity extends Activity {
 
         musicSrv = MainActivity.getMusicService();
         fab = (ImageButton)findViewById(R.id.artistFab);
+        Drawable fabBG = fab.getBackground();
+        fabBG.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
 
 
         ParallaxExpandableListView xLV = (ParallaxExpandableListView)findViewById(R.id.expandableListView);
@@ -159,7 +162,7 @@ public class ViewArtistActivity extends Activity {
                         monitorHandler.sendMessage(monitorHandler.obtainMessage());
                     }
                 },
-                200, //initialDelay
+                0, //initialDelay
                 200, //delay
                 TimeUnit.MILLISECONDS);
 

@@ -86,6 +86,7 @@ public class ViewAlbumActivity extends Activity {
     };
     private RelativeLayout abBackground, header;
     private FrameLayout contentGapper;
+    private Drawable pauseDrawable, playDrawable;
 
     /**** Method for Setting the Height of the ListView dynamically.
      **** Hack to fix the issue of not showing all the items of the ListView
@@ -180,6 +181,11 @@ public class ViewAlbumActivity extends Activity {
         mActionBarCoverDrawable = getResources().getDrawable(R.drawable.ab_background);
         mActionBarCoverDrawable.setColorFilter(vibrantColor, PorterDuff.Mode.SRC_ATOP);
 
+        pauseDrawable = getResources().getDrawable(R.drawable.pause);
+        playDrawable = getResources().getDrawable(R.drawable.play);
+        Drawable fabBG = fab.getBackground();
+        fabBG.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
+
 
         abBackground.setBackgroundColor(vibrantColor);
         header.setBackgroundColor(vibrantColor);
@@ -206,7 +212,7 @@ public class ViewAlbumActivity extends Activity {
                         monitorHandler.sendMessage(monitorHandler.obtainMessage());
                     }
                 },
-                200, //initialDelay
+                0, //initialDelay
                 200, //delay
                 TimeUnit.MILLISECONDS);
     }//END ON CREATE METHOD
@@ -218,11 +224,9 @@ public class ViewAlbumActivity extends Activity {
         if (musicSrv != null) {
             if (musicSrv.isPng()) {
                 //set playButton icon to pause
-                Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
                 fab.setImageDrawable(pauseDrawable);
             } else {
                 //set playButton icon to play
-                Drawable playDrawable = getResources().getDrawable(R.drawable.play);
                 fab.setImageDrawable(playDrawable);
             }
         }

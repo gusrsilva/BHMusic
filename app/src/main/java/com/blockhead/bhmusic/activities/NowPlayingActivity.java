@@ -63,7 +63,7 @@ public class NowPlayingActivity extends Activity {
     private ListView npTrackListView;
     private npTracksAdapter tracksAdapter;
     private LinearLayout npTrackHolder;
-    private Drawable mListHeader, seekThumb, seekThumbSelected, seekProgress;
+    private Drawable mListHeader, seekThumb, seekThumbSelected, seekProgress, fabDrawable;
     private ActionBar actionBar;
     private int vibrantColor;
     private Animation repeatAnimation, shuffleAnimation;
@@ -75,7 +75,8 @@ public class NowPlayingActivity extends Activity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if(actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Set Drawables
         seekThumb = getResources().getDrawable(R.drawable.seekbar_thumb);
@@ -88,6 +89,8 @@ public class NowPlayingActivity extends Activity {
         //Set Views
         playButton = (ImageButton) findViewById(R.id.playButton);
         fab = (ImageButton) findViewById(R.id.np_fab);
+        fabDrawable = fab.getBackground();
+        fabDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         trkTitle = (TextView) findViewById(R.id.trackTitle);
         trkArtist = (TextView) findViewById(R.id.trackArtist);
         trkAlbum = (TextView) findViewById(R.id.trackAlbum);
@@ -95,6 +98,7 @@ public class NowPlayingActivity extends Activity {
         repeatButton = (ImageButton) findViewById(R.id.repeatButton);
         seek = (SeekBar) findViewById(R.id.progressBar);
         seek.setProgressDrawable(seekProgress);
+        seek.setThumb(seekThumb);
         controlsHolder = (RelativeLayout) findViewById(R.id.controlsHolder);
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
         coverArt = (ImageView) findViewById(R.id.coverArt);
@@ -247,7 +251,7 @@ public class NowPlayingActivity extends Activity {
             vibrantColor = getResources().getColor(R.color.dark_grey);
             fauxAB.setBackgroundColor(vibrantColor);
             coverArt.setImageDrawable(getResources().getDrawable(R.drawable.default_cover_xlarge));
-            getWindow().setBackgroundDrawableResource(MainActivity.randomColor());
+            getWindow().setBackgroundDrawableResource(musicSrv.getCurrSong().getRandomColor());
         }
 
     }
@@ -416,7 +420,6 @@ public class NowPlayingActivity extends Activity {
     }
 
     public void prevPressed(View v)
-
     {
         MainActivity.prevPressed(v);
         setInfo();
@@ -436,6 +439,7 @@ public class NowPlayingActivity extends Activity {
             setTracklist();
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Unable to Set Album Info", Toast.LENGTH_SHORT).show();
+            Log.d("BHCA", "setInfo: " + e.getMessage());
         }
     }
 

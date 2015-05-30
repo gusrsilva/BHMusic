@@ -22,6 +22,7 @@
     <string name="label_play">Play</string>
     <string name="label_previous">Previous</string>
     <string name="label_next">Next</string>
-    <string name="title_activity_view_artist">ViewArtistActivity</string>
+    <string name="title_activity_view_artist">Artist</string>
+    <string name="title_activity_color_chooser">Default Colors</string>
 
 </resources>

@@ -2,6 +2,7 @@ package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,9 +69,20 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         Bitmap cover = currSong.getSmallCover();
         if (cover != null) {
             coverView.setImageBitmap(cover);
-        } else {
-            //set random cover color
-            coverView.setBackgroundColor(parent.getResources().getColor(MainActivity.randomColor()));
+        }
+        else                    //set random cover color
+        {
+            try {
+                if(currSong.getRandomColor() == 0)
+                    coverView.setBackgroundColor(MainActivity.MATERIAL_BLUE);
+                else
+                    coverView.setBackgroundColor(parent.getResources().getColor(currSong.getRandomColor()));
+            }
+            catch (Exception e)
+            {
+                Log.d("BHCA", "Error setting random color for " + currSong.getTitle()
+                + "\n getRandomColor returns: " + currSong.getRandomColor());
+            }
         }
 
         //set position as tag

@@ -13,7 +13,7 @@ public class Song {
     private long id;
     private String title, artist, album, duration;
     private Album albumObj;
-    private int track, accentColor;
+    private int track, accentColor, randomColor;
 
     private Bitmap cover;
     private Bitmap smallCover;
@@ -61,6 +61,8 @@ public class Song {
                 smallCover = albumObj.getSmallCover();
                 albumObj.addSong(this);
                 accentColor = albumObj.getAccentColor();
+                if( cover == null )
+                    randomColor = MainActivity.randomColor();
             }
         }
     }
@@ -82,5 +84,7 @@ public class Song {
     public int getAccentColor() {
         return accentColor;
     }
+
+    public int getRandomColor(){ return randomColor; }
 
 }
