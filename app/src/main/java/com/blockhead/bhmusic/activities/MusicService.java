@@ -31,6 +31,7 @@ import com.blockhead.bhmusic.objects.Song;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Created by Gus on 2/25/2015.
@@ -57,8 +58,8 @@ public class MusicService extends Service implements
     private MediaPlayer player;
     //song list
     private ArrayList<Song> songs, albumSongs;
-    private ArrayList<Integer> shuffleStack;
-    private int songPosn, albumPosn, shufflePosn;
+    private Stack<Integer> shuffleStack;
+    private int songPosn, albumPosn;
     private String songTitle = "";
     private String songArtist = "";
     private String songAlbum = "";
@@ -68,7 +69,7 @@ public class MusicService extends Service implements
     private RenderScript rs;
     private int cTransparent;
     private Album currAlbum;
-    private Song albumSong, playSong, prevSong;
+    private Song albumSong, playSong;
     private AudioManager audioManager;
     private boolean wasPlaying = false;
     private Notification.Builder mBuilder;
@@ -331,10 +332,10 @@ public class MusicService extends Service implements
         {
             if(getPosn() > 20000)       //First restart current song
                 seek(0);
-            else if(shuffle && shuffleStack.size() > 0)
+            else if(shuffle && !shuffleStack.empty())
             {
                 //Play last song added to shuffle stack
-                songPosn = shuffleStack.remove(shuffleStack.size()-1);
+                songPosn = shuffleStack.pop();
                 playSong();
             }
             else
@@ -386,7 +387,7 @@ public class MusicService extends Service implements
             else if (shuffle)
             {
                 int newSong = songPosn;
-                shuffleStack.add(newSong);    //Add previous song position
+                shuffleStack.push(newSong);    //Add previous song position
 
                 while (newSong == songPosn)
                     newSong = rand.nextInt(songs.size());
@@ -417,8 +418,7 @@ public class MusicService extends Service implements
             mToast.show();
         } else {
             shuffle = true;
-            shuffleStack = new ArrayList<>();
-            shufflePosn = 0;
+            shuffleStack = new Stack<>();
             mToast.setText("Shuffle On");
             mToast.show();
         }
