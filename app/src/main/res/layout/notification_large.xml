@@ -9,7 +9,7 @@
         android:layout_alignParentLeft="true"
         android:layout_marginRight="10dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/test_cover"
+        android:src="@drawable/default_album_cover"
         android:background="@color/cyanSwatch"
         android:scaleType="centerCrop" />
     <TextView android:id="@+id/notificationTitle"

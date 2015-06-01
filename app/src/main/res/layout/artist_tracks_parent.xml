@@ -15,7 +15,7 @@
         android:layout_marginLeft="10dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/test_cover" />
+        android:src="@drawable/default_album_cover" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
-            android:text="College Dropout"
+            android:text="Album Title"
             android:textSize="17sp"
             android:textStyle="bold"
             android:textColor="@color/black" />
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="16 songs - 67 mins"
+            android:text="# songs - # mins"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/black" />
