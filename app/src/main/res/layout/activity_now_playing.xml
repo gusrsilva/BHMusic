@@ -33,7 +33,8 @@
             android:elevation="1dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_cover_xlarge"
-            android:transitionName="coverArt" />
+            android:transitionName="coverArt"
+            android:adjustViewBounds="true" />
 
         <ImageButton
             android:id="@+id/np_fab"

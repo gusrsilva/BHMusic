@@ -66,7 +66,8 @@ public class NowPlayingActivity extends Activity {
     private Drawable mListHeader, seekThumb, seekThumbSelected, seekProgress, fabDrawable;
     private ActionBar actionBar;
     private int vibrantColor;
-    private Animation repeatAnimation, shuffleAnimation;
+    private Animation repeatAnimation, shuffleAnimation, vinylAnimation;
+    private boolean needsRotation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +115,8 @@ public class NowPlayingActivity extends Activity {
         //Set Animations
         repeatAnimation = AnimationUtils.loadAnimation(this, R.anim.repeat_rotate_animation);
         shuffleAnimation = AnimationUtils.loadAnimation(this, R.anim.shuffle_rotate_animation);
+        vinylAnimation = AnimationUtils.loadAnimation(this, R.anim.vinyl_rotation);
+
 
         if (musicSrv != null) {
             if (musicSrv.shuffle) {
@@ -159,15 +162,17 @@ public class NowPlayingActivity extends Activity {
                     }
                 },
                 200, //initialDelay
-                200, //delay
+                50, //delay
                 TimeUnit.MILLISECONDS);
 
     }//End on create
 
     //Media Player Monitor
     private void mediaPlayerMonitor() {
-        if (musicSrv != null) {
-            if (musicSrv.isPng()) {
+        if (musicSrv != null)
+        {
+            if (musicSrv.isPng())
+            {
                 //set playButton icon to pause
                 Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
                 playButton.setImageDrawable(pauseDrawable);
@@ -182,16 +187,31 @@ public class NowPlayingActivity extends Activity {
                 timePos.setText(MainActivity.prettyTime(mediaPosition));
                 timeDur.setText(MainActivity.prettyTime(mediaDuration));
 
+                if(needsRotation)
+                    coverArt.setRotation((float)(mediaPosition)/50);
+
                 //If now playing does not match info showing set info
                 if (!trkTitle.getText().toString().equalsIgnoreCase(musicSrv.getSongTitle())) {
                     setInfo();
                 }
-            } else {
+
+                //Set Vinyl Animation
+                //if(coverArt != null && needsRotation && coverArt.getAnimation() == null)
+                    //coverArt.startAnimation(vinylAnimation);
+            }
+            else
+            {
                 //set playButton icon to play
                 Drawable playDrawable = getResources().getDrawable(R.drawable.play);
                 playButton.setImageDrawable(playDrawable);
+
+                //Set Vinyl Animation
+                //if(coverArt != null && needsRotation && coverArt.getAnimation() != null)
+                    //coverArt.clearAnimation();
             }
-        } else {
+        }
+        else
+        {
             //set playButton icon to play
             Drawable playDrawable = getResources().getDrawable(R.drawable.play);
             playButton.setImageDrawable(playDrawable);
@@ -240,6 +260,9 @@ public class NowPlayingActivity extends Activity {
 
     private void setCover() {
         if (musicSrv.getSongCover() != null) {
+            coverArt.clearAnimation();
+            coverArt.setRotation(0);
+            needsRotation = false;
             vibrantColor = findAlbum(album).getAccentColor();
             //controlsHolder.setBackgroundColor(getResources().getColor(R.color.semi_transparent));
             fauxAB.setBackgroundColor(vibrantColor);
@@ -252,6 +275,8 @@ public class NowPlayingActivity extends Activity {
             fauxAB.setBackgroundColor(vibrantColor);
             coverArt.setImageDrawable(getResources().getDrawable(R.drawable.default_cover_xlarge));
             getWindow().setBackgroundDrawableResource(musicSrv.getCurrSong().getRandomColor());
+            //coverArt.startAnimation(vinylAnimation);
+            needsRotation = true;
         }
 
     }
