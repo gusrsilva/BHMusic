@@ -15,15 +15,19 @@ public class Album {
 
     public ArrayList<Song> tracks = new ArrayList<Song>();
     private String title, artist;
-    private Bitmap cover, smallCover;
+    private Bitmap cover = null, smallCover = null;
     private int accentColor = Color.WHITE;
     private Artist artistObj;
 
     public Album(String albumTitle, String albumCoverURI, String artistTitle) {
         title = albumTitle;
         artist = artistTitle;
-        cover = decodeSampledBitmapFromResource(albumCoverURI, 500, 500);
-        smallCover = decodeSampledBitmapFromResource(albumCoverURI, 100, 100);
+
+        if(albumCoverURI != null)
+        {
+            cover = decodeSampledBitmapFromResource(albumCoverURI, 500, 500);
+            smallCover = decodeSampledBitmapFromResource(albumCoverURI, 100, 100);
+        }
 
         if (smallCover != null) {
             Palette.generateAsync(smallCover, new Palette.PaletteAsyncListener() {
@@ -62,17 +66,24 @@ public class Album {
     public static Bitmap decodeSampledBitmapFromResource(String pathName,
                                                          int reqWidth, int reqHeight) {
 
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(pathName, options);
+        try {
+            // First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(pathName, options);
 
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(pathName, options);
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeFile(pathName, options);
+        }
+        catch( Exception e )
+        {
+            Log.d("BHCA", "Error caught in decodeSampledBitmapFromResource");
+            return null;
+        }
     }
 
     public String getTitle() {
