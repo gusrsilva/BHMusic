@@ -11,7 +11,7 @@ import com.blockhead.bhmusic.activities.MainActivity;
 public class Song {
 
     private long id;
-    private String title, artist, album, duration;
+    private String title, artist, album, duration, coverURI;
     private Album albumObj;
     private int track, accentColor, randomColor;
 
@@ -57,8 +57,9 @@ public class Song {
         for (int i = 0; i < MainActivity.albumList.size(); i++) {
             if (album.equalsIgnoreCase(MainActivity.albumList.get(i).getTitle())) {
                 albumObj = MainActivity.albumList.get(i);
-                cover = albumObj.getCover();
+                //cover = albumObj.getCover();
                 smallCover = albumObj.getSmallCover();
+                coverURI = albumObj.getCoverURI();
                 albumObj.addSong(this);
                 accentColor = albumObj.getAccentColor();
                 if( cover == null )
@@ -67,9 +68,7 @@ public class Song {
         }
     }
 
-    public Bitmap getCover() {
-        return cover;
-    }
+    public String getCoverURI(){ return coverURI;}
 
     public Bitmap getSmallCover() {
         return smallCover;

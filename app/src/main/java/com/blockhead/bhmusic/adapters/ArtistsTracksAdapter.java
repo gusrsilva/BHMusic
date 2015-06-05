@@ -16,6 +16,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
 import com.blockhead.bhmusic.objects.Song;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -133,8 +134,8 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
                 TextView title = (TextView) resultView.findViewById(R.id.artist_albumTitle);
                 TextView info = (TextView) resultView.findViewById(R.id.artist_albumInfo);
 
-                if (album.getCover() != null && cover!=null)
-                    cover.setImageBitmap(album.getCover());
+                if (album.getCoverURI() != null && cover!=null)
+                    Picasso.with(parent.getContext()).load(album.getCoverURI()).fit().centerCrop().into(cover);
                 if(title != null)
                     title.setText(album.getTitle());
                 if(info != null)

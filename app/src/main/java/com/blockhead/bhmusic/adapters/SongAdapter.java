@@ -1,7 +1,6 @@
 package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Song;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -66,9 +66,8 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         artistView.setText(currSong.getArtist());
 
         //set album artwork
-        Bitmap cover = currSong.getSmallCover();
-        if (cover != null) {
-            coverView.setImageBitmap(cover);
+        if (currSong.getCoverURI() != null) {
+            Picasso.with(parent.getContext()).load(currSong.getCoverURI()).centerCrop().into(coverView);
         }
         else                    //set random cover color
         {

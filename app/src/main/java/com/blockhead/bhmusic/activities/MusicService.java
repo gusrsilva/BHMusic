@@ -63,6 +63,7 @@ public class MusicService extends Service implements
     private String songTitle = "";
     private String songArtist = "";
     private String songAlbum = "";
+    private String coverURI;
     private Bitmap songCover, smallCover, blurredCover, superBlurredCover;
     private boolean isPngAlbum = false;
     private Random rand;
@@ -236,7 +237,8 @@ public class MusicService extends Service implements
         songTitle = playSong.getTitle();
         songArtist = playSong.getArtist();
         songAlbum = playSong.getAlbum();
-        songCover = playSong.getCover();
+        //songCover = playSong.getCover();
+        coverURI = playSong.getCoverURI();
         smallCover = playSong.getSmallCover();
         blurredCover = blurBitmap(smallCover);
         superBlurredCover = blurBitmapStrong(blurredCover);
@@ -457,9 +459,13 @@ public class MusicService extends Service implements
         return songAlbum;
     }
 
+    /*
     public Bitmap getSongCover() {
         return songCover;
     }
+    */
+
+    public String getCoverURI(){ return  coverURI; }
 
     public Song getCurrSong()
     {
@@ -539,7 +545,8 @@ public class MusicService extends Service implements
             songTitle = albumSong.getTitle();
             songArtist = albumSong.getArtist();
             songAlbum = albumSong.getAlbum();
-            songCover = albumSong.getCover();
+            //songCover = albumSong.getCover();
+            coverURI = albumSong.getCoverURI();
             smallCover = albumSong.getSmallCover();
             blurredCover = blurBitmap(smallCover);
             superBlurredCover = blurBitmapStrong(smallCover);
@@ -571,7 +578,7 @@ public class MusicService extends Service implements
         notificationView.setTextViewText(R.id.notificationTitle, getSongTitle());
         notificationView.setTextViewText(R.id.notificationText, getSongArtist());
         //Set Cover
-        Bitmap cov = getSongCover();
+        Bitmap cov = getSmallSongCover();
         if (cov == null)
             notificationView.setImageViewResource(R.id.notificationImage, R.drawable.default_cover_xlarge);
         else

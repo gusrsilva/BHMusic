@@ -58,6 +58,8 @@ import com.blockhead.bhmusic.utils.DiskLruImageCache;
 import com.blockhead.bhmusic.utils.IndexableListView;
 import com.blockhead.bhmusic.utils.OnSwipeTouchListener;
 import com.blockhead.bhmusic.utils.XMLParser;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -144,6 +146,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         mActionBar = getActionBar();
 
+        // Create global configuration and initialize ImageLoader with this config
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+        .build();
+        ImageLoader.getInstance().init(config);
+
         //Read Preferences
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         artworkHeader = sharedPref.getBoolean("artwork_header", true);
@@ -182,6 +189,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         songList = new ArrayList<Song>();
         albumList = new ArrayList<Album>();
         artistList = new ArrayList<Artist>();
+
         getAlbumList();
         getSongList();
         getArtistList();
@@ -428,7 +436,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         if (mActionBar != null)
             mActionBar.setTitle(abTitle);
         if(currAlbum != null) {
-            if ((currAlbum.getCover() != null) && artworkHeader == false){
+            if ((currAlbum.getSmallCover() != null) && artworkHeader == false){
                 fauxAB.setBackgroundColor(primaryColor);
                 pagerTitleStrip.setBackgroundColor(primaryColor);
             }
@@ -444,7 +452,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         fabDrawable.setColorFilter(accentColor, PorterDuff.Mode.SRC_ATOP);
         if(currAlbum != null ) {
-            if (currAlbum.getCover() == null) {
+            if (currAlbum.getSmallCover() == null) {
                 fauxAB.setBackgroundColor(primaryColor);
                 pagerTitleStrip.setBackgroundColor(primaryColor);
             }
@@ -619,6 +627,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 String thisAlbum = coverCursor.getString(albumColumn);
                 String thisArtist = coverCursor.getString(artistColumn);
 
+                Log.d("DEBUG-BHCA", "Adding Album: " + thisAlbum + " - " + thisArtist);
                 albumList.add(new Album(thisAlbum, thisCover, thisArtist));
             }
             while (coverCursor.moveToNext());
@@ -877,7 +886,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View) fab, "fab"));
 
-        if (musicSrv.getCurrSong().getCover() != null) {
+        if (musicSrv.getCurrSong().getSmallCover() != null) {
             options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) coverArt, "coverArt"),
                     Pair.create((View) fab, "fab"));
@@ -1015,6 +1024,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             }
 
             mDiskLruCache.put("null", artistImage);
+
             return artistArtUrl;
 
         }

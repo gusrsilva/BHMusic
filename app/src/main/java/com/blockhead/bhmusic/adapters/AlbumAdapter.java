@@ -1,7 +1,6 @@
 package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -16,6 +15,7 @@ import android.widget.TextView;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Album;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -76,14 +76,17 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
             artistView.setTextColor(parent.getResources().getColor(R.color.hint_white));
         }
 
-        //set album artwork
-        Bitmap cover = currAlbum.getCover();
-        if (cover != null) {
-            coverView.setImageBitmap(cover);
-        } else {
+        if (currAlbum.getCoverURI() != null)
+        {
+            Picasso.with(context).load(currAlbum.getCoverURI()).centerCrop().resize(300,300).into(coverView);
+        }
+        else
+        {
             //set random cover color
             coverView.setBackgroundColor(parent.getResources().getColor(MainActivity.randomColor()));
         }
+
+
 
         //set position as tag
         albumLay.setTag(postion);

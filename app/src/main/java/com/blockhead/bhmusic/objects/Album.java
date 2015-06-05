@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 import java.util.ArrayList;
 
 /**
@@ -14,19 +16,22 @@ import java.util.ArrayList;
 public class Album {
 
     public ArrayList<Song> tracks = new ArrayList<Song>();
-    private String title, artist;
+    private String title, artist, URI;
     private Bitmap cover = null, smallCover = null;
     private int accentColor = Color.WHITE;
     private Artist artistObj;
 
     public Album(String albumTitle, String albumCoverURI, String artistTitle) {
+
+        ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
         title = albumTitle;
         artist = artistTitle;
+        URI = albumCoverURI;
 
         if(albumCoverURI != null)
         {
-            cover = decodeSampledBitmapFromResource(albumCoverURI, 500, 500);
-            smallCover = decodeSampledBitmapFromResource(albumCoverURI, 100, 100);
+            //cover = decodeSampledBitmapFromResource(albumCoverURI, 500, 500);
+            smallCover = decodeSampledBitmapFromResource(albumCoverURI, 75, 75);
         }
 
         if (smallCover != null) {
@@ -94,9 +99,14 @@ public class Album {
         return artist;
     }
 
-    public Bitmap getCover() {
-        return cover;
+    public Bitmap getCover()
+    {
+        //return cover;
+        return smallCover;
     }
+
+    public String getCoverURI(){ return "file:///" + URI; }
+
 
     public ArrayList<Song> getTracks() {
         return tracks;

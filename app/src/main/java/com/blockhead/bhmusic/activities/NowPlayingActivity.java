@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.npTracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
+import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -259,17 +260,16 @@ public class NowPlayingActivity extends Activity {
 
 
     private void setCover() {
-        if (musicSrv.getSongCover() != null) {
+        if (musicSrv.getCoverURI() != null) {
             coverArt.clearAnimation();
             coverArt.setRotation(0);
             needsRotation = false;
             vibrantColor = findAlbum(album).getAccentColor();
-            //controlsHolder.setBackgroundColor(getResources().getColor(R.color.semi_transparent));
             fauxAB.setBackgroundColor(vibrantColor);
-            regCov = musicSrv.getSongCover().copy(musicSrv.getSongCover().getConfig(), true);
+            //regCov = musicSrv.getSongCover().copy(musicSrv.getSongCover().getConfig(), true);
+            //coverArt.setImageBitmap(regCov);
             blurCov = musicSrv.getSuperBlurredCover();
-            coverArt.setImageBitmap(regCov);
-            //bgBlurred.setImageDrawable(new BitmapDrawable(getResources(), blurCov));
+            Picasso.with(getApplicationContext()).load(musicSrv.getCoverURI()).centerCrop().fit().into(coverArt);
         } else {
             vibrantColor = getResources().getColor(R.color.dark_grey);
             fauxAB.setBackgroundColor(vibrantColor);

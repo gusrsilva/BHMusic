@@ -31,6 +31,7 @@ import com.blockhead.bhmusic.adapters.TracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Song;
 import com.blockhead.bhmusic.utils.NotifyingScrollView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -142,8 +143,8 @@ public class ViewAlbumActivity extends Activity {
         if (currAlbum != null) {
             if (actionBar != null)
                 actionBar.setTitle("");
-            if (currAlbum.getCover() != null)
-                coverView.setImageBitmap(currAlbum.getCover());
+            if (currAlbum.getCoverURI() != null)
+                Picasso.with(getApplicationContext()).load(currAlbum.getCoverURI()).fit().centerCrop().into(coverView);
             // coverView.notify();
         }
 
