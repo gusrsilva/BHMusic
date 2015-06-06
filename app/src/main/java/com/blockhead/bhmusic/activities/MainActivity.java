@@ -436,7 +436,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         if (mActionBar != null)
             mActionBar.setTitle(abTitle);
         if(currAlbum != null) {
-            if ((currAlbum.getSmallCover() != null) && artworkHeader == false){
+            if ((currAlbum.getCoverURI() != null) && artworkHeader == false){
                 fauxAB.setBackgroundColor(primaryColor);
                 pagerTitleStrip.setBackgroundColor(primaryColor);
             }
@@ -452,7 +452,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         fabDrawable.setColorFilter(accentColor, PorterDuff.Mode.SRC_ATOP);
         if(currAlbum != null ) {
-            if (currAlbum.getSmallCover() == null) {
+            if (currAlbum.getCoverURI() == null) {
                 fauxAB.setBackgroundColor(primaryColor);
                 pagerTitleStrip.setBackgroundColor(primaryColor);
             }
@@ -627,7 +627,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 String thisAlbum = coverCursor.getString(albumColumn);
                 String thisArtist = coverCursor.getString(artistColumn);
 
-                Log.d("DEBUG-BHCA", "Adding Album: " + thisAlbum + " - " + thisArtist);
                 albumList.add(new Album(thisAlbum, thisCover, thisArtist));
             }
             while (coverCursor.moveToNext());
@@ -886,7 +885,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View) fab, "fab"));
 
-        if (musicSrv.getCurrSong().getSmallCover() != null) {
+        if (musicSrv.getCurrSong().getCoverURI() != null) {
             options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) coverArt, "coverArt"),
                     Pair.create((View) fab, "fab"));

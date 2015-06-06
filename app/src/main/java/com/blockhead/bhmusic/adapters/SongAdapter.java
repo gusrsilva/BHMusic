@@ -12,8 +12,8 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.blockhead.bhmusic.R;
-import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Song;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -26,11 +26,14 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
     private String mSections = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private ImageLoader imageLoader;
 
 
     public SongAdapter(Context c, ArrayList<Song> theSongs) {
         songs = theSongs;
         songInf = LayoutInflater.from(c);
+        imageLoader = ImageLoader.getInstance(); // Get singleton instance
+
     }
 
     @Override
@@ -66,23 +69,15 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         artistView.setText(currSong.getArtist());
 
         //set album artwork
-        if (currSong.getCoverURI() != null) {
-            Picasso.with(parent.getContext()).load(currSong.getCoverURI()).centerCrop().into(coverView);
+        if(currSong.getCoverURI() != null)
+            Picasso.with(parent.getContext()).load(currSong.getCoverURI()).
+                    resize(100,100).error(R.drawable.default_cover).centerCrop().into(coverView);
+        else {
+            int color = parent.getResources().getColor(currSong.getRandomColor());
+            coverView.setBackgroundColor(color);
+            Log.d("DEBUG-BHCA", "Setting random color with: " + (color));
         }
-        else                    //set random cover color
-        {
-            try {
-                if(currSong.getRandomColor() == 0)
-                    coverView.setBackgroundColor(MainActivity.MATERIAL_BLUE);
-                else
-                    coverView.setBackgroundColor(parent.getResources().getColor(currSong.getRandomColor()));
-            }
-            catch (Exception e)
-            {
-                Log.d("BHCA", "Error setting random color for " + currSong.getTitle()
-                + "\n getRandomColor returns: " + currSong.getRandomColor());
-            }
-        }
+        //imageLoader.displayImage(currSong.getCoverURI(), coverView);
 
         //set position as tag
         songLay.setTag(postion);

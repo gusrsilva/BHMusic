@@ -1,7 +1,5 @@
 package com.blockhead.bhmusic.objects;
 
-import android.graphics.Bitmap;
-
 import com.blockhead.bhmusic.activities.MainActivity;
 
 /**
@@ -15,10 +13,6 @@ public class Song {
     private Album albumObj;
     private int track, accentColor, randomColor;
 
-    private Bitmap cover;
-    private Bitmap smallCover;
-    private Bitmap croppedCover;
-
     public Song(long songID, String songTitle, String songArtist, String songAlbum, int trackNumber, String songDuration) {
         id = songID;
         title = songTitle;
@@ -26,6 +20,7 @@ public class Song {
         album = songAlbum;
         track = trackNumber;
         duration = songDuration;
+        randomColor = MainActivity.randomColor();
         setCover();
     }
 
@@ -55,24 +50,17 @@ public class Song {
 
     private void setCover() {
         for (int i = 0; i < MainActivity.albumList.size(); i++) {
-            if (album.equalsIgnoreCase(MainActivity.albumList.get(i).getTitle())) {
+            if (album.equalsIgnoreCase(MainActivity.albumList.get(i).getTitle()))
+            {
                 albumObj = MainActivity.albumList.get(i);
-                //cover = albumObj.getCover();
-                smallCover = albumObj.getSmallCover();
                 coverURI = albumObj.getCoverURI();
                 albumObj.addSong(this);
                 accentColor = albumObj.getAccentColor();
-                if( cover == null )
-                    randomColor = MainActivity.randomColor();
             }
         }
     }
 
     public String getCoverURI(){ return coverURI;}
-
-    public Bitmap getSmallCover() {
-        return smallCover;
-    }
 
     public Album getAlbumObj() {
         return albumObj;

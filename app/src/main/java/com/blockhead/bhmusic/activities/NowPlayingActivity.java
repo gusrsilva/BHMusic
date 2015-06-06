@@ -269,7 +269,7 @@ public class NowPlayingActivity extends Activity {
             //regCov = musicSrv.getSongCover().copy(musicSrv.getSongCover().getConfig(), true);
             //coverArt.setImageBitmap(regCov);
             blurCov = musicSrv.getSuperBlurredCover();
-            Picasso.with(getApplicationContext()).load(musicSrv.getCoverURI()).centerCrop().fit().into(coverArt);
+            Picasso.with(getApplicationContext()).load(musicSrv.getCoverURI()).centerCrop().fit().noFade().into(coverArt);
         } else {
             vibrantColor = getResources().getColor(R.color.dark_grey);
             fauxAB.setBackgroundColor(vibrantColor);

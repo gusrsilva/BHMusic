@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Song;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -79,11 +80,13 @@ public class MusicService extends Service implements
     private NotificationManager notificationManager;
     private RemoteViews notificationView, smallNotificationView;
     private Toast mToast;
+    private ImageLoader imageLoader;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
+        imageLoader = ImageLoader.getInstance(); // Get singleton instance
         songPosn = 0;
         player = new MediaPlayer();
         initMusicPlayer();
@@ -239,7 +242,7 @@ public class MusicService extends Service implements
         songAlbum = playSong.getAlbum();
         //songCover = playSong.getCover();
         coverURI = playSong.getCoverURI();
-        smallCover = playSong.getSmallCover();
+        smallCover = imageLoader.loadImageSync(coverURI);
         blurredCover = blurBitmap(smallCover);
         superBlurredCover = blurBitmapStrong(blurredCover);
 
@@ -547,7 +550,7 @@ public class MusicService extends Service implements
             songAlbum = albumSong.getAlbum();
             //songCover = albumSong.getCover();
             coverURI = albumSong.getCoverURI();
-            smallCover = albumSong.getSmallCover();
+            smallCover = imageLoader.loadImageSync(coverURI);
             blurredCover = blurBitmap(smallCover);
             superBlurredCover = blurBitmapStrong(smallCover);
 
