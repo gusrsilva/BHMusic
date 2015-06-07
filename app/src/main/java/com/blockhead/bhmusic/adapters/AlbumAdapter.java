@@ -15,7 +15,8 @@ import android.widget.TextView;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Album;
-import com.squareup.picasso.Picasso;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -28,8 +29,19 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
     private LayoutInflater albumInf;
     private Context context;
     private String mSections = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private ImageLoader imageLoader;
+    private DisplayImageOptions options;
 
     public AlbumAdapter(Context c, ArrayList<Album> theAlbums) {
+        imageLoader = ImageLoader.getInstance(); // Get singleton instance
+
+        options = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
+                .showImageOnFail(R.drawable.default_album_cover)
+                .resetViewBeforeLoading(false)  // default
+                .cacheInMemory(true)
+                .build();
+
         albums = theAlbums;
         albumInf = LayoutInflater.from(c);
         context = c;
@@ -78,7 +90,8 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
 
         if (currAlbum.getCoverURI() != null)
         {
-            Picasso.with(context).load(currAlbum.getCoverURI()).centerCrop().resize(300,300).into(coverView);
+            //Picasso.with(context).load(currAlbum.getCoverURI()).centerCrop().resize(300,300).into(coverView);
+            imageLoader.displayImage(currAlbum.getCoverURI(), coverView, options);
         }
         else
         {

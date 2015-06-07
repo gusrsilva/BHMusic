@@ -239,7 +239,7 @@ public class MusicService extends Service implements
         playSong = songs.get(songPosn);
         songTitle = playSong.getTitle();
         songArtist = playSong.getArtist();
-        songAlbum = playSong.getAlbum();
+        songAlbum = playSong.getAlbumTitle();
         //songCover = playSong.getCover();
         coverURI = playSong.getCoverURI();
         smallCover = imageLoader.loadImageSync(coverURI);
@@ -547,7 +547,7 @@ public class MusicService extends Service implements
 
             songTitle = albumSong.getTitle();
             songArtist = albumSong.getArtist();
-            songAlbum = albumSong.getAlbum();
+            songAlbum = albumSong.getAlbumTitle();
             //songCover = albumSong.getCover();
             coverURI = albumSong.getCoverURI();
             smallCover = imageLoader.loadImageSync(coverURI);

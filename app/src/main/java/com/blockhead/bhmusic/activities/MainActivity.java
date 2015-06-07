@@ -591,10 +591,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     (android.provider.MediaStore.Audio.Media.ALBUM);
             int trackNumberColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
             int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+            int isMusicColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC);
 
 
             //add songs to list
-            do {
+            do
+            {
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
@@ -602,10 +604,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 int thisTrack = musicCursor.getInt(trackNumberColumn);
                 int duration = musicCursor.getInt(durationColumn);
                 String thisDuration = prettyTime(duration);
+                int isMusic = musicCursor.getInt(isMusicColumn);
 
-                Song temp = new Song(thisId, thisTitle, thisArtist, thisAlbum, thisTrack, thisDuration);
-
-                songList.add(temp);
+                if(isMusic != 0) {  //Add only music files TODO: Make this optional
+                    Song temp = new Song(thisId, thisTitle, thisArtist, thisAlbum, thisTrack, thisDuration);
+                    songList.add(temp);
+                }
             }
             while (musicCursor.moveToNext());
         }
@@ -615,6 +619,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         ContentResolver musicResolver = getContentResolver();
         Uri artUri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
         Cursor coverCursor = musicResolver.query(artUri, null, null, null, null);
+        Album temp;
 
 
         if (coverCursor != null && coverCursor.moveToFirst()) {
@@ -627,7 +632,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 String thisAlbum = coverCursor.getString(albumColumn);
                 String thisArtist = coverCursor.getString(artistColumn);
 
-                albumList.add(new Album(thisAlbum, thisCover, thisArtist));
+                temp = new Album(thisAlbum, thisCover, thisArtist);
+                if(!albumList.contains(temp))
+                    albumList.add(temp);
             }
             while (coverCursor.moveToNext());
         }

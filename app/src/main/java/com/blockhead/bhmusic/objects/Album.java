@@ -122,4 +122,16 @@ public class Album {
     {
         return artistObj;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if(object == null || !object.getClass().equals(this.getClass()))
+        {
+            Log.d("DEBUG-BHCA", "Paramater type mismatch!");
+            return false;
+        }
+
+        Album another = (Album) object;
+        return(another.getArtist().equalsIgnoreCase(artist) && another.getTitle().equalsIgnoreCase(title));
+    }
 }
