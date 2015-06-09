@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -109,8 +110,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static ArtistAdapter artistAdt;
     private static String abTitle;
     private static SharedPreferences sharedPref;
-    private static ArtistArtUtil runner;
-    private final Object mDiskCacheLock = new Object();
+    private static ArtistArtTask mArtistArtTask;
+    private static GetListsTask mGetListTask;
     Handler monitorHandler = new Handler() {
 
         @Override
@@ -190,32 +191,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         albumList = new ArrayList<Album>();
         artistList = new ArrayList<Artist>();
 
-        getAlbumList();
-        getSongList();
-        getArtistList();
+        songAdt = new SongAdapter(this, songList);
+        albumAdt = new AlbumAdapter(this, albumList);
+        artistAdt = new ArtistAdapter(this, artistList);
 
-        Collections.sort(songList, new Comparator<Song>() {
-            @Override
-            public int compare(Song a, Song b) {
-                return a.getTitle().compareTo(b.getTitle());
-            }
-        });
-        Collections.sort(albumList, new Comparator<Album>() {
-            @Override
-            public int compare(Album a, Album b) {
-                return a.getTitle().compareTo(b.getTitle());
-            }
-        });
-        Collections.sort(artistList, new Comparator<Artist>() {
-            @Override
-            public int compare(Artist a, Artist b) {
-                return a.getName().compareTo(b.getName());
-            }
-        });
+        mGetListTask = new GetListsTask();
+        mGetListTask.execute();
 
-
-        runner = new ArtistArtUtil();
-        runner.execute();
 
         /////////////////
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
@@ -231,9 +213,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         });
         ////////////////
 
-        songAdt = new SongAdapter(this, songList);
-        albumAdt = new AlbumAdapter(this, albumList);
-        artistAdt = new ArtistAdapter(this, artistList);
 
 
         //connect to the service
@@ -274,6 +253,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //Set Animations
         repeatRotationAnimation = AnimationUtils.loadAnimation(this, R.anim.repeat_rotate_animation);
         shuffleAnimation = AnimationUtils.loadAnimation(this, R.anim.shuffle_rotate_animation);
+
 
         //Define Drawables
         pauseDrawable = getResources().getDrawable(R.drawable.pause);
@@ -937,25 +917,25 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 rootView = inflater.inflate(R.layout.song_list, container, false);
 
 
-                songView = (ListView) rootView.findViewById(R.id.song_list);
                 mListView = (IndexableListView) rootView.findViewById(R.id.song_list);
 
-
-                if (songView != null)
-                    songView.setAdapter(songAdt);
                 if (mListView != null) {
                     mListView.setAdapter(songAdt);
                     mListView.setFastScrollEnabled(true);
                     mListView.setFastScrollAlwaysVisible(true);
                 }
-            } else if (page == 2) {
+            }
+            else if (page == 2)
+            {
                 rootView = inflater.inflate(R.layout.album_list, container, false);
 
                 albumView = (GridView) rootView.findViewById(R.id.album_grid);
 
                 if (albumView != null)
                     albumView.setAdapter(albumAdt);
-            } else if (page == 3) {
+            }
+            else if (page == 3)
+            {
                 rootView = inflater.inflate(R.layout.artist_list, container, false);
                 artistView = (GridView) rootView.findViewById(R.id.artistGrid);
                 if (artistView != null)
@@ -968,7 +948,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     //Begin AsyncTask Class
-    public class ArtistArtUtil extends AsyncTask<Void, Void, String> {
+    public class ArtistArtTask extends AsyncTask<Void, Void, String> {
 
         long t1, t2;
         private String key = "89b0d2bf4200f9b85e3741e5c07b807d";
@@ -985,6 +965,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
                     1024 * 1024 * 10, mCompressFormat, mCompressQuality);
             SharedPreferences.Editor mEditor = sharedPref.edit();
+
 
 
             for (int i = 0; i < artistList.size(); i++) {
@@ -1039,6 +1020,62 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         protected void onPostExecute(String url) {
             t2 = System.currentTimeMillis();
             Log.d("BHCA", "Async Complete: " + (t2 - t1) + " ms");
+        }
+
+    }
+
+    //Begin AsyncTask Class
+    public class GetListsTask extends AsyncTask<Void, Void, String> {
+        ProgressDialog pd;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(MainActivity.this);
+            pd.setMessage("Preparing Library...");
+            pd.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... artists) {
+
+            getAlbumList();
+            getSongList();
+            getArtistList();
+
+            Collections.sort(songList, new Comparator<Song>() {
+                @Override
+                public int compare(Song a, Song b) {
+                    return a.getTitle().compareTo(b.getTitle());
+                }
+            });
+            Collections.sort(albumList, new Comparator<Album>() {
+                @Override
+                public int compare(Album a, Album b) {
+                    return a.getTitle().compareTo(b.getTitle());
+                }
+            });
+            Collections.sort(artistList, new Comparator<Artist>() {
+                @Override
+                public int compare(Artist a, Artist b) {
+                    return a.getName().compareTo(b.getName());
+                }
+            });
+
+            return "Success";
+
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            pd.dismiss();
+            if(mListView != null)
+                mListView.setAdapter(songAdt);
+            if (albumView != null)
+                albumView.setAdapter(albumAdt);
+
+            //Start Artist Art Async Task
+            mArtistArtTask = new ArtistArtTask();
+            mArtistArtTask.execute();
         }
 
     }

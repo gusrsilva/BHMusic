@@ -13,6 +13,7 @@
     <string name="title_section2">Albums</string>
     <string name="title_section3">Artists</string>
     <string name="empty_string"> </string>
+    <string name="splash">Preparing Library&#8230;</string>
     <string name="title_activity_view_album">ViewAlbumActivity</string>
 
 

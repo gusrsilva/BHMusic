@@ -38,7 +38,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     @Override
     public int getCount() {
-        return songs.size();
+        return (songs == null ? 0 : songs.size());
     }
 
     @Override
