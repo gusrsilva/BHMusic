@@ -206,7 +206,7 @@ public class ViewArtistActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_view_album, menu);
+        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         return true;
     }
 
@@ -218,7 +218,16 @@ public class ViewArtistActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+        if (id == R.id.action_exit) {
+            android.os.Process.killProcess(android.os.Process.myPid());
+            return true;
+        }
+        if (id == R.id.action_shuffle_all) {
+            shufflePressed(null);
+        }
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         if (id == R.id.action_now_playing) {
@@ -233,5 +242,19 @@ public class ViewArtistActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void shufflePressed(View v) {
+        musicSrv.setShuffle();
+        if (musicSrv.shuffle) {
+            musicSrv.resumePlayer();
+            MainActivity.shuffleButton.setSelected(true);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(true);
+        } else {
+            MainActivity.shuffleButton.setSelected(false);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(false);
+        }
     }
 }

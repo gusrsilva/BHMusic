@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 
@@ -61,7 +60,6 @@ public class ColorChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 int tag = (int)v.getTag();
-                Toast.makeText(getApplicationContext(), "Primary Tag: " + tag, Toast.LENGTH_SHORT).show();
                 SharedPreferences.Editor editor = sharedPrefs.edit();
                 editor.remove("primary_color_key");
                 editor.putString("primary_color_key", tag+"");
@@ -76,7 +74,6 @@ public class ColorChooserActivity extends Activity {
             @Override
             public void onClick(View v) {
                 int tag = (int)v.getTag();
-                Toast.makeText(getApplicationContext(), "Secondary Tag: " + tag, Toast.LENGTH_SHORT).show();
                 SharedPreferences.Editor editor = sharedPrefs.edit();
                 editor.remove("accent_color_key");
                 editor.putString("accent_color_key", tag+"");
@@ -110,6 +107,13 @@ public class ColorChooserActivity extends Activity {
             secondarySwatches.addView(iv);
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(0);
+        super.onDestroy();
     }
 
     private boolean updatePreviewColors()

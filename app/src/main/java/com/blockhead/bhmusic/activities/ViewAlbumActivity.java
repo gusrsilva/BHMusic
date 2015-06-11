@@ -40,8 +40,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
+
 public class ViewAlbumActivity extends Activity {
 
+    private android.support.design.widget.CollapsingToolbarLayout mCollapsingTB;
     Handler monitorHandler = new Handler() {
 
         @Override
@@ -127,7 +129,10 @@ public class ViewAlbumActivity extends Activity {
 
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
 
+
         currAlbum = MainActivity.currAlbum;
+        if(currAlbum == null)
+            System.exit(0);
         trackList = currAlbum.tracks;
         coverView = (ImageView) findViewById(R.id.coverArtAlbum);
         fadeCoverView = (ImageView) findViewById(R.id.fadeCover);
@@ -223,6 +228,8 @@ public class ViewAlbumActivity extends Activity {
                 200, //delay
                 TimeUnit.MILLISECONDS);
     }//END ON CREATE METHOD
+
+
         //End Cyril Code
 
     //Media Player Monitor
@@ -242,7 +249,7 @@ public class ViewAlbumActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_view_album, menu);
+        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         return true;
     }
 
@@ -254,7 +261,16 @@ public class ViewAlbumActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+        if (id == R.id.action_exit) {
+            finish();
+            return true;
+        }
+        if (id == R.id.action_shuffle_all) {
+            shufflePressed(null);
+        }
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         if (id == R.id.action_now_playing) {
@@ -269,6 +285,20 @@ public class ViewAlbumActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void shufflePressed(View v) {
+        musicSrv.setShuffle();
+        if (musicSrv.shuffle) {
+            musicSrv.resumePlayer();
+            MainActivity.shuffleButton.setSelected(true);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(true);
+        } else {
+            MainActivity.shuffleButton.setSelected(false);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(false);
+        }
     }
 
     public void trackPicked(View view)

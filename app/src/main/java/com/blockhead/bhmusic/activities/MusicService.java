@@ -672,6 +672,12 @@ public class MusicService extends Service implements
                     break;
                 case ACTION_CLOSE:
                     stopPlayer();
+                    mBuilder = new Notification.Builder(context);
+                    notification = mBuilder.setOngoing(false)
+                            .build();
+                    notificationManager.notify(NOTIFICATION_ID, notification);
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                    System.exit(0);
                     break;
             }
             notificationManager.notify(NOTIFICATION_ID, notification);
