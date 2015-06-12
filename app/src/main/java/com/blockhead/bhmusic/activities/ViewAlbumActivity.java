@@ -131,8 +131,6 @@ public class ViewAlbumActivity extends Activity {
 
 
         currAlbum = MainActivity.currAlbum;
-        if(currAlbum == null)
-            System.exit(0);
         trackList = currAlbum.tracks;
         coverView = (ImageView) findViewById(R.id.coverArtAlbum);
         fadeCoverView = (ImageView) findViewById(R.id.fadeCover);

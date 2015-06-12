@@ -646,6 +646,13 @@ public class MusicService extends Service implements
         notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
+    public void removeNotification(Context context){
+        mBuilder = new Notification.Builder(context);
+        notification = mBuilder.setOngoing(false)
+                .build();
+        notificationManager.notify(NOTIFICATION_ID, notification);
+    }
+
     public class MusicBinder extends Binder {
         MusicService getService() {
             return MusicService.this;
@@ -672,12 +679,7 @@ public class MusicService extends Service implements
                     break;
                 case ACTION_CLOSE:
                     stopPlayer();
-                    mBuilder = new Notification.Builder(context);
-                    notification = mBuilder.setOngoing(false)
-                            .build();
-                    notificationManager.notify(NOTIFICATION_ID, notification);
-                    android.os.Process.killProcess(android.os.Process.myPid());
-                    System.exit(0);
+                    removeNotification(context);
                     break;
             }
             notificationManager.notify(NOTIFICATION_ID, notification);
