@@ -1,18 +1,13 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:onClick="trackPicked"
-    android:orientation="horizontal"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/rect_ripple_white">
 
-    <LinearLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="5dp"
         android:layout_weight="1"
-        android:layout_gravity="center_vertical">
+        android:layout_gravity="center_vertical"
+        android:onClick="trackPicked"
+        android:background="@drawable/rect_ripple_white" >
 
         <TextView
             android:id="@+id/track_title"
@@ -23,7 +18,8 @@
             android:textAlignment="gravity"
             android:layout_marginRight="20dp"
             android:gravity="left"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:text="Gone" />
 
         <TextView
             android:id="@+id/track_duration"
@@ -34,8 +30,7 @@
             android:textAlignment="gravity"
             android:layout_marginRight="20dp"
             android:gravity="left"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:text="08:54" />
 
     </LinearLayout>
-
-</LinearLayout>

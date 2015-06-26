@@ -74,7 +74,7 @@
             android:name=".activities.ColorChooserActivity"
             android:label="@string/title_activity_color_chooser"
             android:parentActivityName=".activities.SettingsActivity"
-            android:theme="@style/SettingsTheme">
+            android:theme="@style/SettingsTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.blockhead.bhmusic.activities.SettingsActivity" />

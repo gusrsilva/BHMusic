@@ -650,7 +650,8 @@ public class MusicService extends Service implements
         mBuilder = new Notification.Builder(context);
         notification = mBuilder.setOngoing(false)
                 .build();
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        if(notificationManager != null)
+            notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     public class MusicBinder extends Binder {

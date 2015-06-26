@@ -47,13 +47,16 @@ import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
 import com.blockhead.bhmusic.adapters.ArtistAdapter;
+import com.blockhead.bhmusic.adapters.PlaylistAdapter;
 import com.blockhead.bhmusic.adapters.SongAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
+import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
 import com.blockhead.bhmusic.utils.DiskLruImageCache;
 import com.blockhead.bhmusic.utils.IndexableListView;
@@ -99,7 +102,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     public static ActionBar mActionBar;
     public static boolean artworkHeader = true;
     public static int primaryColor, accentColor;
-    private static ListView songView;
+    private static ListView songView, playlistView;
     private static GridView albumView, artistView;
     private static MusicService musicSrv = new MusicService();
     private static boolean playbackPaused = false;
@@ -108,6 +111,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static SongAdapter songAdt;
     private static AlbumAdapter albumAdt;
     private static ArtistAdapter artistAdt;
+    private static PlaylistAdapter playlistAdt;
     private static String abTitle;
     private static SharedPreferences sharedPref;
     private static ArtistArtTask mArtistArtTask;
@@ -121,6 +125,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     };
     private ArrayList<Song> songList;
+    private ArrayList<Playlist> playlistList;
     private Intent playIntent;
     private boolean musicBound = false;
     private boolean paused = false;
@@ -190,10 +195,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         songList = new ArrayList<Song>();
         albumList = new ArrayList<Album>();
         artistList = new ArrayList<Artist>();
+        playlistList = new ArrayList<Playlist>();
+
 
         songAdt = new SongAdapter(this, songList);
         albumAdt = new AlbumAdapter(this, albumList);
         artistAdt = new ArtistAdapter(this, artistList);
+        playlistAdt = new PlaylistAdapter(this, playlistList);
 
         mGetListTask = new GetListsTask();
         mGetListTask.execute();
@@ -538,8 +546,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onDestroy() {
         stopService(playIntent);
-        musicSrv.removeNotification(getApplicationContext());
-        musicSrv = null;
+        if(musicSrv != null) {
+            musicSrv.removeNotification(getApplicationContext());
+            musicSrv = null;
+        }
         super.onDestroy();
     }
 
@@ -637,6 +647,68 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             } else {   //If its an existing artist add album to repo
                 artistList.get(matchResult).addAlbum(albumList.get(i));
             }
+        }
+    }
+
+    private void getPlaylistList() {
+
+        Playlist temp;
+        for(int i = 1; i < 4; i++)
+        {
+            temp = new Playlist("Playlist" + i, songList);
+            for(int j = 1; j < 5; j ++)
+            {
+                temp.addSong((long)j);
+            }
+            playlistList.add(temp);
+        }
+
+        //retreive song info
+        String[] projection = {   MediaStore.Audio.Playlists.Members.AUDIO_ID,
+                MediaStore.Audio.Playlists.Members.ARTIST,
+                MediaStore.Audio.Playlists.Members.TITLE,
+                MediaStore.Audio.Playlists.Members._ID
+        };
+
+
+        ContentResolver playlistResolver = getContentResolver();
+        Uri playlistUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        Cursor playlistCursor = playlistResolver.query(playlistUri, null, null, null, null);
+        //
+
+
+        //
+        if (playlistCursor != null && playlistCursor.moveToFirst()) {       //Get PlayLists
+            int idColumn = playlistCursor.getColumnIndex
+                    (MediaStore.Audio.Playlists._ID);
+            int titleColumn = playlistCursor.getColumnIndex(MediaStore.Audio.Playlists.NAME);
+
+            do      //Loop through playlists
+            {
+                long thisId = playlistCursor.getLong(idColumn);
+                String thisTitle = playlistCursor.getString(titleColumn);
+                temp =  new Playlist(thisTitle, songList);
+
+                ContentResolver tracksResolver = getContentResolver();
+                Uri tracksUri = MediaStore.Audio.Playlists.Members.getContentUri("external", thisId);
+                Cursor trackCursor = tracksResolver.query(tracksUri,projection,null,null,null);
+                if(trackCursor != null && trackCursor.moveToFirst())        //Get columns for play list members
+                {
+                    int trackTitleColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.TITLE);
+                    int trackArtistColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.ARTIST);
+                    int trackIdColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID);
+
+                    do      //Loop through playlist members
+                    {
+                        long trackId = trackCursor.getLong(trackIdColumn);
+                        if(!temp.addSong(trackId))
+                            Log.d("BHCA", "COULDNT FIND SONG");
+                    }
+                    while (trackCursor.moveToNext());
+                }
+                playlistList.add(temp);
+            }
+            while (playlistCursor.moveToNext());
         }
     }
 
@@ -941,7 +1013,15 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 artistView = (GridView) rootView.findViewById(R.id.artistGrid);
                 if (artistView != null)
                     artistView.setAdapter(artistAdt);
-            } else
+            }
+            else if (page == 4)
+            {
+                rootView = inflater.inflate(R.layout.playlist_list, container, false);
+                playlistView = (ListView) rootView.findViewById(R.id.playlist_listview);
+                if (playlistView != null)
+                    playlistView.setAdapter(playlistAdt);
+            }
+            else
                 rootView = inflater.inflate(R.layout.song_list, container, false);
 
             return rootView;
@@ -1042,6 +1122,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             getAlbumList();
             getSongList();
             getArtistList();
+            getPlaylistList();
 
             Collections.sort(songList, new Comparator<Song>() {
                 @Override
@@ -1101,7 +1182,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return 4;
         }
 
         @Override
@@ -1114,6 +1195,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     return getString(R.string.title_section2).toUpperCase(l);
                 case 2:
                     return getString(R.string.title_section3).toUpperCase(l);
+                case 3:
+                    return getString(R.string.title_section4).toUpperCase(l);
             }
             return null;
         }

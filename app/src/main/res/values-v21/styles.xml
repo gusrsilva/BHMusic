@@ -21,4 +21,10 @@
         <item name="android:colorPrimary">@color/primary_color</item>
     </style>
 
+    <style name="test" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/primary_color</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
 </resources>

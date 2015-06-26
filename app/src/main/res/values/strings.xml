@@ -12,6 +12,7 @@
     <string name="title_section1">Songs</string>
     <string name="title_section2">Albums</string>
     <string name="title_section3">Artists</string>
+    <string name="title_section4">Playlists</string>
     <string name="empty_string"> </string>
     <string name="splash">Preparing Library&#8230;</string>
     <string name="title_activity_view_album">ViewAlbumActivity</string>
@@ -25,5 +26,13 @@
     <string name="label_next">Next</string>
     <string name="title_activity_view_artist">Artist</string>
     <string name="title_activity_color_chooser">Default Colors</string>
+    <string name="title_activity_view_album2">ViewAlbumActivity2</string>
+
+    <!-- Can Delete These -->
+      <string name="cheese_ipsum">Jarlsberg lancashire edam. Dolcelatte hard cheese brie st. agur blue
+    cheese caerphilly bavarian bergkase cheese and biscuits mascarpone. Cheeseburger swiss bavarian
+    bergkase cream cheese fromage frais cheesy feet port-salut airedale. St. agur blue cheese rubber
+    cheese caerphilly cheddar cheesecake cream cheese manchego lancashire. Roquefort squirty cheese
+    the big cheese.</string>
 
 </resources>

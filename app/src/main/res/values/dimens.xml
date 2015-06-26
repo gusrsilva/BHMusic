@@ -16,4 +16,9 @@
     <dimen name="no_action_bar">0dip</dimen>
     <dimen name="textfield_height">55dp</dimen>
     <dimen name="tall_action_bar">150dip</dimen>
+
+    <!-- Can Delete These-->
+    <dimen name="detail_backdrop_height">256dp</dimen>
+    <dimen name="card_margin">16dp</dimen>
+    <dimen name="list_item_avatar_size">40dp</dimen>
 </resources>

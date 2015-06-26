@@ -80,7 +80,7 @@ public class ViewAlbumActivity extends Activity {
             //Show Hide Action Bar
             int coverHeight = contentGapper.getMeasuredHeight() - 103;
             if (t >= coverHeight) {
-                abBackground.setAlpha(255);
+                abBackground.setAlpha(1);
             } else {
                 abBackground.setAlpha(0);
             }
