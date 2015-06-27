@@ -53,8 +53,12 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     @Override
     public View getView(int postion, View convertView, ViewGroup parent) {
-        //map to song layout
-        LinearLayout songLay = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
+
+        LinearLayout songLay;
+        if(convertView == null)
+         songLay = (LinearLayout) songInf.inflate(R.layout.song, parent, false);
+        else        //Else recycle view
+            songLay = (LinearLayout)convertView;
 
         //get title and artist views
         TextView songView = (TextView) songLay.findViewById(R.id.song_title);

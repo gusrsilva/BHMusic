@@ -52,8 +52,12 @@ public class PlaylistMembersAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        //map to song layout
-        LinearLayout trackLay = (LinearLayout) songInf.inflate(R.layout.song_in_playlist, parent, false);
+
+        LinearLayout trackLay;
+        if(convertView == null)
+            trackLay = (LinearLayout) songInf.inflate(R.layout.song_in_playlist, parent, false);
+        else        //Recycle view
+            trackLay = (LinearLayout) convertView;
 
         //get title and artist views
         TextView title = (TextView) trackLay.findViewById(R.id.song_in_playlist_title);

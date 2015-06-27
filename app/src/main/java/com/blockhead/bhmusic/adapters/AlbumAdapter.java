@@ -64,8 +64,12 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
 
     @Override
     public View getView(int postion, View convertView, ViewGroup parent) {
-        //map to song layout
-        LinearLayout albumLay = (LinearLayout) albumInf.inflate(R.layout.album, parent, false);
+
+        LinearLayout albumLay;
+        if(convertView != null)
+            albumLay = (LinearLayout) convertView;
+        else        //Else recycle view
+            albumLay = (LinearLayout) albumInf.inflate(R.layout.album, parent, false);
 
         //get title and artist views
         TextView albumTitleView = (TextView) albumLay.findViewById(R.id.album_title);

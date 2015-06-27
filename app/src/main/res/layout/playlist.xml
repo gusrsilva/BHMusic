@@ -1,25 +1,56 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:onClick="playlistPicked"
-    android:background="@drawable/rect_ripple_white">
+    android:layout_height="fill_parent"
+    android:background="@drawable/rect_ripple_background_color">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Playlist Title"
-        android:id="@+id/playlist_title"
-        android:textStyle="bold" />
+    <ImageView
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/playlist_img"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/default_cover"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="27 Songs"
-        android:id="@+id/playlist_numtracks" />
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/playlist_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#bb000000"
+            android:textSize="17sp"
+            android:textAlignment="gravity"
+            android:layout_marginRight="20dp"
+            android:gravity="left"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="Playlist Title" />
+
+        <TextView
+            android:id="@+id/playlist_numtracks"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#66000000"
+            android:textSize="14sp"
+            android:textAlignment="gravity"
+            android:layout_marginRight="20dp"
+            android:gravity="left"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="Number of Tracks" />
+
+    </LinearLayout>
+
 </LinearLayout>

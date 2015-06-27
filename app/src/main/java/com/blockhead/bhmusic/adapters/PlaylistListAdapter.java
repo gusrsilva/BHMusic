@@ -5,12 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -21,11 +23,13 @@ public class PlaylistListAdapter extends BaseAdapter {
 
     private ArrayList<Playlist> playlists;
     private LayoutInflater songInf;
+    private ImageLoader imageLoader;
 
 
     public PlaylistListAdapter(Context c, ArrayList<Playlist> arr) {
         playlists = arr;
         songInf = LayoutInflater.from(c);
+        imageLoader = ImageLoader.getInstance();
     }
 
     @Override
@@ -46,14 +50,25 @@ public class PlaylistListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         //map to song layout
-        LinearLayout trackLay = (LinearLayout) songInf.inflate(R.layout.playlist, parent, false);
+        LinearLayout trackLay;
+        if(convertView == null)
+            trackLay = (LinearLayout) songInf.inflate(R.layout.playlist, parent, false);
+        else        //Recycle view
+            trackLay = (LinearLayout)convertView;
 
         //get title and artist views
         TextView title = (TextView) trackLay.findViewById(R.id.playlist_title);
-        TextView numtracks = (TextView) trackLay.findViewById(R.id.playlist_numtracks);
+        TextView numTracks = (TextView) trackLay.findViewById(R.id.playlist_numtracks);
+        ImageView img = (ImageView) trackLay.findViewById(R.id.playlist_img);
 
         title.setText(playlists.get(position).getTitle());
-        numtracks.setText(playlists.get(position).getSize() + " songs");
+        numTracks.setText(playlists.get(position).getSize() + " songs");
+
+        String coverUri = null; int i = 0;
+        while(coverUri == null && i < playlists.get(position).getSize())
+            coverUri = playlists.get(position).getMembers().get(i++).getCoverURI();
+        if(coverUri != null)
+            imageLoader.displayImage(coverUri, img);
 
         //set position as tag
         trackLay.setTag(position);

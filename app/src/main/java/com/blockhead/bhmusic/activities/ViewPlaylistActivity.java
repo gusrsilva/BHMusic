@@ -131,6 +131,7 @@ public class ViewPlaylistActivity extends Activity {
         memberList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "Picked: " + (position-1),Toast.LENGTH_SHORT).show();
                 playlistTrackPicked(view, position);
             }
         });

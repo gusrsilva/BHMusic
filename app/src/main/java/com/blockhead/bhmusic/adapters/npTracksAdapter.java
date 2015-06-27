@@ -45,8 +45,12 @@ public class npTracksAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        //map to song layout
-        LinearLayout trackLay = (LinearLayout) songInf.inflate(R.layout.np_track, parent, false);
+
+        LinearLayout trackLay;
+        if(convertView == null)
+            trackLay = (LinearLayout) songInf.inflate(R.layout.np_track, parent, false);
+        else        //Recycle View
+            trackLay = (LinearLayout)convertView;
 
         //get title and artist views
         TextView tracksTitleView = (TextView) trackLay.findViewById(R.id.np_track_title);
