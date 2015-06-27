@@ -465,8 +465,9 @@ public class NowPlayingActivity extends Activity {
             setCover();
             setTracklist();
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Unable to Set Album Info", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Please select a song first.", Toast.LENGTH_SHORT).show();
             Log.d("BHCA", "setInfo: " + e.getMessage());
+            finish();
         }
     }
 

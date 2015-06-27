@@ -89,7 +89,7 @@ public class MusicService extends Service implements
     public void onCreate() {
         super.onCreate();
         imageLoader = ImageLoader.getInstance(); // Get singleton instance
-        songPosn = 0;
+        songPosn = -1;
         player = new MediaPlayer();
         initMusicPlayer();
         rand = new Random();
@@ -519,7 +519,9 @@ public class MusicService extends Service implements
 
     public Song getCurrSong()
     {
-        if(isPngAlbum)
+        if(songPosn == -1)
+            return null;
+        else if(isPngAlbum)
             return albumSong;
         else if(isPngPlaylist)
             return playlistSong;

@@ -51,6 +51,7 @@ import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
@@ -264,6 +265,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             @Override
             public void onClick(View v) {
                 fabPressed(v);
+            }
+        });
+        fab.setLongClickable(true);
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                nowPlayingButtonPressed(null);
+                return true;
             }
         });
 
@@ -984,6 +993,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     public void nowPlayingButtonPressed(View v) {
+        if(musicSrv == null || musicSrv.getCurrSong() == null)
+        {
+            Toast
+                    .makeText(getApplicationContext(), "Please select song first.", Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+
         Intent intent = new Intent(this, NowPlayingActivity.class);
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View) fab, "fab"));
