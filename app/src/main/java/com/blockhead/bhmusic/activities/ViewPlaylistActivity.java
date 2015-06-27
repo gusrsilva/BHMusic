@@ -7,6 +7,8 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +33,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
+public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FAB work!
 
     Playlist currPlaylist;
     ArrayList<Song> songList;
@@ -50,7 +52,7 @@ public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
         musicSrv = MainActivity.getMusicService();
 
-        final ActionBar mActionBar = getActionBar();
+        final android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
         int mActionBarSize = getActionBarHeight() + getStatusBarHeight();
         if(mActionBar != null) {
             mActionBar.setTitle("");
@@ -133,8 +135,6 @@ public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
 
         /* Initialize and set up shuffle button */
         shuffleButton = (ImageButton) titleHeader.findViewById(R.id.playlist_title_shuffleButton);
-        if(musicSrv.isPngPlaylist && musicSrv.shuffle) //Set enabled if necessary
-            shuffleButton.setEnabled(true);
         shuffleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -238,20 +238,14 @@ public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
 
     public void viewPlaylistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
     {
-        musicSrv.setShuffle();
+        musicSrv.shuffle = true;
         if(MainActivity.shuffleAnimation != null)
             shuffleButton.startAnimation(MainActivity.shuffleAnimation);
-        if (musicSrv.shuffle) {
-            musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(playlistSize)));
-            shuffleButton.setSelected(true);
-            MainActivity.shuffleButton.setSelected(true);
-            if (NowPlayingActivity.shuffleButton != null)
-                NowPlayingActivity.shuffleButton.setSelected(true);
-        } else {
-            shuffleButton.setSelected(false);
-            MainActivity.shuffleButton.setSelected(false);
-            if (NowPlayingActivity.shuffleButton != null)
-                NowPlayingActivity.shuffleButton.setSelected(false);
-        }
+        musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(playlistSize)));
+        MainActivity.shuffleButton.setSelected(true);
+        if (NowPlayingActivity.shuffleButton != null)
+            NowPlayingActivity.shuffleButton.setSelected(true);
+        Snackbar.make(view, "Now Shuffling: " + currPlaylist.getTitle(), Snackbar.LENGTH_SHORT)
+                .show();
     }
 }

@@ -65,7 +65,7 @@
         android:background="@color/transparent"
         android:adjustViewBounds="true"
         android:layout_margin="5dp"
-        android:layout_marginRight="25dp"
-        android:onClick="playlistShufflePressed" />
+        android:onClick="playlistShufflePressed"
+        android:paddingRight="15dp" />
 
 </LinearLayout>

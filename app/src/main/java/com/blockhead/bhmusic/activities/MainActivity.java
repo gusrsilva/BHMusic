@@ -49,6 +49,7 @@ import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
@@ -924,14 +925,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     public void playlistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
     {
-        int pos = Integer.parseInt(view.getTag().toString());
+        final int pos = Integer.parseInt(view.getTag().toString());
         currPlaylist = playlistList.get(pos);
 
         musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(currPlaylist.getSize())));
 
         if (!musicSrv.shuffle)
         {
-            musicSrv.setShuffle();
+            musicSrv.shuffle = true;
             musicSrv.resumePlayer();
             shuffleButton.startAnimation(shuffleAnimation);
             shuffleButton.setSelected(true);
@@ -939,8 +940,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 NowPlayingActivity.shuffleButton.setSelected(true);
         }
 
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setTag(pos);
+                playlistPicked(v);
+            }
+        };
+
         Snackbar
-                .make(view, "Now Shuffling " + currPlaylist.getTitle(), Snackbar.LENGTH_SHORT)
+                .make(view, " Now Shuffling: ", Snackbar.LENGTH_LONG)
+                .setAction(currPlaylist.getTitle(), listener)
+                .setActionTextColor(accentColor)
                 .show(); // Don’t forget to show!
     }
 
