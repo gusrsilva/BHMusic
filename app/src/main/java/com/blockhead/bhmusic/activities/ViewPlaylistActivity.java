@@ -9,14 +9,14 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,10 +47,7 @@ public class ViewPlaylistActivity extends Activity {
         final ActionBar mActionBar = getActionBar();
         int mActionBarSize = getActionBarHeight() + getStatusBarHeight();
         if(mActionBar != null) {
-            mActionBar.setTitle(currPlaylist.getTitle());
-            //Get actionbar size
-
-
+            mActionBar.setTitle("");
         }
 
         int songPos = 0, i=0;
@@ -81,17 +78,23 @@ public class ViewPlaylistActivity extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (mActionBar != null) {
-                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 1) {
+                if (mActionBar != null)
+                {
+                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 1)
+                    {
                         abBackground.setAlpha(0);
-                    } else if (firstVisibleItem >= 1 && abBackground.getAlpha() == 0) {
+                        mActionBar.setTitle("");
+                    }
+                    else if (firstVisibleItem >= 1 && abBackground.getAlpha() == 0)
+                    {
                         abBackground.setAlpha(1);
+                        mActionBar.setTitle(currPlaylist.getTitle());
                     }
                 }
             }
         };
 
-        //Set Header attributes
+        /* Set Image Header attributes */
         ImageView header = new ImageView(this);
         if(coverUri == null)
         { //Set default artist art if none
@@ -110,19 +113,21 @@ public class ViewPlaylistActivity extends Activity {
         header.setMaxHeight((int) maxHeight);
         header.setMinimumHeight((int) minHeight);
 
-        //Add placeholder header
-        View blankHeader = new View(this);
-        blankHeader.setBackgroundColor(getResources().getColor(R.color.redSwatch));
-        blankHeader.setMinimumWidth(size.x);
-        blankHeader.setMinimumHeight(mActionBarSize);
-        blankHeader.setClickable(false);
-        blankHeader.setLongClickable(false);
+        /* Set title header */
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        View titleHeader = inflater.inflate(R.layout.view_artist_header, null);
+        titleHeader.setMinimumHeight(getActionBarHeight() + getStatusBarHeight());
+        TextView title = (TextView) titleHeader.findViewById(R.id.view_artist_header_title);
+        LinearLayout linLay = (LinearLayout) titleHeader.findViewById(R.id.view_artist_header_lin);
+
+        title.setText(currPlaylist.getTitle());
+        linLay.setBackgroundColor(accentColor);
 
         //Initialize ParralaxListView
         ParallaxListView memberList = (ParallaxListView) findViewById(R.id.playlist_members);
         //Add Headers to it
         memberList.addParallaxedHeaderView(header);
-        memberList.addHeaderView(blankHeader);
+        memberList.addHeaderView(titleHeader);
         //Set Scroll Listener
         memberList.setOnScrollListener(mOnScrollListener);
         //Set BG Color
