@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
@@ -47,6 +48,7 @@ import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +60,8 @@ public class ViewAlbumActivity extends AppCompatActivity {
     private Album currAlbum;
     private MusicService musicSrv;
     private FloatingActionButton fab;
+    private ImageButton shuffleButton;
+    private int albumSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +85,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
         }
 
         String coverUri = currAlbum.getCoverURI();
-        int albumSize = currAlbum.getSize();
+        albumSize = currAlbum.getSize();
         ArrayList<Song> trackList = currAlbum.tracks;
         fab = (FloatingActionButton) findViewById(R.id.albumFab);
         musicSrv = MainActivity.getMusicService();
@@ -156,6 +160,15 @@ public class ViewAlbumActivity extends AppCompatActivity {
         title.setText(currAlbum.getTitle());
         subtitle.setText(currAlbum.getArtist() + " (" + albumSize + (albumSize==1?" song )":" songs )"));
         linLay.setBackgroundColor(actionBarColor);
+
+        /* Initialize and set up shuffle button */
+        shuffleButton = (ImageButton) titleHeader.findViewById(R.id.view_album_shuffleButton);
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewAlbumShufflePressed(v);
+            }
+        });
 
         /*  Set up Parallax ListView */
         ParallaxListView memberList = (ParallaxListView) findViewById(R.id.view_album_list);
@@ -311,6 +324,20 @@ public class ViewAlbumActivity extends AppCompatActivity {
                     Pair.create((View) fab, "fab"));
 
         startActivity(intent, options.toBundle());
+    }
+
+    public void viewAlbumShufflePressed(View view)
+    {
+        musicSrv.shuffle = true;
+        if(MainActivity.shuffleAnimation != null)
+            shuffleButton.startAnimation(MainActivity.shuffleAnimation);
+        musicSrv.playAlbum(currAlbum, (new Random().nextInt(albumSize-1)));
+        setFabDrawable();
+        MainActivity.shuffleButton.setSelected(true);
+        if (NowPlayingActivity.shuffleButton != null)
+            NowPlayingActivity.shuffleButton.setSelected(true);
+        Snackbar.make(findViewById(R.id.view_album_coordinator), "Now Shuffling: " + currAlbum.getTitle(), Snackbar.LENGTH_SHORT)
+                .show();
     }
 
     public int getActionBarHeight(){
