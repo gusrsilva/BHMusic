@@ -85,10 +85,10 @@ public class ViewArtistActivity extends Activity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (mActionBar != null) {
-                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 255) {
+                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 1) {
                         abBackground.setAlpha(0);
                     } else if (firstVisibleItem >= 1 && abBackground.getAlpha() == 0) {
-                        abBackground.setAlpha(255);
+                        abBackground.setAlpha(1);
                     }
                 }
             }

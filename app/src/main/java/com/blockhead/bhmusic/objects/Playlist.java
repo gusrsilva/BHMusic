@@ -2,6 +2,8 @@ package com.blockhead.bhmusic.objects;
 
 import android.util.Log;
 
+import com.blockhead.bhmusic.activities.MainActivity;
+
 import java.util.ArrayList;
 
 /**
@@ -9,14 +11,13 @@ import java.util.ArrayList;
  */
 public class Playlist {
     String title;
-    ArrayList<Song> songList;
-    ArrayList<Integer> songPositions;
+    ArrayList<Long> songIds;
+    ArrayList<Song> members;
 
-    public Playlist(String name, ArrayList<Song> tracks)
+    public Playlist(String name)
     {
         title = name;
-        songPositions = new ArrayList<>();
-        songList = tracks;
+        songIds = new ArrayList<>();
     }
 
     public String getTitle(){ return title; }
@@ -26,20 +27,41 @@ public class Playlist {
             title = name;
     }
 
-    public boolean addSong(Long trackId)
+    public void addSong(Long trackId)
     {
-        for(int i=0; i < songList.size(); i++)
-        {
-            if(trackId == songList.get(i).getID())
-            {
-                songPositions.add(i);
-                Log.d("BHCA", "Added Song with ID: " + trackId + " to " + title);
-                return true;
-            }
-        }
-        return false;
+        songIds.add(trackId);
     }
 
-    public ArrayList<Integer> getSongPositions(){ return songPositions; }
-    public int getSize(){ return songPositions.size(); }
+    public ArrayList<Long> getSongIds(){ return songIds; }
+    public int getSize(){ return songIds.size(); }
+
+    public int getPosFromId(Long trackID, ArrayList<Song> songList)
+    {
+        if(songList == null)
+            return -1;
+
+        for(int i = 0; i < songList.size(); i++)
+        {
+            if(songList.get(i).getID() == trackID)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private void generateMembers()
+    {
+        members = new ArrayList<>();
+        ArrayList<Song> songList = MainActivity.songList;
+        for(int i = 0; i < songIds.size(); i ++)
+            members.add(songList.get(getPosFromId(songIds.get(i), songList)));
+    }
+
+    public ArrayList<Song> getMembers()
+    {
+        if(members == null)
+            generateMembers();
+        return members;
+    }
+
 }

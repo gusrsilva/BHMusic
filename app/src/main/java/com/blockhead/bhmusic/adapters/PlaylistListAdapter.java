@@ -17,13 +17,13 @@ import java.util.ArrayList;
 /**
  * Created by Gus on 2/25/2015.
  */
-public class PlaylistAdapter extends BaseAdapter {
+public class PlaylistListAdapter extends BaseAdapter {
 
     private ArrayList<Playlist> playlists;
     private LayoutInflater songInf;
 
 
-    public PlaylistAdapter(Context c, ArrayList<Playlist> arr) {
+    public PlaylistListAdapter(Context c, ArrayList<Playlist> arr) {
         playlists = arr;
         songInf = LayoutInflater.from(c);
     }

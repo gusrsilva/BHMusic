@@ -79,6 +79,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.blockhead.bhmusic.activities.SettingsActivity" />
         </activity>
+        <activity
+            android:name=".activities.ViewPlaylistActivity"
+            android:label="@string/title_activity_view_playlist"
+            android:parentActivityName=".activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.blockhead.bhmusic.activities.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

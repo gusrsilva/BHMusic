@@ -127,7 +127,7 @@ public class ViewAlbumActivity extends Activity {
         setContentView(R.layout.activity_view_album);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-        ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
+        ImageLoader imageLoader = ImageLoader.getInstance(); // Get single instance
 
 
         currAlbum = MainActivity.currAlbum;

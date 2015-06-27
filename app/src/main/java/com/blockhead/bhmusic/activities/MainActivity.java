@@ -47,12 +47,11 @@ import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
 import com.blockhead.bhmusic.adapters.ArtistAdapter;
-import com.blockhead.bhmusic.adapters.PlaylistAdapter;
+import com.blockhead.bhmusic.adapters.PlaylistListAdapter;
 import com.blockhead.bhmusic.adapters.SongAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
@@ -99,6 +98,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     public static android.support.v4.view.PagerTitleStrip pagerTitleStrip;
     public static Album currAlbum;
     public static Artist currArtist;
+    public static Playlist currPlaylist;
     public static ActionBar mActionBar;
     public static boolean artworkHeader = true;
     public static int primaryColor, accentColor;
@@ -111,7 +111,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static SongAdapter songAdt;
     private static AlbumAdapter albumAdt;
     private static ArtistAdapter artistAdt;
-    private static PlaylistAdapter playlistAdt;
+    private static PlaylistListAdapter playlistAdt;
     private static String abTitle;
     private static SharedPreferences sharedPref;
     private static ArtistArtTask mArtistArtTask;
@@ -124,7 +124,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
 
     };
-    private ArrayList<Song> songList;
+    public static ArrayList<Song> songList;
     private ArrayList<Playlist> playlistList;
     private Intent playIntent;
     private boolean musicBound = false;
@@ -201,7 +201,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         songAdt = new SongAdapter(this, songList);
         albumAdt = new AlbumAdapter(this, albumList);
         artistAdt = new ArtistAdapter(this, artistList);
-        playlistAdt = new PlaylistAdapter(this, playlistList);
+        playlistAdt = new PlaylistListAdapter(this, playlistList);
 
         mGetListTask = new GetListsTask();
         mGetListTask.execute();
@@ -653,16 +653,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private void getPlaylistList() {
 
         Playlist temp;
-        for(int i = 1; i < 4; i++)
-        {
-            temp = new Playlist("Playlist" + i, songList);
-            for(int j = 1; j < 5; j ++)
-            {
-                temp.addSong((long)j);
-            }
-            playlistList.add(temp);
-        }
-
         //retreive song info
         String[] projection = {   MediaStore.Audio.Playlists.Members.AUDIO_ID,
                 MediaStore.Audio.Playlists.Members.ARTIST,
@@ -687,7 +677,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             {
                 long thisId = playlistCursor.getLong(idColumn);
                 String thisTitle = playlistCursor.getString(titleColumn);
-                temp =  new Playlist(thisTitle, songList);
+                temp =  new Playlist(thisTitle);
 
                 ContentResolver tracksResolver = getContentResolver();
                 Uri tracksUri = MediaStore.Audio.Playlists.Members.getContentUri("external", thisId);
@@ -701,8 +691,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     do      //Loop through playlist members
                     {
                         long trackId = trackCursor.getLong(trackIdColumn);
-                        if(!temp.addSong(trackId))
-                            Log.d("BHCA", "COULDNT FIND SONG");
+                        temp.addSong(trackId);
                     }
                     while (trackCursor.moveToNext());
                 }
@@ -753,10 +742,19 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         Intent intent = new Intent(this, ViewArtistActivity.class);
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View) fab, "fab")
-                //,Pair.create(artistImage, "artistImage") //Glitchy will fix later
+                //,Pair.create(artistImage, "artistImage") TODO: Glitchy will fix later
         );
 
         startActivity(intent, options.toBundle());
+    }
+
+    public void playlistPicked(View view)
+    {
+        int pos = Integer.parseInt(view.getTag().toString());
+        currPlaylist = playlistList.get(pos);
+        Intent intent = new Intent(this, ViewPlaylistActivity.class);
+        startActivity(intent);
+
     }
 
     @Override

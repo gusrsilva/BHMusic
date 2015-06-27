@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Album;
+import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -58,20 +59,21 @@ public class MusicService extends Service implements
     //media player
     private MediaPlayer player;
     //song list
-    private ArrayList<Song> songs, albumSongs;
+    private ArrayList<Song> songs, albumSongs, playlistSongs;
     private Stack<Integer> shuffleStack;
-    private int songPosn, albumPosn;
+    private int songPosn, albumPosn, playlistPosn;
     private String songTitle = "";
     private String songArtist = "";
     private String songAlbum = "";
     private String coverURI;
     private Bitmap songCover, smallCover, blurredCover, superBlurredCover;
-    private boolean isPngAlbum = false;
+    private boolean isPngAlbum = false, isPngPlaylist = false;
     private Random rand;
     private RenderScript rs;
     private int cTransparent;
     private Album currAlbum;
-    private Song albumSong, playSong;
+    private Playlist currPlaylist;
+    private Song albumSong, playSong, playlistSong;
     private AudioManager audioManager;
     private boolean wasPlaying = false;
     private Notification.Builder mBuilder;
@@ -235,6 +237,7 @@ public class MusicService extends Service implements
 
     public void playSong() {
         isPngAlbum = false;
+        isPngPlaylist = false;
         player.reset();
         playSong = songs.get(songPosn);
         songTitle = playSong.getTitle();
@@ -333,6 +336,17 @@ public class MusicService extends Service implements
                 playAlbum(currAlbum, albumPosn - 1);
             }
         }
+        else if (isPngPlaylist)
+        {
+            if(getPosn() > 20000)
+                seek(0);
+            else
+            {
+                if ((playlistPosn - 1) < 0)
+                    playlistPosn = playlistSongs.size() - 1;
+                playPlaylist(currPlaylist, playlistPosn - 1);
+            }
+        }
         else
         {
             if(getPosn() > 20000)       //First restart current song
@@ -383,7 +397,40 @@ public class MusicService extends Service implements
             }
             playAlbum(currAlbum, albumPosn+1);
         }
-        else //If Not On Album
+        else if (isPngPlaylist) //If On Playlist
+        {
+            if (repeat == REPEAT_ONE)
+            {
+                //stay on same song
+                playlistPosn--;
+            }
+            else if (shuffle)
+            {
+                int newSong = playlistPosn;
+                while (newSong == playlistPosn)
+                {
+                    newSong = rand.nextInt(playlistSongs.size());
+                }
+                playlistPosn = newSong;
+            }
+            else
+            {
+                if ((playlistPosn + 1) >= playlistSongs.size())
+                {   //If end of list
+                    if (repeat == REPEAT_ALL)
+                        playlistPosn = 0;
+                    else
+                    {
+                        playlistPosn=0;
+                        playPlaylist(currPlaylist,playlistPosn);
+                        pausePlayer();
+                        return;
+                    }
+                }
+            }
+            playPlaylist(currPlaylist, playlistPosn+1);
+        }
+        else //If Not On Album or Playlist
         {
             if (repeat == REPEAT_ONE)
             {
@@ -474,6 +521,8 @@ public class MusicService extends Service implements
     {
         if(isPngAlbum)
             return albumSong;
+        else if(isPngPlaylist)
+            return playlistSong;
         else
             return songs.get(songPosn);
     }
@@ -555,6 +604,44 @@ public class MusicService extends Service implements
             superBlurredCover = blurBitmapStrong(smallCover);
 
             long currSong = albumSong.getID();
+            Uri trackUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
+
+            try {
+                player.setDataSource(getApplicationContext(), trackUri);
+            } catch (Exception e) {
+                Log.e("BHCA", "Error setting data source", e);
+            }
+
+            //call onPrepared()
+            player.prepareAsync();
+        }
+
+    }
+
+    public void playPlaylist(Playlist playList, int pos) {
+
+        if (currPlaylist != playList || pos != playlistPosn) {
+            currPlaylist = playList;
+            playlistPosn = pos;
+            playlistSongs = playList.getMembers();
+
+            player.reset();
+            isPngPlaylist = true;
+
+            playlistSong = playlistSongs.get(playlistPosn);
+
+
+            songTitle = playlistSong.getTitle();
+            songArtist = playlistSong.getArtist();
+            songAlbum = playlistSong.getAlbumTitle();
+            //songCover = albumSong.getCover();
+            coverURI = playlistSong.getCoverURI();
+            smallCover = imageLoader.loadImageSync(coverURI);
+            blurredCover = blurBitmap(smallCover);
+            superBlurredCover = blurBitmapStrong(smallCover);
+
+            long currSong = playlistSong.getID();
             Uri trackUri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
 

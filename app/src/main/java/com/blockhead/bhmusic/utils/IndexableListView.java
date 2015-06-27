@@ -13,7 +13,7 @@ import android.widget.ListAdapter;
 
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 
-public class IndexableListView extends ParallaxListView {
+public class IndexableListView extends ParallaxListView {   //TODO: Make always on
 
     private boolean mIsFastScrollEnabled = false;
     private IndexScroller mScroller = null;
