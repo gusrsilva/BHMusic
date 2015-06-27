@@ -7,7 +7,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -139,7 +138,7 @@ public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
         shuffleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playlistShufflePressed(v);
+                viewPlaylistShufflePressed(v);
             }
         });
 
@@ -237,7 +236,7 @@ public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
         return result;
     }
 
-    public void playlistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
+    public void viewPlaylistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
     {
         musicSrv.setShuffle();
         if(MainActivity.shuffleAnimation != null)

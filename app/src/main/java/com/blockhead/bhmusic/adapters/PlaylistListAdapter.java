@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -60,6 +61,7 @@ public class PlaylistListAdapter extends BaseAdapter {
         TextView title = (TextView) trackLay.findViewById(R.id.playlist_title);
         TextView numTracks = (TextView) trackLay.findViewById(R.id.playlist_numtracks);
         ImageView img = (ImageView) trackLay.findViewById(R.id.playlist_img);
+        ImageButton shuffleButton = (ImageButton)trackLay.findViewById(R.id.playlist_shuffleButton);
 
         title.setText(playlists.get(position).getTitle());
         int size = playlists.get(position).getSize();
@@ -73,6 +75,7 @@ public class PlaylistListAdapter extends BaseAdapter {
 
         //set position as tag
         trackLay.setTag(position);
+        shuffleButton.setTag(position);
 
         return trackLay;
     }

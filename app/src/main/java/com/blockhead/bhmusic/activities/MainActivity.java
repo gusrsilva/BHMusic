@@ -27,8 +27,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -85,7 +87,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class MainActivity extends Activity implements MediaPlayerControl {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
 
     private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
     private static final String DISK_CACHE_SUBDIR = "thumbnails";
@@ -918,6 +920,28 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             if (NowPlayingActivity.shuffleButton != null)
                 NowPlayingActivity.shuffleButton.setSelected(false);
         }
+    }
+
+    public void playlistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
+    {
+        int pos = Integer.parseInt(view.getTag().toString());
+        currPlaylist = playlistList.get(pos);
+
+        musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(currPlaylist.getSize())));
+
+        if (!musicSrv.shuffle)
+        {
+            musicSrv.setShuffle();
+            musicSrv.resumePlayer();
+            shuffleButton.startAnimation(shuffleAnimation);
+            shuffleButton.setSelected(true);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(true);
+        }
+
+        Snackbar
+                .make(view, "Now Shuffling " + currPlaylist.getTitle(), Snackbar.LENGTH_SHORT)
+                .show(); // Don’t forget to show!
     }
 
     public void repeatPressed(View v) {

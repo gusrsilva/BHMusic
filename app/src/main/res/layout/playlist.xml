@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/rect_ripple_background_color"
     android:onClick="playlistPicked">
 
@@ -53,5 +53,19 @@
             android:text="Number of Tracks" />
 
     </LinearLayout>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/playlist_shuffleButton"
+        android:stateListAnimator="@anim/fade_alpha_animation"
+        android:src="@drawable/ic_shuffle_white_24dp"
+        android:transitionName="shuffleButton"
+        android:tint="@color/black"
+        android:background="@color/transparent"
+        android:adjustViewBounds="true"
+        android:layout_margin="5dp"
+        android:layout_marginRight="25dp"
+        android:onClick="playlistShufflePressed" />
 
 </LinearLayout>
