@@ -2,7 +2,6 @@ package com.blockhead.bhmusic.activities;
 
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -13,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -27,6 +27,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -49,7 +51,6 @@ import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
@@ -96,7 +97,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static ArrayList<Album> albumList;
     public static TextView nowPlayingArtist, nowPlayingTitle;
     public static ImageView coverArt;
-    public static ImageButton fab, shuffleButton, repeatButton;
+    public static ImageButton shuffleButton, repeatButton;
+    private static FloatingActionButton fab;
     public static RelativeLayout fauxAB;
     public static android.support.v4.view.PagerTitleStrip pagerTitleStrip;
     public static Album currAlbum;
@@ -251,14 +253,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         repeatButton = (ImageButton) findViewById(R.id.repeatButton);
         pagerTitleStrip = (android.support.v4.view.PagerTitleStrip) findViewById(R.id.pager_title_strip);
         seekBar = (SeekBar) findViewById(R.id.progressBar);
-        fab = (ImageButton) findViewById(R.id.playButton);
+        fab = (FloatingActionButton) findViewById(R.id.floating_action_button);
         nowPlayingTitle = (TextView) findViewById(R.id.trackTitle);
         nowPlayingArtist = (TextView) findViewById(R.id.trackArtist);
         coverArt = (ImageView) findViewById(R.id.coverArt);
 
+        //Set FAB onClickListener
+        fab.setClickable(true);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabPressed(v);
+            }
+        });
+
         //Set Colors
-        fabDrawable = fab.getBackground();
-        fabDrawable.setColorFilter(accentColor, PorterDuff.Mode.SRC_ATOP);
+        fab.setBackgroundTintList(ColorStateList.valueOf(accentColor));
         pagerTitleStrip.setBackgroundColor(primaryColor);
 
         //Set Animations
@@ -338,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         return musicSrv;
     }
 
-    public static ImageButton getFAB() {
+    public FloatingActionButton getFab() {
         return fab;
     }
 
@@ -441,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         primaryColor = res.getColor(getColor(Integer.parseInt(sharedPref.getString("primary_color_key", "4"))));
         accentColor = res.getColor(getColor(Integer.parseInt(sharedPref.getString("accent_color_key", "1"))));
 
-        fabDrawable.setColorFilter(accentColor, PorterDuff.Mode.SRC_ATOP);
+        fab.setBackgroundTintList(ColorStateList.valueOf(accentColor));
         if(currAlbum != null ) {
             if (currAlbum.getCoverURI() == null) {
                 fauxAB.setBackgroundColor(primaryColor);
@@ -949,7 +959,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         };
 
         Snackbar
-                .make(view, " Now Shuffling: ", Snackbar.LENGTH_LONG)
+                .make((CoordinatorLayout)findViewById(R.id.main_coordinator), " Now Shuffling: ", Snackbar.LENGTH_LONG)
                 .setAction(currPlaylist.getTitle(), listener)
                 .setActionTextColor(accentColor)
                 .show(); // Don’t forget to show!

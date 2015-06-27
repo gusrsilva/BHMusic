@@ -621,10 +621,11 @@ public class MusicService extends Service implements
 
     public void playPlaylist(Playlist playList, int pos) {
 
-        if (currPlaylist != playList || pos != playlistPosn) {
+        if (currPlaylist != playList || pos != playlistPosn)
+        {   //If song is different than the one currently playing
             currPlaylist = playList;
-            playlistPosn = pos;
             playlistSongs = playList.getMembers();
+            playlistPosn = pos % playlistSongs.size();
 
             player.reset();
             isPngPlaylist = true;

@@ -89,7 +89,7 @@ public class NowPlayingActivity extends Activity {
         seekProgress.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
 
         //Set Views
-        playButton = (ImageButton) findViewById(R.id.playButton);
+        playButton = (ImageButton) findViewById(R.id.floating_action_button);
         fab = (ImageButton) findViewById(R.id.np_fab);
         fabDrawable = fab.getBackground();
         fabDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);

@@ -3,10 +3,14 @@ package com.blockhead.bhmusic.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
@@ -40,6 +44,8 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
     int playlistSize;
     MusicService musicSrv;
     ImageButton shuffleButton;
+    FloatingActionButton fab;
+    CoordinatorLayout coordLay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +78,18 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         int accentColor = MainActivity.primaryColor;
         if(songList != null && songList.get(i).getAccentColor() != Color.WHITE)
             accentColor = songList.get(i).getAccentColor();
+
+        /* Setup Floating Action Button */
+        coordLay = (CoordinatorLayout)findViewById(R.id.playlist_coordinator);
+        fab = (FloatingActionButton)findViewById(R.id.playlist_FAB);
+        fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
+        setFabDrawable();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabPressed();
+            }
+        });
 
         final RelativeLayout abBackground = (RelativeLayout)findViewById(R.id.artist_ab_background);
         abBackground.setBackgroundColor(accentColor);
@@ -214,6 +232,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
     {
         musicSrv.setSong(pos);
         musicSrv.playPlaylist(currPlaylist, pos);
+        setFabDrawable();
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
         startActivity(intent);
@@ -241,11 +260,31 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         musicSrv.shuffle = true;
         if(MainActivity.shuffleAnimation != null)
             shuffleButton.startAnimation(MainActivity.shuffleAnimation);
-        musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(playlistSize)));
+        musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(playlistSize-1)));
+        setFabDrawable();
         MainActivity.shuffleButton.setSelected(true);
         if (NowPlayingActivity.shuffleButton != null)
             NowPlayingActivity.shuffleButton.setSelected(true);
-        Snackbar.make(view, "Now Shuffling: " + currPlaylist.getTitle(), Snackbar.LENGTH_SHORT)
+        Snackbar.make(coordLay, "Now Shuffling: " + currPlaylist.getTitle(), Snackbar.LENGTH_SHORT)
                 .show();
     }
+
+    private void setFabDrawable()
+    {
+        Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
+        Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+        if(musicSrv.isPng())
+            fab.setImageDrawable(pauseDrawable);
+        else
+            fab.setImageDrawable(playDrawable);
+    }
+    private void fabPressed()
+    {
+        if(musicSrv.isPng())
+            musicSrv.pausePlayer();
+        else
+            musicSrv.resumePlayer();
+        setFabDrawable();
+    }
+
 }
