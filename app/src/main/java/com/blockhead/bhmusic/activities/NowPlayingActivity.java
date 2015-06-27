@@ -71,7 +71,7 @@ public class NowPlayingActivity extends Activity {
     private boolean needsRotation = false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {    //TODO: Make FAB show playlist if playing playlist
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);

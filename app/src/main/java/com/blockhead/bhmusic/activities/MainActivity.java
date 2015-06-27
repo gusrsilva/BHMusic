@@ -134,7 +134,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private ServiceConnection musicConnection;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
-    private Animation repeatRotationAnimation, shuffleAnimation;
+    public static Animation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
     private static Drawable fabDrawable;
     private DiskLruImageCache mDiskLruCache;
@@ -146,7 +146,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {    //TODO: Add now playing indicator to song list adapters
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);

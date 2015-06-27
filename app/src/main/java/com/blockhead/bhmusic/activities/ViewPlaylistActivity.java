@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -29,11 +30,15 @@ import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.Random;
 
-public class ViewPlaylistActivity extends Activity {
+public class ViewPlaylistActivity extends Activity {    //TODO: Make FAB work!
 
     Playlist currPlaylist;
     ArrayList<Song> songList;
+    int playlistSize;
+    MusicService musicSrv;
+    ImageButton shuffleButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +47,9 @@ public class ViewPlaylistActivity extends Activity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         currPlaylist = MainActivity.currPlaylist;
+        playlistSize = currPlaylist.getSize();
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
+        musicSrv = MainActivity.getMusicService();
 
         final ActionBar mActionBar = getActionBar();
         int mActionBarSize = getActionBarHeight() + getStatusBarHeight();
@@ -115,13 +122,26 @@ public class ViewPlaylistActivity extends Activity {
 
         /* Set title header */
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-        View titleHeader = inflater.inflate(R.layout.view_artist_header, null);
+        View titleHeader = inflater.inflate(R.layout.playlist_title_header, null);
         titleHeader.setMinimumHeight(getActionBarHeight() + getStatusBarHeight());
-        TextView title = (TextView) titleHeader.findViewById(R.id.view_artist_header_title);
-        LinearLayout linLay = (LinearLayout) titleHeader.findViewById(R.id.view_artist_header_lin);
+        TextView title = (TextView) titleHeader.findViewById(R.id.playlist_title_header_title);
+        TextView subtitle = (TextView) titleHeader.findViewById(R.id.playlist_title_header_subtitle);
+        LinearLayout linLay = (LinearLayout) titleHeader.findViewById(R.id.playlist_title_header_lin);
 
         title.setText(currPlaylist.getTitle());
+        subtitle.setText(playlistSize + (playlistSize==1?" Song":" Songs"));
         linLay.setBackgroundColor(accentColor);
+
+        /* Initialize and set up shuffle button */
+        shuffleButton = (ImageButton) titleHeader.findViewById(R.id.playlist_title_shuffleButton);
+        if(musicSrv.isPngPlaylist && musicSrv.shuffle) //Set enabled if necessary
+            shuffleButton.setEnabled(true);
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playlistShufflePressed(v);
+            }
+        });
 
         //Initialize ParralaxListView
         ParallaxListView memberList = (ParallaxListView) findViewById(R.id.playlist_members);
@@ -139,7 +159,7 @@ public class ViewPlaylistActivity extends Activity {
         memberList.setAdapter(plAdt);
 
         //Fill the rest of the list if its not long enough to cover the background
-        if( currPlaylist.getSize() <= 3)
+        if( playlistSize <= 3)
         {
             View footer = new View(this);
             footer.setBackgroundColor(getResources().getColor(R.color.background_color));
@@ -188,8 +208,11 @@ public class ViewPlaylistActivity extends Activity {
             return;
         }
         int pos = Integer.parseInt(view.getTag().toString());
-        Toast.makeText(getApplicationContext(), "Pos: " + position, Toast.LENGTH_SHORT).show();
-        MusicService musicSrv = MainActivity.getMusicService();
+        playTrack(pos);
+
+    }
+    private void playTrack(int pos)
+    {
         musicSrv.setSong(pos);
         musicSrv.playPlaylist(currPlaylist, pos);
 
@@ -212,5 +235,24 @@ public class ViewPlaylistActivity extends Activity {
         int result = (int) styledAttributes.getDimension(0, 0);
         styledAttributes.recycle();
         return result;
+    }
+
+    public void playlistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
+    {
+        musicSrv.setShuffle();
+        if(MainActivity.shuffleAnimation != null)
+            shuffleButton.startAnimation(MainActivity.shuffleAnimation);
+        if (musicSrv.shuffle) {
+            musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(playlistSize)));
+            shuffleButton.setSelected(true);
+            MainActivity.shuffleButton.setSelected(true);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(true);
+        } else {
+            shuffleButton.setSelected(false);
+            MainActivity.shuffleButton.setSelected(false);
+            if (NowPlayingActivity.shuffleButton != null)
+                NowPlayingActivity.shuffleButton.setSelected(false);
+        }
     }
 }

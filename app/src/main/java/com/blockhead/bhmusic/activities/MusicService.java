@@ -67,7 +67,7 @@ public class MusicService extends Service implements
     private String songAlbum = "";
     private String coverURI;
     private Bitmap songCover, smallCover, blurredCover, superBlurredCover;
-    private boolean isPngAlbum = false, isPngPlaylist = false;
+    public boolean isPngAlbum = false, isPngPlaylist = false;
     private Random rand;
     private RenderScript rs;
     private int cTransparent;
