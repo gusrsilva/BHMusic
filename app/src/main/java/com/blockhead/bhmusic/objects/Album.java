@@ -134,4 +134,12 @@ public class Album {
         Album another = (Album) object;
         return(another.getArtist().equalsIgnoreCase(artist) && another.getTitle().equalsIgnoreCase(title));
     }
+
+    public int getSize()
+    {
+        if(tracks == null)
+            return 0;
+        else
+            return tracks.size();
+    }
 }

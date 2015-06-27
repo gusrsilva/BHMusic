@@ -8,22 +8,29 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -36,6 +43,7 @@ import com.blockhead.bhmusic.adapters.TracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Song;
 import com.blockhead.bhmusic.utils.NotifyingScrollView;
+import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -45,76 +53,11 @@ import java.util.concurrent.TimeUnit;
 
 
 
-public class ViewAlbumActivity extends Activity {
+public class ViewAlbumActivity extends AppCompatActivity {
 
-    private android.support.design.widget.CollapsingToolbarLayout mCollapsingTB;
     private Album currAlbum;
-    private ImageView coverView, fadeCoverView;
-    private TextView tracksView, headerTrackCount;
-    private Drawable mActionBarBackgroundDrawable, mActionBarCoverDrawable;
-    private ActionBar actionBar;
-    private ArrayList<Song> trackList;
-    private NotifyingScrollView bgScrollView, scrollView;
-    private TracksAdapter tracksAdt;
-    private ListView trackListView;
-    private Song currTrack;
     private MusicService musicSrv;
     private FloatingActionButton fab;
-    private int vibrantColor;
-    private NotifyingScrollView.OnScrollChangedListener mOnScrollChangedListener = new NotifyingScrollView.OnScrollChangedListener() {
-        public void onScrollChanged(ScrollView who, int l, int t, int oldl, int oldt) {
-            final int headerHeight = coverView.getHeight() - getActionBarHeight() - getStatusBarHeight();
-            final float ratio = (float) Math.min(Math.max(t, 0), headerHeight) / headerHeight;
-            final int newAlpha = (int) (ratio * 255);
-            final int coverAlpha = (int) (newAlpha * 1.15);
-            //mActionBarBackgroundDrawable.setAlpha(newAlpha);
-            if (coverAlpha < 255) {
-                mActionBarCoverDrawable.setAlpha(coverAlpha);
-                mActionBarCoverDrawable.setTint(vibrantColor);
-            }
-
-            //Show Hide Action Bar
-            int coverHeight = contentGapper.getMeasuredHeight() - 103;
-            if (t >= coverHeight) {
-                abBackground.setAlpha(1);
-            } else {
-                abBackground.setAlpha(0);
-            }
-
-            bgScrollView.scrollTo(0, (int) (t * .4));
-        }
-    };
-    private RelativeLayout abBackground, header;
-    private FrameLayout contentGapper;
-
-    /**** Method for Setting the Height of the ListView dynamically.
-     **** Hack to fix the issue of not showing all the items of the ListView
-     **** when placed inside a ScrollView  ****/
-    public static void setListViewHeightBasedOnChildren(ListView listView, Context context) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null)
-            return;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-        int totalHeight = 0;
-        View view = null;
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            view = listAdapter.getView(i, view, listView);
-            if (i == 0)
-                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, RelativeLayout.LayoutParams.WRAP_CONTENT));
-
-            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += view.getMeasuredHeight();
-            if (i == listAdapter.getCount() - 1) {
-                totalHeight += view.getMeasuredHeight() * 2;
-            }
-        }
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        totalHeight += (listView.getDividerHeight() * (listAdapter.getCount()));
-        params.height = totalHeight;
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,66 +66,124 @@ public class ViewAlbumActivity extends Activity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get single instance
+        final android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
 
         currAlbum = MainActivity.currAlbum;
-        trackList = currAlbum.tracks;
-        coverView = (ImageView) findViewById(R.id.coverArtAlbum);
-        fadeCoverView = (ImageView) findViewById(R.id.fadeCover);
-        actionBar = getActionBar();
-        abBackground = (RelativeLayout) findViewById(R.id.ab_background);
-        header = (RelativeLayout) findViewById(R.id.header);
+
+        /* Cannot open activity if no Album is set */
+        if(currAlbum == null)
+        {
+            Toast.makeText(getApplicationContext(),
+                    "Please select an album first."
+                    , Toast.LENGTH_SHORT)
+                    .show();
+            finish();
+        }
+
+        String coverUri = currAlbum.getCoverURI();
+        int albumSize = currAlbum.getSize();
+        ArrayList<Song> trackList = currAlbum.tracks;
         fab = (FloatingActionButton) findViewById(R.id.albumFab);
         musicSrv = MainActivity.getMusicService();
         setFabDrawable();
 
-        //Setup Show ActionBar Variables
-        contentGapper = (FrameLayout) findViewById(R.id.content_gapper);
+        /* Setup ActionBar */
+        int actionBarColor = MainActivity.primaryColor;
+        if(currAlbum != null && currAlbum.getAccentColor() != Color.WHITE)
+            actionBarColor = currAlbum.getAccentColor();
+        if(mActionBar != null)
+            mActionBar.setTitle("");
 
-        //Set ActionBar Title & Cover Image
-        if (currAlbum != null) {
-            if (actionBar != null)
-                actionBar.setTitle("");
-            if (currAlbum.getCoverURI() != null) {
-                //Picasso.with(getApplicationContext()).load(currAlbum.getCoverURI()).fit().centerCrop().noFade().into(coverView);
-                imageLoader.displayImage(currAlbum.getCoverURI(), coverView);
-                Log.d("DEBUG-BHCA","Setting cover: " + currAlbum.getCoverURI());
-            }
-            // coverView.notify();
+        /* Setup ActionBar Background */
+        final RelativeLayout abBackground = (RelativeLayout)findViewById(R.id.album_ab_background);
+        if(abBackground != null)
+        {
+            abBackground.setBackgroundColor(actionBarColor);
+            abBackground.setAlpha(0);
         }
 
-        //Set Track List
-        tracksAdt = new TracksAdapter(this, trackList);
-        trackListView = (ListView) findViewById(R.id.trackListView);
-        trackListView.setOnTouchListener(new View.OnTouchListener() {
-            // Setting on Touch Listener for handling the touch inside ScrollView
+        //Define On Scroll Listener for ParallaxListView
+        AbsListView.OnScrollListener mOnScrollListener = new AbsListView.OnScrollListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // Disallow the touch request for parent scroll on touch of child view
-                v.getParent().requestDisallowInterceptTouchEvent(true);
-                return false;
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (mActionBar != null)
+                {
+                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 1)
+                    {
+                        abBackground.setAlpha(0);
+                        mActionBar.setTitle("");
+                    }
+                    else if (firstVisibleItem >= 1 && abBackground.getAlpha() == 0)
+                    {
+                        abBackground.setAlpha(1);
+                        mActionBar.setTitle(currAlbum.getTitle());
+                    }
+                }
+            }
+        };
+
+        /* Set Image Header attributes */
+        ImageView header = new ImageView(this);
+        if(coverUri == null)
+        { //Set default art if none
+            header.setImageResource(R.drawable.default_cover_xlarge);
+            header.setBackgroundColor(MainActivity.randomColor());
+        }
+        else
+            imageLoader.displayImage(coverUri, header);
+        header.setAdjustViewBounds(true);
+        header.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        double maxHeight = size.y * 0.6667;
+        double minHeight = size.y * 0.5;
+        header.setMaxHeight((int) maxHeight);
+        header.setMinimumHeight((int) minHeight);
+
+        /* Set title header */
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        View titleHeader = inflater.inflate(R.layout.view_album_title_header, null);
+        titleHeader.setMinimumHeight(getActionBarHeight() + getStatusBarHeight());
+        TextView title = (TextView) titleHeader.findViewById(R.id.view_album_header_title);
+        TextView subtitle = (TextView) titleHeader.findViewById(R.id.view_album_header_subtitle);
+        LinearLayout linLay = (LinearLayout) titleHeader.findViewById(R.id.view_album_header_lin);
+        title.setText(currAlbum.getTitle());
+        subtitle.setText(currAlbum.getArtist() + " (" + albumSize + (albumSize==1?" song )":" songs )"));
+        linLay.setBackgroundColor(actionBarColor);
+
+        /*  Set up Parallax ListView */
+        ParallaxListView memberList = (ParallaxListView) findViewById(R.id.view_album_list);
+        memberList.addParallaxedHeaderView(header);
+        memberList.addHeaderView(titleHeader);
+        memberList.setOnScrollListener(mOnScrollListener);
+        memberList.setBackgroundColor(actionBarColor);
+        memberList.setDivider(null);
+        TracksAdapter tracksAdt = new TracksAdapter(getApplicationContext(), trackList);
+        memberList.setAdapter(tracksAdt);
+        memberList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                trackPicked(view);
             }
         });
-        trackListView.setAdapter(tracksAdt);
-        setListViewHeightBasedOnChildren(trackListView, getApplicationContext());
-        trackListView.setFocusable(false);
 
-        //Set Header Info
-        TextView headerTitle = (TextView) findViewById(R.id.header_title);
-        TextView abTitle = (TextView) findViewById(R.id.ab_title);
-        headerTrackCount = (TextView) findViewById(R.id.header_track_count);
-        headerTitle.setText(currAlbum.getTitle());
-        abTitle.setText(currAlbum.getTitle());
-        headerTrackCount.setText(currAlbum.getArtist() + " (" + trackList.size() + " songs)");
-
-        //Set Colors
-        vibrantColor = currAlbum.getAccentColor();
-        if (vibrantColor == Color.WHITE)
-            vibrantColor = MainActivity.primaryColor;
-
-        mActionBarBackgroundDrawable = getResources().getDrawable(R.drawable.ab_background);
-        mActionBarBackgroundDrawable.setColorFilter(vibrantColor, PorterDuff.Mode.SRC_ATOP);
-        mActionBarCoverDrawable = getResources().getDrawable(R.drawable.ab_background);
-        mActionBarCoverDrawable.setColorFilter(vibrantColor, PorterDuff.Mode.SRC_ATOP);
+        /* Fill the rest of the list if its not long enough to cover the background */
+        if( albumSize <= 3)
+        {
+            View footer = new View(this);
+            footer.setBackgroundColor(getResources().getColor(R.color.background_color));
+            footer.setMinimumWidth(size.x);
+            footer.setMinimumHeight((int) minHeight);
+            footer.setClickable(false);
+            footer.setLongClickable(false);
+            memberList.addFooterView(footer);
+        }
 
         /* Setup Floating Action Button */
         fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
@@ -203,21 +204,6 @@ public class ViewAlbumActivity extends Activity {
         });
 
 
-        abBackground.setBackgroundColor(vibrantColor);
-        header.setBackgroundColor(vibrantColor);
-        abBackground.setAlpha(0);
-
-
-        if (mActionBarCoverDrawable != null)
-            mActionBarCoverDrawable.setAlpha(0);
-
-
-        fadeCoverView.setImageDrawable(mActionBarCoverDrawable);
-
-        scrollView = ((NotifyingScrollView) findViewById(R.id.scroll_view));
-
-        scrollView.setOnScrollChangedListener(mOnScrollChangedListener);
-        bgScrollView = (NotifyingScrollView) findViewById(R.id.bg_scroll_view);
     }//END ON CREATE METHOD
 
     @Override
@@ -279,7 +265,7 @@ public class ViewAlbumActivity extends Activity {
     {
 
         int pos = Integer.parseInt(view.getTag().toString());
-        currTrack = trackList.get(pos);
+        //currTrack = trackList.get(pos);
         musicSrv.setSong(pos);
         musicSrv.playAlbum(currAlbum, pos);
 
@@ -320,18 +306,9 @@ public class ViewAlbumActivity extends Activity {
         }
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
-        ActivityOptions options;
 
-        if (musicSrv.getCurrSong().getCoverURI() != null) {
-            options = ActivityOptions.makeSceneTransitionAnimation(this,
-                    Pair.create((View) findViewById(R.id.coverArtAlbum), "coverArt"),
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
-        }
-        else
-        {
-            options = ActivityOptions.makeSceneTransitionAnimation(this,
-                    Pair.create((View) fab, "fab"));
-        }
 
         startActivity(intent, options.toBundle());
     }

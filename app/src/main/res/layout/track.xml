@@ -3,11 +3,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="5dp"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
-        android:onClick="trackPicked"
-        android:background="@drawable/rect_ripple_white" >
+        android:background="@drawable/rect_ripple_white"
+        android:paddingLeft="15dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingRight="15dp">
 
         <TextView
             android:id="@+id/track_title"
@@ -16,7 +18,6 @@
             android:textColor="#99000000"
             android:textSize="16sp"
             android:textAlignment="gravity"
-            android:layout_marginRight="20dp"
             android:gravity="left"
             android:textStyle="bold"
             android:text="Gone" />
@@ -28,7 +29,6 @@
             android:textColor="#66000000"
             android:textSize="14sp"
             android:textAlignment="gravity"
-            android:layout_marginRight="20dp"
             android:gravity="left"
             android:textStyle="bold"
             android:text="08:54" />

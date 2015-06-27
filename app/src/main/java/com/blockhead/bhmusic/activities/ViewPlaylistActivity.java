@@ -59,7 +59,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         musicSrv = MainActivity.getMusicService();
 
         final android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
-        int mActionBarSize = getActionBarHeight() + getStatusBarHeight();
         if(mActionBar != null) {
             mActionBar.setTitle("");
         }
@@ -74,10 +73,10 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             coverUri = songList.get(i++).getCoverURI();
         }
 
-        //Set accent color
-        int accentColor = MainActivity.primaryColor;
+        //Set ActionBar color
+        int actionBarColor = MainActivity.primaryColor;
         if(songList != null && songList.get(i).getAccentColor() != Color.WHITE)
-            accentColor = songList.get(i).getAccentColor();
+            actionBarColor = songList.get(i).getAccentColor();
 
         /* Setup Floating Action Button */
         coordLay = (CoordinatorLayout)findViewById(R.id.playlist_coordinator);
@@ -92,7 +91,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         });
 
         final RelativeLayout abBackground = (RelativeLayout)findViewById(R.id.artist_ab_background);
-        abBackground.setBackgroundColor(accentColor);
+        abBackground.setBackgroundColor(actionBarColor);
         abBackground.setAlpha(0);
 
         //Define On Scroll Listener for ParallaxListView
@@ -146,10 +145,9 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         TextView title = (TextView) titleHeader.findViewById(R.id.playlist_title_header_title);
         TextView subtitle = (TextView) titleHeader.findViewById(R.id.playlist_title_header_subtitle);
         LinearLayout linLay = (LinearLayout) titleHeader.findViewById(R.id.playlist_title_header_lin);
-
         title.setText(currPlaylist.getTitle());
         subtitle.setText(playlistSize + (playlistSize==1?" Song":" Songs"));
-        linLay.setBackgroundColor(accentColor);
+        linLay.setBackgroundColor(actionBarColor);
 
         /* Initialize and set up shuffle button */
         shuffleButton = (ImageButton) titleHeader.findViewById(R.id.playlist_title_shuffleButton);
@@ -160,22 +158,18 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             }
         });
 
-        //Initialize ParralaxListView
+        /* Set up ParralaxListView */
         ParallaxListView memberList = (ParallaxListView) findViewById(R.id.playlist_members);
-        //Add Headers to it
         memberList.addParallaxedHeaderView(header);
         memberList.addHeaderView(titleHeader);
-        //Set Scroll Listener
         memberList.setOnScrollListener(mOnScrollListener);
-        //Set BG Color
-        memberList.setBackgroundColor(accentColor);
-        //Remove dividers
+        memberList.setBackgroundColor(actionBarColor);
         memberList.setDivider(null);
 
         PlaylistMembersAdapter plAdt = new PlaylistMembersAdapter(getApplicationContext(), currPlaylist);
         memberList.setAdapter(plAdt);
 
-        //Fill the rest of the list if its not long enough to cover the background
+        /* Fill the rest of the list if its not long enough to cover the background */
         if( playlistSize <= 3)
         {
             View footer = new View(this);
