@@ -42,7 +42,7 @@
             android:name=".activities.ViewAlbumActivity"
             android:label="@string/title_activity_view_album"
             android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/DefaultTheme" >
+            android:theme="@style/DefaultCompatTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />

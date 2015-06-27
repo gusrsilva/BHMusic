@@ -5,12 +5,15 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
@@ -26,6 +29,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.TracksAdapter;
@@ -44,14 +48,6 @@ import java.util.concurrent.TimeUnit;
 public class ViewAlbumActivity extends Activity {
 
     private android.support.design.widget.CollapsingToolbarLayout mCollapsingTB;
-    Handler monitorHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            mediaPlayerMonitor();
-        }
-
-    };
     private Album currAlbum;
     private ImageView coverView, fadeCoverView;
     private TextView tracksView, headerTrackCount;
@@ -63,11 +59,11 @@ public class ViewAlbumActivity extends Activity {
     private ListView trackListView;
     private Song currTrack;
     private MusicService musicSrv;
-    private ImageButton fab;
+    private FloatingActionButton fab;
     private int vibrantColor;
     private NotifyingScrollView.OnScrollChangedListener mOnScrollChangedListener = new NotifyingScrollView.OnScrollChangedListener() {
         public void onScrollChanged(ScrollView who, int l, int t, int oldl, int oldt) {
-            final int headerHeight = coverView.getHeight() - getActionBar().getHeight();
+            final int headerHeight = coverView.getHeight() - getActionBarHeight() - getStatusBarHeight();
             final float ratio = (float) Math.min(Math.max(t, 0), headerHeight) / headerHeight;
             final int newAlpha = (int) (ratio * 255);
             final int coverAlpha = (int) (newAlpha * 1.15);
@@ -90,7 +86,6 @@ public class ViewAlbumActivity extends Activity {
     };
     private RelativeLayout abBackground, header;
     private FrameLayout contentGapper;
-    private Drawable pauseDrawable, playDrawable;
 
     /**** Method for Setting the Height of the ListView dynamically.
      **** Hack to fix the issue of not showing all the items of the ListView
@@ -129,7 +124,6 @@ public class ViewAlbumActivity extends Activity {
 
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get single instance
 
-
         currAlbum = MainActivity.currAlbum;
         trackList = currAlbum.tracks;
         coverView = (ImageView) findViewById(R.id.coverArtAlbum);
@@ -137,10 +131,9 @@ public class ViewAlbumActivity extends Activity {
         actionBar = getActionBar();
         abBackground = (RelativeLayout) findViewById(R.id.ab_background);
         header = (RelativeLayout) findViewById(R.id.header);
-        fab = (ImageButton) findViewById(R.id.albumFab);
+        fab = (FloatingActionButton) findViewById(R.id.albumFab);
         musicSrv = MainActivity.getMusicService();
-        if (!musicSrv.isPng())
-            fab.setImageDrawable(getResources().getDrawable(R.drawable.play));
+        setFabDrawable();
 
         //Setup Show ActionBar Variables
         contentGapper = (FrameLayout) findViewById(R.id.content_gapper);
@@ -191,10 +184,23 @@ public class ViewAlbumActivity extends Activity {
         mActionBarCoverDrawable = getResources().getDrawable(R.drawable.ab_background);
         mActionBarCoverDrawable.setColorFilter(vibrantColor, PorterDuff.Mode.SRC_ATOP);
 
-        pauseDrawable = getResources().getDrawable(R.drawable.pause);
-        playDrawable = getResources().getDrawable(R.drawable.play);
-        Drawable fabBG = fab.getBackground();
-        fabBG.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
+        /* Setup Floating Action Button */
+        fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
+        fab.setClickable(true);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabPressed();
+            }
+        });
+        fab.setLongClickable(true);
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                nowPlayingButtonPressed();
+                return true;
+            }
+        });
 
 
         abBackground.setBackgroundColor(vibrantColor);
@@ -212,37 +218,7 @@ public class ViewAlbumActivity extends Activity {
 
         scrollView.setOnScrollChangedListener(mOnScrollChangedListener);
         bgScrollView = (NotifyingScrollView) findViewById(R.id.bg_scroll_view);
-
-        ScheduledExecutorService myScheduledExecutorService = Executors.newScheduledThreadPool(1);
-
-        myScheduledExecutorService.scheduleWithFixedDelay(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        monitorHandler.sendMessage(monitorHandler.obtainMessage());
-                    }
-                },
-                0, //initialDelay
-                200, //delay
-                TimeUnit.MILLISECONDS);
     }//END ON CREATE METHOD
-
-
-        //End Cyril Code
-
-    //Media Player Monitor
-    private void mediaPlayerMonitor() {
-        //set FAB icon
-        if (musicSrv != null) {
-            if (musicSrv.isPng()) {
-                //set playButton icon to pause
-                fab.setImageDrawable(pauseDrawable);
-            } else {
-                //set playButton icon to play
-                fab.setImageDrawable(playDrawable);
-            }
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -315,9 +291,65 @@ public class ViewAlbumActivity extends Activity {
         startActivity(intent, options.toBundle());
     }
 
-
-    public void albumFabPressed(View v)
+    private void setFabDrawable()
     {
-        MainActivity.fabPressed(v);
+        Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
+        Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+        if(musicSrv.isPng())
+            fab.setImageDrawable(pauseDrawable);
+        else
+            fab.setImageDrawable(playDrawable);
+    }
+    private void fabPressed()
+    {
+        if(musicSrv.isPng())
+            musicSrv.pausePlayer();
+        else
+            musicSrv.resumePlayer();
+        setFabDrawable();
+    }
+
+    private void nowPlayingButtonPressed()
+    {
+        if(musicSrv == null || musicSrv.getCurrSong() == null)
+        {
+            Toast
+                    .makeText(getApplicationContext(), "Please select song first.", Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+
+        Intent intent = new Intent(this, NowPlayingActivity.class);
+        ActivityOptions options;
+
+        if (musicSrv.getCurrSong().getCoverURI() != null) {
+            options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) findViewById(R.id.coverArtAlbum), "coverArt"),
+                    Pair.create((View) fab, "fab"));
+        }
+        else
+        {
+            options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab"));
+        }
+
+        startActivity(intent, options.toBundle());
+    }
+
+    public int getActionBarHeight(){
+        final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        int result = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+        return result;
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }
