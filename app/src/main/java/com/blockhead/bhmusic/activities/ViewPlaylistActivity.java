@@ -3,6 +3,7 @@ package com.blockhead.bhmusic.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -44,8 +45,13 @@ public class ViewPlaylistActivity extends Activity {
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
 
         final ActionBar mActionBar = getActionBar();
-        if(mActionBar != null)
+        int mActionBarSize = getActionBarHeight() + getStatusBarHeight();
+        if(mActionBar != null) {
             mActionBar.setTitle(currPlaylist.getTitle());
+            //Get actionbar size
+
+
+        }
 
         int songPos = 0, i=0;
         String coverUri = null;
@@ -104,10 +110,19 @@ public class ViewPlaylistActivity extends Activity {
         header.setMaxHeight((int) maxHeight);
         header.setMinimumHeight((int) minHeight);
 
+        //Add placeholder header
+        View blankHeader = new View(this);
+        blankHeader.setBackgroundColor(getResources().getColor(R.color.redSwatch));
+        blankHeader.setMinimumWidth(size.x);
+        blankHeader.setMinimumHeight(mActionBarSize);
+        blankHeader.setClickable(false);
+        blankHeader.setLongClickable(false);
+
         //Initialize ParralaxListView
         ParallaxListView memberList = (ParallaxListView) findViewById(R.id.playlist_members);
-        //Add Header to it
+        //Add Headers to it
         memberList.addParallaxedHeaderView(header);
+        memberList.addHeaderView(blankHeader);
         //Set Scroll Listener
         memberList.setOnScrollListener(mOnScrollListener);
         //Set BG Color
@@ -124,14 +139,15 @@ public class ViewPlaylistActivity extends Activity {
             View footer = new View(this);
             footer.setBackgroundColor(getResources().getColor(R.color.background_color));
             footer.setMinimumWidth(size.x);
-            footer.setMinimumHeight((int) maxHeight);
+            footer.setMinimumHeight((int) minHeight);
+            footer.setClickable(false);
+            footer.setLongClickable(false);
             memberList.addFooterView(footer);
         }
 
         memberList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), "Picked: " + (position-1),Toast.LENGTH_SHORT).show();
                 playlistTrackPicked(view, position);
             }
         });
@@ -162,6 +178,10 @@ public class ViewPlaylistActivity extends Activity {
 
     public void playlistTrackPicked(View view, int position)
     {
+        if(view.getTag() == null) {//Ignore clicks on header and footer
+            Toast.makeText(getApplicationContext(), "Pos: " + (position), Toast.LENGTH_SHORT).show();
+            return;
+        }
         int pos = Integer.parseInt(view.getTag().toString());
         Toast.makeText(getApplicationContext(), "Pos: " + position, Toast.LENGTH_SHORT).show();
         MusicService musicSrv = MainActivity.getMusicService();
@@ -170,5 +190,22 @@ public class ViewPlaylistActivity extends Activity {
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
         startActivity(intent);
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    public int getActionBarHeight(){
+        final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        int result = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+        return result;
     }
 }

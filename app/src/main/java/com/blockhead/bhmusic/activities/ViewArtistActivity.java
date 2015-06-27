@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -121,7 +122,8 @@ public class ViewArtistActivity extends Activity {
         else
             xLV.setBackgroundColor(currArtist.getAccentColor());
 
-        ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums);
+        int headerHeight = getActionBarHeight() + getStatusBarHeight();
+        ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums, headerHeight);
         xLV.setAdapter(mArtistsTracksAdapter);
         xLV.setOnScrollListener(mOnScrollListener);
         ExpandableListView.OnChildClickListener mOnClickedListener = new ExpandableListView.OnChildClickListener() {
@@ -141,14 +143,7 @@ public class ViewArtistActivity extends Activity {
             View footer = new View(this);
             footer.setBackgroundColor(getResources().getColor(R.color.background_color));
             footer.setMinimumWidth(size.x);
-            header.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            int imgHeight = header.getMeasuredHeight();
-            final float scale = getApplicationContext().getResources().getDisplayMetrics().density;
-            int headerHeight = (int) (60 * scale + 0.5f);
-            int albumsHeight = (int) (110 * scale + 0.5f);
-            albumsHeight *= currArtist.getAlbums().size();
-            double footerHeight = size.y - (imgHeight + headerHeight + albumsHeight);
-            footer.setMinimumHeight((int) footerHeight);
+            footer.setMinimumHeight((int) minHeight);
             xLV.addFooterView(footer);
 
 
@@ -256,5 +251,22 @@ public class ViewArtistActivity extends Activity {
             if (NowPlayingActivity.shuffleButton != null)
                 NowPlayingActivity.shuffleButton.setSelected(false);
         }
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    public int getActionBarHeight(){
+        final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        int result = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+        return result;
     }
 }

@@ -27,10 +27,12 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
 
     private final ArrayList<Album> albumList;
     private final LayoutInflater inflater;
+    private int headerHeight;
 
-    public ArtistsTracksAdapter(Context context, ArrayList<Album> itemList) {
+    public ArtistsTracksAdapter(Context context, ArrayList<Album> itemList, int headHt) {
         this.inflater = LayoutInflater.from(context);
         this.albumList = itemList;
+        headerHeight = headHt;  //Had to be passed from Main, cannot be calculated in Adapter
     }
 
     @Override
@@ -117,7 +119,7 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
             if (groupPosition == 0) {
                 Artist artistObj = album.getArtistObj();
                 resultView = inflater.inflate(R.layout.view_artist_header, null);
-                resultView.setMinimumHeight(245);
+                resultView.setMinimumHeight(headerHeight);
                 TextView title = (TextView) resultView.findViewById(R.id.view_artist_header_title);
                 LinearLayout linLay = (LinearLayout) resultView.findViewById(R.id.view_artist_header_lin);
 

@@ -62,7 +62,8 @@ public class PlaylistListAdapter extends BaseAdapter {
         ImageView img = (ImageView) trackLay.findViewById(R.id.playlist_img);
 
         title.setText(playlists.get(position).getTitle());
-        numTracks.setText(playlists.get(position).getSize() + " songs");
+        int size = playlists.get(position).getSize();
+        numTracks.setText(size + (size==1?" Song":" Songs"));
 
         String coverUri = null; int i = 0;
         while(coverUri == null && i < playlists.get(position).getSize())
