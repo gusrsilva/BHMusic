@@ -96,7 +96,12 @@ public class Album {
         return artist;
     }
 
-    public String getCoverURI(){ return "file:///" + URI; }
+    public String getCoverURI()
+    {   if(URI == null)
+            return null;
+        else
+            return "file:///" + URI;
+    }
 
 
     public ArrayList<Song> getTracks() {

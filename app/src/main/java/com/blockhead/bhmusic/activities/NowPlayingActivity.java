@@ -294,7 +294,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             //coverArt.startAnimation(vinylAnimation);
             needsRotation = true;
         }
-
     }
 
 

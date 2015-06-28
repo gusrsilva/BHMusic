@@ -1,6 +1,7 @@
 package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,9 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.blockhead.bhmusic.R;
+import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Song;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.squareup.picasso.Picasso;
 
@@ -27,12 +30,19 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
     private LayoutInflater songInf;
     private String mSections = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private ImageLoader imageLoader;
+    private DisplayImageOptions options;
+    private Context context;
 
 
     public SongAdapter(Context c, ArrayList<Song> theSongs) {
         songs = theSongs;
         songInf = LayoutInflater.from(c);
         imageLoader = ImageLoader.getInstance(); // Get singleton instance
+        options = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.default_cover) // resource or drawable
+                .showImageOnFail(R.drawable.default_cover)
+                .build();
+        context = c;
 
     }
 
@@ -74,10 +84,11 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
         //set album artwork
         if(currSong.getCoverURI() != null)
-            Picasso.with(parent.getContext()).load(currSong.getCoverURI()).
-                    resize(100,100).error(R.drawable.default_cover).centerCrop().into(coverView);
-        else {
+            imageLoader.displayImage(currSong.getCoverURI(), coverView);
+        else
+        {
             int color = parent.getResources().getColor(currSong.getRandomColor());
+            coverView.setImageDrawable(context.getDrawable(R.drawable.default_cover));
             coverView.setBackgroundColor(color);
             Log.d("DEBUG-BHCA", "Setting random color with: " + (color));
         }
