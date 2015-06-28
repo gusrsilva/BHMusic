@@ -254,7 +254,9 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         musicSrv.shuffle = true;
         if(MainActivity.shuffleAnimation != null)
             shuffleButton.startAnimation(MainActivity.shuffleAnimation);
-        musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(playlistSize-1)));
+        int pos = new Random().nextInt(playlistSize - 1);
+        musicSrv.setSong(pos);
+        musicSrv.playPlaylist(currPlaylist, pos);
         setFabDrawable();
         MainActivity.shuffleButton.setSelected(true);
         if (NowPlayingActivity.shuffleButton != null)

@@ -37,7 +37,7 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
 
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
-                .showImageOnFail(R.drawable.default_album_cover)
+                .showImageOnFail(R.drawable.default_cover_xlarge)
                 .resetViewBeforeLoading(false)  // default
                 .cacheInMemory(true)
                 .build();

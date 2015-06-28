@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -9,225 +10,231 @@
     tools:context="com.blockhead.bhmusic.activities.NowPlayingActivity">
 
 
-    <RelativeLayout
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <ListView
-            android:id="@+id/np_track_listview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_alignBottom="@+id/fauxAB"
-            android:layout_alignTop="@+id/coverArt"
-            android:background="@color/accent_color"
-            android:dividerHeight="0dp"
-            android:elevation="6dp"
-            android:paddingTop="80dp"
-            android:visibility="invisible" />
-
-        <ImageView
-            android:id="@+id/coverArt"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_above="@+id/fauxAB"
-            android:elevation="1dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/default_cover_xlarge"
-            android:transitionName="coverArt"
-            android:adjustViewBounds="true" />
-
-        <ImageButton
-            android:id="@+id/np_fab"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="end|bottom"
-            android:layout_marginBottom="190dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/oval_ripple_accent_color"
-            android:clickable="true"
-            android:elevation="6dp"
-            android:onClick="npFabPressed"
-            android:src="@drawable/ic_format_list_bulleted_white_24dp"
-            android:stateListAnimator="@anim/button_animation"
-            android:tint="@android:color/white"
-            android:transitionName="fab" />
+        android:layout_height="fill_parent"
+        android:id="@+id/np_coordinator">
 
         <RelativeLayout
-            android:id="@+id/fauxAB"
             android:layout_width="fill_parent"
-            android:layout_height="80dp"
-            android:layout_above="@+id/controlsHolder"
-            android:background="@color/dark_grey"
-            android:elevation="5dp"
-            android:transitionName="fauxAB">
+            android:layout_height="fill_parent">
 
-            <TextView
-                android:id="@+id/trackTitle"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="15dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="TRACK"
-                android:textAlignment="gravity"
-                android:textColor="@color/white"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                android:transitionName="trackTitle" />
-
-            <TextView
-                android:id="@+id/trackArtist"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/trackTitle"
-                android:layout_marginLeft="30dp"
-                android:singleLine="true"
-                android:text="TRACK"
-                android:textAlignment="gravity"
-                android:textColor="@color/white"
-                android:textSize="17dp"
-                android:transitionName="trackArtist" />
-
-            <TextView
-                android:id="@+id/trackAlbum"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/trackArtist"
-                android:layout_marginLeft="30dp"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:textAlignment="gravity"
-                android:textColor="@color/white"
-                android:transitionName="trackAlbum" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/controlsHolder"
-            android:layout_width="fill_parent"
-            android:layout_height="140dp"
-            android:layout_alignParentBottom="true"
-            android:background="@color/background_color"
-            android:elevation="6dp"
-            android:transitionName="controlsHolder">
-
-            <ImageButton
-                android:id="@+id/shuffleButton"
-                android:layout_width="65dp"
-                android:layout_height="65dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="3dp"
-                android:layout_toLeftOf="@+id/backButton"
-                android:background="@drawable/oval_ripple_background_color"
-                android:onClick="npShufflePressed"
-                android:src="@drawable/ic_shuffle_white_24dp"
-                android:stateListAnimator="@anim/fade_alpha_animation"
-                android:tint="@android:color/black"
-                android:transitionName="shuffleButton" />
-
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="3dp"
-                android:layout_toLeftOf="@+id/floating_action_button"
-                android:background="@drawable/oval_ripple_background_color"
-                android:onClick="prevPressed"
-                android:src="@drawable/ic_skip_previous_white_36dp"
-                android:tint="@android:color/black"
-                android:transitionName="backButton" />
-
-            <ImageButton
-                android:id="@+id/floating_action_button"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_centerInParent="true"
-                android:layout_gravity="end|bottom"
-                android:adjustViewBounds="true"
-                android:background="@drawable/oval_ripple_background_color"
-                android:clickable="true"
-                android:onClick="npPlayPressed"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_play_black_48dp"
-                android:tint="@android:color/black" />
-
-            <ImageButton
-                android:id="@+id/fowardButton"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="3dp"
-                android:layout_toRightOf="@+id/floating_action_button"
-                android:background="@drawable/oval_ripple_background_color"
-                android:onClick="nextPressed"
-                android:src="@drawable/ic_skip_next_white_36dp"
-                android:tint="@android:color/black"
-                android:transitionName="fowardButton" />
-
-            <ImageButton
-                android:id="@+id/repeatButton"
-                android:layout_width="65dp"
-                android:layout_height="65dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="3dp"
-                android:layout_toRightOf="@+id/fowardButton"
-                android:background="@drawable/oval_ripple_background_color"
-                android:onClick="npRepeatPressed"
-                android:src="@drawable/ic_repeat_white_24dp"
-                android:stateListAnimator="@anim/fade_alpha_animation"
-                android:tint="@android:color/black"
-                android:transitionName="repeatButton" />
-
-            <TextView
-                android:id="@+id/totalTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="@dimen/fab_radius"
+                android:layout_height="@dimen/fab_radius"
+                android:id="@+id/np_fab"
+                android:src="@drawable/play"
+                android:transitionName="fab"
+                app:elevation="8dp"
+                app:rippleColor="@android:color/white"
+                app:backgroundTint="@color/accent_color"
+                app:pressedTranslationZ="12dp"
+                app:layout_anchor="@id/coverArt"
+                app:layout_anchorGravity="bottom|right|end"
+                android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="5dp"
-                android:text="4:50"
-                android:textColor="@color/black"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                android:transitionName="totalTime" />
+                android:layout_marginBottom="190dp"
+                android:layout_marginRight="24dp" />
 
-            <TextView
-                android:id="@+id/currTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="5dp"
-                android:text="0:01"
-                android:textColor="@color/black"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                android:transitionName="totalTime" />
+            <ListView
+                android:id="@+id/np_track_listview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignTop="@+id/coverArt"
+                android:background="@color/accent_color"
+                android:dividerHeight="0dp"
+                android:elevation="2dp"
+                android:paddingTop="80dp"
+                android:visibility="invisible"
+                android:layout_above="@+id/fauxAB" />
 
+            <ImageView
+                android:id="@+id/coverArt"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_above="@+id/fauxAB"
+                android:elevation="1dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_cover_xlarge"
+                android:transitionName="coverArt"
+                android:adjustViewBounds="true" />
+
+            <RelativeLayout
+                android:id="@+id/fauxAB"
+                android:layout_width="fill_parent"
+                android:layout_height="80dp"
+                android:layout_above="@+id/controlsHolder"
+                android:background="@color/dark_grey"
+                android:elevation="5dp"
+                android:transitionName="fauxAB">
+
+                <TextView
+                    android:id="@+id/trackTitle"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="15dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="TRACK"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/white"
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    android:transitionName="trackTitle" />
+
+                <TextView
+                    android:id="@+id/trackArtist"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/trackTitle"
+                    android:layout_marginLeft="30dp"
+                    android:singleLine="true"
+                    android:text="TRACK"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/white"
+                    android:textSize="17dp"
+                    android:transitionName="trackArtist" />
+
+                <TextView
+                    android:id="@+id/trackAlbum"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/trackArtist"
+                    android:layout_marginLeft="30dp"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/white"
+                    android:transitionName="trackAlbum" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/controlsHolder"
+                android:layout_width="fill_parent"
+                android:layout_height="140dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/background_color"
+                android:elevation="6dp"
+                android:transitionName="controlsHolder">
+
+                <ImageButton
+                    android:id="@+id/shuffleButton"
+                    android:layout_width="65dp"
+                    android:layout_height="65dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="3dp"
+                    android:layout_toLeftOf="@+id/backButton"
+                    android:background="@drawable/oval_ripple_background_color"
+                    android:onClick="npShufflePressed"
+                    android:src="@drawable/ic_shuffle_white_24dp"
+                    android:stateListAnimator="@anim/fade_alpha_animation"
+                    android:tint="@android:color/black"
+                    android:transitionName="shuffleButton" />
+
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="3dp"
+                    android:layout_toLeftOf="@+id/floating_action_button"
+                    android:background="@drawable/oval_ripple_background_color"
+                    android:onClick="prevPressed"
+                    android:src="@drawable/ic_skip_previous_white_36dp"
+                    android:tint="@android:color/black"
+                    android:transitionName="backButton" />
+
+                <ImageButton
+                    android:id="@+id/floating_action_button"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="end|bottom"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/oval_ripple_background_color"
+                    android:clickable="true"
+                    android:onClick="npPlayPressed"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_play_black_48dp"
+                    android:tint="@android:color/black" />
+
+                <ImageButton
+                    android:id="@+id/fowardButton"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="3dp"
+                    android:layout_toRightOf="@+id/floating_action_button"
+                    android:background="@drawable/oval_ripple_background_color"
+                    android:onClick="nextPressed"
+                    android:src="@drawable/ic_skip_next_white_36dp"
+                    android:tint="@android:color/black"
+                    android:transitionName="fowardButton" />
+
+                <ImageButton
+                    android:id="@+id/repeatButton"
+                    android:layout_width="65dp"
+                    android:layout_height="65dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="3dp"
+                    android:layout_toRightOf="@+id/fowardButton"
+                    android:background="@drawable/oval_ripple_background_color"
+                    android:onClick="npRepeatPressed"
+                    android:src="@drawable/ic_repeat_white_24dp"
+                    android:stateListAnimator="@anim/fade_alpha_animation"
+                    android:tint="@android:color/black"
+                    android:transitionName="repeatButton" />
+
+                <TextView
+                    android:id="@+id/totalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="5dp"
+                    android:text="4:50"
+                    android:textColor="@color/black"
+                    android:textSize="15dp"
+                    android:textStyle="bold"
+                    android:transitionName="totalTime" />
+
+                <TextView
+                    android:id="@+id/currTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="5dp"
+                    android:text="0:01"
+                    android:textColor="@color/black"
+                    android:textSize="15dp"
+                    android:textStyle="bold"
+                    android:transitionName="totalTime" />
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/bgBlurredCover"
+                android:layout_width="fill_parent"
+                android:layout_height="400dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="-100dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop" />
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/bgBlurredCover"
-            android:layout_width="fill_parent"
-            android:layout_height="400dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="-100dp"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop" />
-    </RelativeLayout>
+    </android.support.design.widget.CoordinatorLayout>
 
     <SeekBar
         android:id="@+id/progressBar"
@@ -246,5 +253,6 @@
         android:thumb="@drawable/now_playing_seekbar_control"
         android:transitionName="progressBar"
         android:visibility="visible" />
+
 
 </FrameLayout>

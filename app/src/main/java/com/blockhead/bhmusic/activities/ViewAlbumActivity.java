@@ -278,7 +278,6 @@ public class ViewAlbumActivity extends AppCompatActivity {
     {
 
         int pos = Integer.parseInt(view.getTag().toString());
-        //currTrack = trackList.get(pos);
         musicSrv.setSong(pos);
         musicSrv.playAlbum(currAlbum, pos);
 
@@ -331,7 +330,9 @@ public class ViewAlbumActivity extends AppCompatActivity {
         musicSrv.shuffle = true;
         if(MainActivity.shuffleAnimation != null)
             shuffleButton.startAnimation(MainActivity.shuffleAnimation);
-        musicSrv.playAlbum(currAlbum, (new Random().nextInt(albumSize-1)));
+        int pos = new Random().nextInt(albumSize - 1);
+        musicSrv.setSong(pos);
+        musicSrv.playAlbum(currAlbum, pos);
         setFabDrawable();
         MainActivity.shuffleButton.setSelected(true);
         if (NowPlayingActivity.shuffleButton != null)

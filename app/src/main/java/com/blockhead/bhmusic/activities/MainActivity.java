@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         if (mActionBar != null)
             mActionBar.setTitle(abTitle);
         if(currAlbum != null) {
-            if ((currAlbum.getCoverURI() != null) && artworkHeader == false){
+            if ((currAlbum.getCoverURI() != null) && !artworkHeader){
                 fauxAB.setBackgroundColor(primaryColor);
                 pagerTitleStrip.setBackgroundColor(primaryColor);
             }
@@ -946,6 +946,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     {
         final int pos = Integer.parseInt(view.getTag().toString());
         currPlaylist = playlistList.get(pos);
+        musicSrv.setSong(pos);
 
         musicSrv.playPlaylist(currPlaylist, (new Random().nextInt(currPlaylist.getSize())));
 

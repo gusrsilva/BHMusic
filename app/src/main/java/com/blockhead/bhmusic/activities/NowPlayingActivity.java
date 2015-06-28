@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -14,6 +15,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.renderscript.RenderScript;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,14 +36,15 @@ import android.widget.Toast;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.npTracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
-import com.squareup.picasso.Picasso;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class NowPlayingActivity extends Activity {
+public class NowPlayingActivity extends AppCompatActivity {
 
     public static ImageButton shuffleButton, repeatButton;
     Handler monitorHandler = new Handler() {
@@ -52,7 +56,8 @@ public class NowPlayingActivity extends Activity {
 
     };
     private MusicService musicSrv = new MusicService();
-    private ImageButton playButton, fab;
+    private ImageButton playButton;
+    private FloatingActionButton fab;
     private TextView trkTitle, trkArtist, trkAlbum, timePos, timeDur;
     private SeekBar seek;
     private RelativeLayout controlsHolder, fauxAB;
@@ -65,10 +70,12 @@ public class NowPlayingActivity extends Activity {
     private npTracksAdapter tracksAdapter;
     private LinearLayout npTrackHolder;
     private Drawable mListHeader, seekThumb, seekThumbSelected, seekProgress, fabDrawable;
-    private ActionBar actionBar;
+    private android.support.v7.app.ActionBar actionBar;
     private int vibrantColor;
     private Animation repeatAnimation, shuffleAnimation, vinylAnimation;
     private boolean needsRotation = false;
+    private ImageLoader imageLoader;
+    private DisplayImageOptions displayOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {    //TODO: Make FAB show playlist if playing playlist
@@ -76,11 +83,19 @@ public class NowPlayingActivity extends Activity {
         setContentView(R.layout.activity_now_playing);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-        actionBar = getActionBar();
+        /* Set up Action Bar */
+        actionBar = getSupportActionBar();
         if(actionBar != null)
             actionBar.setDisplayHomeAsUpEnabled(true);
 
-        //Set Drawables
+        /* Initialize ImageLoader and options */
+        imageLoader = ImageLoader.getInstance();
+        displayOptions = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
+                .showImageOnFail(R.drawable.default_cover_xlarge)
+                .build();
+
+        /* Set up layout */
         seekThumb = getResources().getDrawable(R.drawable.seekbar_thumb);
         seekThumbSelected = getResources().getDrawable(R.drawable.seekbar_thumb_selected);
         seekProgress = getResources().getDrawable(R.drawable.now_playing_seekbar_progress);
@@ -88,11 +103,20 @@ public class NowPlayingActivity extends Activity {
         seekThumb.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         seekProgress.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
 
+        /* Set up Floating Action Button */
+        fab = (FloatingActionButton) findViewById(R.id.np_fab);
+        fabDrawable = fab.getBackground();
+        fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
+        fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_format_list_bulleted_white_24dp));
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                npFabPressed(v);
+            }
+        });
+
         //Set Views
         playButton = (ImageButton) findViewById(R.id.floating_action_button);
-        fab = (ImageButton) findViewById(R.id.np_fab);
-        fabDrawable = fab.getBackground();
-        fabDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         trkTitle = (TextView) findViewById(R.id.trackTitle);
         trkArtist = (TextView) findViewById(R.id.trackArtist);
         trkAlbum = (TextView) findViewById(R.id.trackAlbum);
@@ -195,20 +219,12 @@ public class NowPlayingActivity extends Activity {
                 if (!trkTitle.getText().toString().equalsIgnoreCase(musicSrv.getSongTitle())) {
                     setInfo();
                 }
-
-                //Set Vinyl Animation
-                //if(coverArt != null && needsRotation && coverArt.getAnimation() == null)
-                    //coverArt.startAnimation(vinylAnimation);
             }
             else
             {
                 //set playButton icon to play
                 Drawable playDrawable = getResources().getDrawable(R.drawable.play);
                 playButton.setImageDrawable(playDrawable);
-
-                //Set Vinyl Animation
-                //if(coverArt != null && needsRotation && coverArt.getAnimation() != null)
-                    //coverArt.clearAnimation();
             }
         }
         else
@@ -269,7 +285,7 @@ public class NowPlayingActivity extends Activity {
             //regCov = musicSrv.getSongCover().copy(musicSrv.getSongCover().getConfig(), true);
             //coverArt.setImageBitmap(regCov);
             blurCov = musicSrv.getSuperBlurredCover();
-            Picasso.with(getApplicationContext()).load(musicSrv.getCoverURI()).centerCrop().fit().noFade().into(coverArt);
+            imageLoader.displayImage(musicSrv.getCoverURI(), coverArt, displayOptions);
         } else {
             vibrantColor = getResources().getColor(R.color.dark_grey);
             fauxAB.setBackgroundColor(vibrantColor);
