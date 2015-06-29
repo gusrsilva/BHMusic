@@ -83,6 +83,9 @@ public class NowPlayingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_now_playing);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
+        musicSrv = MainActivity.getMusicService();
+        musicSrv.isFinished = false;
+
         /* Set up Action Bar */
         actionBar = getSupportActionBar();
         if(actionBar != null)
@@ -129,7 +132,6 @@ public class NowPlayingActivity extends AppCompatActivity {
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
         coverArt = (ImageView) findViewById(R.id.coverArt);
         bgBlurred = (ImageView) findViewById(R.id.bgBlurredCover);
-        musicSrv = MainActivity.getMusicService();
         mListHeader = getResources().getDrawable(R.drawable.rect_ripple_semitransparent_black);
 
 
@@ -194,6 +196,11 @@ public class NowPlayingActivity extends AppCompatActivity {
 
     //Media Player Monitor
     private void mediaPlayerMonitor() {
+
+        if(musicSrv == null || musicSrv.isFinished)
+        {
+            finish();
+        }
         if (musicSrv != null)
         {
             if (musicSrv.isPng())

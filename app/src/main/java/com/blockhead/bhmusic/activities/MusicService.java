@@ -21,6 +21,7 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -83,6 +84,7 @@ public class MusicService extends Service implements
     private RemoteViews notificationView, smallNotificationView;
     private Toast mToast;
     private ImageLoader imageLoader;
+    public boolean isFinished = false;
 
 
     @Override
@@ -201,9 +203,21 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (player.getCurrentPosition() > 0) {
+        if (player.getCurrentPosition() > 0 && !isLastSong())
+        {
             mp.reset();
             playNext();
+        }
+        else if (shuffle || repeat == REPEAT_ALL || repeat == REPEAT_ONE)
+        {
+            mp.reset();
+            playNext();
+        }
+
+        else
+        {
+            stopPlayer();
+            isFinished = true;
         }
     }
 
@@ -233,6 +247,25 @@ public class MusicService extends Service implements
 
         //mNotMan.startNotification();
         createNotification();
+    }
+
+    private boolean isLastSong()
+    {
+        try
+        {
+            if(isPngAlbum && ((albumPosn+1)>=albumSongs.size()))
+                return true;
+            else if(isPngPlaylist && ((playlistPosn+1)>=playlistSongs.size()))
+                return true;
+            else if((songPosn+1)>=songs.size())
+                return true;
+            else
+                return false;
+        }
+        catch(NullPointerException e)
+        {
+            return true;
+        }
     }
 
     public void playSong() {
@@ -329,6 +362,10 @@ public class MusicService extends Service implements
         {
             if(getPosn() > 20000)
                 seek(0);
+            else if(shuffle && !shuffleStack.isEmpty())
+            {
+                playAlbum(currAlbum, shuffleStack.pop());
+            }
             else
             {
                 if ((albumPosn - 1) < 0)
@@ -340,6 +377,10 @@ public class MusicService extends Service implements
         {
             if(getPosn() > 20000)
                 seek(0);
+            else if(shuffle && shuffleStack != null && !shuffleStack.isEmpty())
+            {
+                playPlaylist(currPlaylist, shuffleStack.pop());
+            }
             else
             {
                 if ((playlistPosn - 1) < 0)
@@ -351,7 +392,7 @@ public class MusicService extends Service implements
         {
             if(getPosn() > 20000)       //First restart current song
                 seek(0);
-            else if(shuffle && !shuffleStack.empty())
+            else if(shuffle && shuffleStack != null && !shuffleStack.empty())
             {
                 //Play last song added to shuffle stack
                 songPosn = shuffleStack.pop();
@@ -369,13 +410,18 @@ public class MusicService extends Service implements
     public void playNext() {
         if (isPngAlbum) //If On Album
         {
-            if (repeat == REPEAT_ONE) {
-                //stay on same song
-                albumPosn--;
+            if (repeat == REPEAT_ONE)
+            {
+                albumPosn--;    //Stay on same song
             }
             else if (shuffle)
             {
                 int newSong = albumPosn;
+
+                if(shuffleStack == null)
+                    shuffleStack = new Stack<>();
+                shuffleStack.push(newSong);
+
                 while (newSong == albumPosn)
                 {
                     newSong = rand.nextInt(albumSongs.size());
@@ -384,12 +430,21 @@ public class MusicService extends Service implements
             }
             else
             {   //If End of List
-                if ((albumPosn + 1) >= albumSongs.size()) {
+                if (isLastSong())
+                {
                     if (repeat == REPEAT_ALL)
-                        albumPosn = 0;
+                    {
+                        if(albumSongs.size() == 1)
+                            albumPosn--;
+                        else
+                        {
+                            playAlbum(currAlbum, 0);    //Restart album
+                            return;
+                        }
+                    }
                     else {
                         albumPosn=0;
-                        playAlbum(currAlbum,albumPosn);
+                        playAlbum(currAlbum, albumPosn);
                         pausePlayer();
                         return;
                     }
@@ -401,12 +456,17 @@ public class MusicService extends Service implements
         {
             if (repeat == REPEAT_ONE)
             {
-                //stay on same song
-                playlistPosn--;
+                playlistPosn--; //Stay on same song
             }
             else if (shuffle)
             {
                 int newSong = playlistPosn;
+
+                if(shuffleStack == null)
+                    shuffleStack = new Stack<>();
+
+                shuffleStack.push(newSong);
+
                 while (newSong == playlistPosn)
                 {
                     newSong = rand.nextInt(playlistSongs.size());
@@ -415,14 +475,22 @@ public class MusicService extends Service implements
             }
             else
             {
-                if ((playlistPosn + 1) >= playlistSongs.size())
-                {   //If end of list
+                if (isLastSong())
+                {
                     if (repeat == REPEAT_ALL)
-                        playlistPosn = 0;
+                    {
+                        if(playlistSongs.size() == 1)
+                            playlistPosn--;
+                        else
+                        {
+                            playPlaylist(currPlaylist, 0);    //Restart album
+                            return;
+                        }
+                    }
                     else
                     {
                         playlistPosn=0;
-                        playPlaylist(currPlaylist,playlistPosn);
+                        playPlaylist(currPlaylist, playlistPosn);
                         pausePlayer();
                         return;
                     }
@@ -439,6 +507,8 @@ public class MusicService extends Service implements
             else if (shuffle)
             {
                 int newSong = songPosn;
+                if(shuffleStack == null)
+                    shuffleStack = new Stack<>();
                 shuffleStack.push(newSong);    //Add previous song position
 
                 while (newSong == songPosn)
@@ -449,7 +519,7 @@ public class MusicService extends Service implements
             else
             {
                 songPosn++;
-                if (songPosn >= songs.size()) {
+                if (isLastSong()) {
                     if (repeat == REPEAT_ALL)
                         songPosn = 0;
                     else {
@@ -585,7 +655,11 @@ public class MusicService extends Service implements
     //Begin Album Functions
     public void playAlbum(Album alb, int pos) {
 
-        if (currAlbum != alb || pos != albumPosn) {
+        if(currAlbum == null || currAlbum != alb)
+            shuffleStack = new Stack<>();
+
+        if (currAlbum != alb || pos != albumPosn)
+        {
             currAlbum = alb;
             albumPosn = pos;
             albumSongs = alb.tracks;
@@ -594,7 +668,6 @@ public class MusicService extends Service implements
             isPngAlbum = true;
 
             albumSong = albumSongs.get(albumPosn);
-
 
             songTitle = albumSong.getTitle();
             songArtist = albumSong.getArtist();
@@ -622,6 +695,9 @@ public class MusicService extends Service implements
     }
 
     public void playPlaylist(Playlist playList, int pos) {
+
+        if(currPlaylist == null || currPlaylist != playList)
+            shuffleStack = new Stack<>();
 
         if (currPlaylist != playList || pos != playlistPosn)
         {   //If song is different than the one currently playing

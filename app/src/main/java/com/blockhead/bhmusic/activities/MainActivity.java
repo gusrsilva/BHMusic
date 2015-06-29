@@ -473,6 +473,27 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     private void mediaPlayerMonitor() {
+        /* Check if done playing */
+        if(musicSrv == null || musicSrv.isFinished)
+        {
+            try
+            {
+                musicSrv.isFinished = false;
+                fauxAB.setBackgroundColor(MainActivity.primaryColor);
+                pagerTitleStrip.setBackgroundColor(MainActivity.primaryColor);
+                nowPlayingTitle.setText("-");
+                nowPlayingArtist.setText("-");
+                seekBar.setProgress(0);
+                timePos.setText("");
+                timeDur.setText("");
+
+            }
+            catch (NullPointerException e)
+            {
+                //TODO: Handle exception
+            }
+        }
+
         //set FAB icon
         if (musicSrv != null) {
             if (musicSrv.isPng()) {
@@ -1006,7 +1027,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                 Pair.create((View) fab, "fab"));
 
-        if (musicSrv.getCurrSong().getCoverURI() != null) {
+        if (musicSrv.getSmallSongCover() != null) {
             options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) coverArt, "coverArt"),
                     Pair.create((View) fab, "fab"));

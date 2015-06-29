@@ -187,7 +187,7 @@ public class ViewArtistActivity extends Activity {
     public void artistTrackPicked(int groupPostion, int childPosition)
     {
         Album currAlbum = currArtist.albums.get(groupPostion);
-        //musicSrv.setSong(pos);
+        musicSrv.setSong(childPosition);
         musicSrv.playAlbum(currAlbum, childPosition);
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
