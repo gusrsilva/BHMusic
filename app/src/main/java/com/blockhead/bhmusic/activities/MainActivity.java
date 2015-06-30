@@ -473,29 +473,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     private void mediaPlayerMonitor() {
-        /* Check if done playing */
-        if(musicSrv == null || musicSrv.isFinished)
-        {
-            try
-            {
-                musicSrv.isFinished = false;
-                fauxAB.setBackgroundColor(MainActivity.primaryColor);
-                pagerTitleStrip.setBackgroundColor(MainActivity.primaryColor);
-                nowPlayingTitle.setText("-");
-                nowPlayingArtist.setText("-");
-                seekBar.setProgress(0);
-                timePos.setText("");
-                timeDur.setText("");
-
-            }
-            catch (NullPointerException e)
-            {
-                //TODO: Handle exception
-            }
-        }
 
         //set FAB icon
-        if (musicSrv != null) {
+        if (musicSrv != null)
+        {
+            if(musicSrv.isFinished)
+            {
+                clearInfo();
+                return;
+            }
             if (musicSrv.isPng()) {
                 if (fab.getDrawable() != pauseDrawable) {
                     fab.setImageDrawable(pauseDrawable);
@@ -520,6 +506,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 }
             }
         }
+        else
+            clearInfo();
 
         //PUT SET NOW PLAYING INFO BACK RIGHT HERE
     }
@@ -883,6 +871,25 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void setNowPlayingInfo() {
         nowPlayingTitle.setText(musicSrv.getSongTitle());
         nowPlayingArtist.setText(musicSrv.getSongArtist());
+    }
+
+    public void clearInfo()
+    {
+        try
+        {
+            fauxAB.setBackgroundColor(MainActivity.primaryColor);
+            pagerTitleStrip.setBackgroundColor(MainActivity.primaryColor);
+            nowPlayingTitle.setText("-");
+            nowPlayingArtist.setText("-");
+            seekBar.setProgress(0);
+            timePos.setText("");
+            timeDur.setText("");
+
+        }
+        catch (NullPointerException e)
+        {
+            //TODO: Handle exception
+        }
     }
 
     private Bitmap getBitmapFromURL(String src) {

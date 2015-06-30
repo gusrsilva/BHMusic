@@ -1,23 +1,30 @@
 package com.blockhead.bhmusic.activities;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
@@ -31,10 +38,23 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.PlaylistMembersAdapter;
 import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
+import com.nhaarman.listviewanimations.ArrayAdapter;
+import com.nhaarman.listviewanimations.appearance.simple.SwingBottomInAnimationAdapter;
+import com.nhaarman.listviewanimations.itemmanipulation.DynamicListView;
+import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedListener;
+import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.TouchViewDraggableManager;
+import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.OnDismissCallback;
+import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.SimpleSwipeUndoAdapter;
+import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.TimedUndoAdapter;
+import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FAB work!
@@ -43,9 +63,15 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
     ArrayList<Song> songList;
     int playlistSize;
     MusicService musicSrv;
-    ImageButton shuffleButton;
+    ImageButton shuffleButton, editButton;
     FloatingActionButton fab;
     CoordinatorLayout coordLay;
+    private int mNewItemCount;
+    private DynamicListView editListView;
+    private ActionBar mActionBar;
+    private int actionBarColor;
+    private Point size;
+    private PlaylistMembersAdapter plAdt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +84,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         ImageLoader imageLoader = ImageLoader.getInstance(); // Get singleton instance
         musicSrv = MainActivity.getMusicService();
 
-        final android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
+        mActionBar = getSupportActionBar();
         if(mActionBar != null) {
             mActionBar.setTitle("");
         }
@@ -74,7 +100,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         }
 
         //Set ActionBar color
-        int actionBarColor = MainActivity.primaryColor;
+        actionBarColor = MainActivity.primaryColor;
         if(songList != null && songList.get(i).getAccentColor() != Color.WHITE)
             actionBarColor = songList.get(i).getAccentColor();
 
@@ -128,10 +154,11 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         }
         else
             imageLoader.displayImage(coverUri, header);
+
         header.setAdjustViewBounds(true);
         header.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
+        size = new Point();
         display.getSize(size);
         double maxHeight = size.y * 0.6667;
         double minHeight = size.y * 0.5;
@@ -158,6 +185,15 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             }
         });
 
+        /* Initialize and set up the edit button */
+        editButton = (ImageButton) titleHeader.findViewById(R.id.playlist_title_editButton);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editButtonPressed(v);
+            }
+        });
+
         /* Set up ParralaxListView */
         ParallaxListView memberList = (ParallaxListView) findViewById(R.id.playlist_members);
         memberList.addParallaxedHeaderView(header);
@@ -166,7 +202,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         memberList.setBackgroundColor(actionBarColor);
         memberList.setDivider(null);
 
-        PlaylistMembersAdapter plAdt = new PlaylistMembersAdapter(getApplicationContext(), currPlaylist);
+        plAdt = new PlaylistMembersAdapter(getApplicationContext(), songList);
         memberList.setAdapter(plAdt);
 
         /* Fill the rest of the list if its not long enough to cover the background */
@@ -188,6 +224,32 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             }
         });
 
+        /* Setup Dynamic List View */
+        editListView = (DynamicListView) findViewById(R.id.dynamiclistview);
+
+        /* Setup the adapter */
+        MyListAdapter adapter = new MyListAdapter(this, currPlaylist);
+        TimedUndoAdapter timedUndoAdapter = new TimedUndoAdapter(adapter, this, new MyOnDismissCallback(adapter));
+        timedUndoAdapter.setTimeoutMs(2000);
+        SwingBottomInAnimationAdapter animAdapter = new SwingBottomInAnimationAdapter(timedUndoAdapter);
+        animAdapter.setAbsListView(editListView);
+        assert animAdapter.getViewAnimator() != null;
+        animAdapter.getViewAnimator().setInitialDelayMillis(0);
+        editListView.setAdapter(animAdapter);
+
+        /* Enable drag and drop functionality */
+        editListView.enableDragAndDrop();
+        editListView.setDraggableManager(new TouchViewDraggableManager(R.id.list_row_draganddrop_touchview));
+        editListView.setOnItemMovedListener(new MyOnItemMovedListener(adapter));
+        editListView.setOnItemLongClickListener(new MyOnItemLongClickListener(editListView));
+
+        /* Enable swipe to dismiss */
+        editListView.enableSimpleSwipeUndo();
+
+        /* Add new items on item click */
+        editListView.setOnItemClickListener(new MyOnItemClickListener(editListView));
+
+        editListView.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -206,6 +268,10 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id == android.R.id.home) {
+            onBackPressed();
             return true;
         }
 
@@ -249,7 +315,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         return result;
     }
 
-    public void viewPlaylistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
+    public void viewPlaylistShufflePressed(View view)
     {
         musicSrv.shuffle = true;
         if(MainActivity.shuffleAnimation != null)
@@ -263,6 +329,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             NowPlayingActivity.shuffleButton.setSelected(true);
         Snackbar.make(coordLay, "Now Shuffling: " + currPlaylist.getTitle(), Snackbar.LENGTH_SHORT)
                 .show();
+        setFabDrawable();
     }
 
     private void setFabDrawable()
@@ -283,4 +350,267 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         setFabDrawable();
     }
 
+    public void editButtonPressed(View v)
+    {
+        if(editListView == null)
+            return;
+
+        if(editListView.getVisibility() == View.VISIBLE)
+        {   //HIDE TRACKLIST IF SHOWING
+
+            // get the center for the clipping circle
+            int cx = (editButton.getLeft() + editButton.getRight()) / 2;
+            int cy = (size.y) / 2;
+
+            // get the initial radius for the clipping circle
+            int initialRadius = editListView.getWidth();
+
+            // create the animation (the final radius is zero)
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(editListView, cx, cy, initialRadius, 0);
+
+            // make the view invisible when the animation is done
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    editListView.setVisibility(View.INVISIBLE);
+                    fab.setVisibility(View.VISIBLE);
+                }
+            });
+            // start the animation
+            anim.start();
+            if (mActionBar != null) {
+                mActionBar.setBackgroundDrawable(null);
+                mActionBar.setTitle("");
+            }
+        }
+        else
+        {
+            fab.setVisibility(View.INVISIBLE);
+            // get the center for the clipping circle
+            int cx = (editButton.getLeft() + editButton.getRight()) / 2;
+            int cy = (size.y) / 2;
+
+            // get the final radius for the clipping circle
+            int finalRadius = Math.max(editListView.getWidth(), editListView.getHeight());
+
+            // create the animator for this view (the start radius is zero)
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(editListView, cx, cy, 0, finalRadius);
+            anim.setDuration(300);
+
+            // make the view invisible when the animation is done
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    if (mActionBar != null) {
+                        mActionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
+                        mActionBar.setTitle("Edit "+currPlaylist.getTitle());
+                    }
+                }
+            });
+
+            // make the view visible and start the animation
+            editListView.setVisibility(View.VISIBLE);
+            anim.start();
+        }
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (editListView.getVisibility() == View.VISIBLE)
+            editButtonPressed(null);
+        else
+            super.onBackPressed();
+    }
+
+    /**
+     * The following classes are for the Dynamic List View used to
+     * edit the playlist
+     */
+    private static class MyListAdapter extends ArrayAdapter<Song> implements UndoAdapter {
+
+        private final Context mContext;
+        private Playlist playlist;
+        private ArrayList<Song> members;
+        private LayoutInflater songInf;
+        private ImageLoader imageLoader;
+
+        MyListAdapter(final Context context, Playlist pl) {
+            mContext = context;
+            playlist = pl;
+            members = playlist.getMembers();
+            for (int i = 0; i < members.size(); i++) {
+                add(members.get(i));
+            }
+            songInf = LayoutInflater.from(context);
+            imageLoader = ImageLoader.getInstance(); // Get singleton instance
+        }
+
+        @Override
+        public long getItemId(final int position) {
+            return getItem(position).getID();
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            if(position >= members.size())
+                return  null;
+
+            LinearLayout trackLay;
+            if (convertView == null)
+                trackLay = (LinearLayout) songInf.inflate(R.layout.edit_song_in_playlist, parent, false);
+            else        //Recycle view
+                trackLay = (LinearLayout) convertView;
+
+            //get title and artist views
+            TextView title = (TextView) trackLay.findViewById(R.id.song_in_edit_playlist_title);
+            TextView artist = (TextView) trackLay.findViewById(R.id.song_in_edit_playlist_artist);
+            ImageView cover = (ImageView) trackLay.findViewById(R.id.artImage_in_edit_playlist);
+
+            title.setText(members.get(position).getTitle());
+            artist.setText(members.get(position).getArtist());
+            imageLoader.displayImage(members.get(position).getCoverURI(), cover);
+
+
+            //set position as tag
+            trackLay.setTag(position);
+
+            return trackLay;
+        }
+
+        @NonNull
+        @Override
+        public View getUndoView(final int position, final View convertView, @NonNull final ViewGroup parent) {
+            View view = convertView;
+            if (view == null) {
+                view = LayoutInflater.from(mContext).inflate(R.layout.undo_row, parent, false);
+            }
+            TextView tv = (TextView) view.findViewById(R.id.undo_row_texttv);
+            tv.setText("Removed " + members.get(position).getTitle());
+            return view;
+        }
+
+        @NonNull
+        @Override
+        public View getUndoClickView(@NonNull final View view) {
+            return view.findViewById(R.id.undo_row_undobutton);
+        }
+    }
+
+    private static class MyOnItemLongClickListener implements AdapterView.OnItemLongClickListener {
+
+        private final DynamicListView mListView;
+
+        MyOnItemLongClickListener(final DynamicListView listView) {
+            mListView = listView;
+        }
+
+        @Override
+        public boolean onItemLongClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+            if (mListView != null) {
+                mListView.startDragging(position - mListView.getHeaderViewsCount());
+            }
+            return true;
+        }
+    }
+
+    private class MyOnDismissCallback implements OnDismissCallback {
+
+        private final ArrayAdapter<Song> mAdapter;
+
+        @Nullable
+        private Toast mToast;
+
+        MyOnDismissCallback(final ArrayAdapter<Song> adapter) {
+            mAdapter = adapter;
+        }
+
+        @Override
+        public void onDismiss(@NonNull final ViewGroup listView, @NonNull final int[] reverseSortedPositions) {
+            for (int position : reverseSortedPositions)
+            {
+                mAdapter.remove(position);
+                songList.remove(position);
+                try
+                {
+                    plAdt.notifyDataSetChanged();
+                }
+                catch (Exception e)
+                {
+                    mToast = Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT);
+                    mToast.show();
+                }
+            }
+
+            if (mToast != null) {
+                mToast.cancel();
+            }
+            mToast = Toast.makeText(
+                    ViewPlaylistActivity.this,
+                    "Removed Positions" + Arrays.toString(reverseSortedPositions),
+                    Toast.LENGTH_LONG
+            );
+            mToast.show();
+        }
+    }
+
+    private class MyOnItemMovedListener implements OnItemMovedListener {
+
+        private final ArrayAdapter<Song> mAdapter;
+
+        MyOnItemMovedListener(final ArrayAdapter<Song> adapter) {
+            mAdapter = adapter;
+        }
+
+        @Override
+        public void onItemMoved(final int originalPosition, final int newPosition)
+        {
+
+            if(originalPosition < newPosition)  //Moved item down
+            {
+                for(int i = originalPosition; i < newPosition; i++)
+                {
+                    mAdapter.swapItems(i, i+1);
+                    Collections.swap(songList, i, i+1);
+                }
+                plAdt.notifyDataSetChanged();
+
+            }
+            else if (originalPosition > newPosition)  //Moved item up
+            {
+                for(int i = originalPosition; i > newPosition; i--)
+                {
+                    mAdapter.swapItems(i, i-1);
+                    Collections.swap(songList, i, i-1);
+                }
+                plAdt.notifyDataSetChanged();
+            }
+
+        }
+    }
+
+    private class MyOnItemClickListener implements AdapterView.OnItemClickListener {
+
+        private final DynamicListView mListView;
+
+        MyOnItemClickListener(final DynamicListView listView) {
+            mListView = listView;
+        }
+
+        @Override
+        public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+            mListView.insert(position, "Newly Added Item " + mNewItemCount);
+            mNewItemCount++;
+        }
+    }
 }

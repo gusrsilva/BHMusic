@@ -21,15 +21,13 @@ import java.util.ArrayList;
  */
 public class PlaylistMembersAdapter extends BaseAdapter {
 
-    private Playlist playlist;
     private ArrayList<Song> members;
     private LayoutInflater songInf;
     private ImageLoader imageLoader;
 
 
-    public PlaylistMembersAdapter(Context c, Playlist pl) {
-        playlist = pl;
-        members = playlist.getMembers();
+    public PlaylistMembersAdapter(Context c, ArrayList<Song> arrayList) {
+        members = arrayList;
         songInf = LayoutInflater.from(c);
         imageLoader = ImageLoader.getInstance(); // Get singleton instance
 
@@ -37,17 +35,17 @@ public class PlaylistMembersAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return playlist.getSongIds().size();
+        return members.size();
     }
 
     @Override
     public Object getItem(int arg0) {
-        return "TEST"; //TODO: Return title of track at pos: arg0
+        return members.get(arg0).getTitle();
     }
 
     @Override
     public long getItemId(int arg0) {
-        return 0;
+        return members.get(arg0).getID();
     }
 
     @Override
