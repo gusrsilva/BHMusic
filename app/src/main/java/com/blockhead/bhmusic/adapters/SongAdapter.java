@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
@@ -62,7 +63,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     @Override
-    public View getView(int postion, View convertView, ViewGroup parent) {
+    public View getView(final int postion, View convertView, ViewGroup parent) {
 
         LinearLayout songLay;
         if(convertView == null)
@@ -93,6 +94,20 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
             Log.d("DEBUG-BHCA", "Setting random color with: " + (color));
         }
         //imageLoader.displayImage(currSong.getCoverURI(), coverView);
+
+        songLay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.songPicked(postion);
+            }
+        });
+        songLay.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(context, "Long Clicked: " + postion, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
         //set position as tag
         songLay.setTag(postion);

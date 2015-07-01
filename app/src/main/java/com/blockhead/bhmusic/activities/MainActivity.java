@@ -742,8 +742,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         return -1;
     }
 
-    public void songPicked(View view) {
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+    public static void songPicked(int pos) {
+        musicSrv.setSong(pos);
         //seekBar.setMax(musicSrv.getDur());
         musicSrv.playSong();
         if (playbackPaused) {
