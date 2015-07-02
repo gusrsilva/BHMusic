@@ -61,6 +61,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
 
     Playlist currPlaylist;
     ArrayList<Song> songList;
+    ArrayList<Long> idList;
     int playlistSize;
     MusicService musicSrv;
     ImageButton shuffleButton, editButton;
@@ -92,6 +93,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         int songPos = 0, i=0;
         String coverUri = null;
         songList = currPlaylist.getMembers();
+        idList = currPlaylist.getSongIds();
 
         //Get first valid coverURI from songs in playlist
         while(coverUri == null && songList != null && i < songList.size() -1)
@@ -230,11 +232,11 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         /* Setup the adapter */
         MyListAdapter adapter = new MyListAdapter(this, currPlaylist);
         TimedUndoAdapter timedUndoAdapter = new TimedUndoAdapter(adapter, this, new MyOnDismissCallback(adapter));
-        timedUndoAdapter.setTimeoutMs(2000);
+        timedUndoAdapter.setTimeoutMs(1000);
         SwingBottomInAnimationAdapter animAdapter = new SwingBottomInAnimationAdapter(timedUndoAdapter);
         animAdapter.setAbsListView(editListView);
         assert animAdapter.getViewAnimator() != null;
-        animAdapter.getViewAnimator().setInitialDelayMillis(0);
+        animAdapter.getViewAnimator().setInitialDelayMillis(300);
         editListView.setAdapter(animAdapter);
 
         /* Enable drag and drop functionality */
@@ -541,26 +543,17 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             {
                 mAdapter.remove(position);
                 songList.remove(position);
+                idList.remove(position);
+                currPlaylist.setChanged();
                 try
                 {
                     plAdt.notifyDataSetChanged();
                 }
                 catch (Exception e)
                 {
-                    mToast = Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT);
-                    mToast.show();
+                    //TODO: Handle exception, remove generic type
                 }
             }
-
-            if (mToast != null) {
-                mToast.cancel();
-            }
-            mToast = Toast.makeText(
-                    ViewPlaylistActivity.this,
-                    "Removed Positions" + Arrays.toString(reverseSortedPositions),
-                    Toast.LENGTH_LONG
-            );
-            mToast.show();
         }
     }
 
@@ -582,8 +575,10 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
                 {
                     mAdapter.swapItems(i, i+1);
                     Collections.swap(songList, i, i+1);
+                    Collections.swap(idList, i, i+1);
                 }
                 plAdt.notifyDataSetChanged();
+                currPlaylist.setChanged();
 
             }
             else if (originalPosition > newPosition)  //Moved item up
@@ -592,8 +587,10 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
                 {
                     mAdapter.swapItems(i, i-1);
                     Collections.swap(songList, i, i-1);
+                    Collections.swap(idList, i, i-1);
                 }
                 plAdt.notifyDataSetChanged();
+                currPlaylist.setChanged();
             }
 
         }

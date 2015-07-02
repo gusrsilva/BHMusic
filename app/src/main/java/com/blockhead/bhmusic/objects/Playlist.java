@@ -1,6 +1,6 @@
 package com.blockhead.bhmusic.objects;
 
-import android.util.Log;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.activities.MainActivity;
 
@@ -11,14 +11,18 @@ import java.util.ArrayList;
  */
 public class Playlist {
     String title;
+    long playlistId;
     ArrayList<Long> songIds;
     ArrayList<Song> members;
+    boolean changed;
 
-    public Playlist(String name)
+    public Playlist(String name, long Id)
     {
         title = name;
+        playlistId = Id;
         songIds = new ArrayList<>();
         members = new ArrayList<>();
+        changed = false;
     }
 
     public String getTitle(){ return title; }
@@ -48,6 +52,7 @@ public class Playlist {
                 members.add(song);
             }
         }
+        changed = true;
 
     }
 
@@ -82,5 +87,15 @@ public class Playlist {
             generateMembers();
         return members;
     }
+
+    public boolean isChanged(){ return changed; }
+
+    public void setChanged()
+    {
+        if(!changed)
+            changed = true;
+    }
+
+    public long getPlaylistId(){ return playlistId; }
 
 }

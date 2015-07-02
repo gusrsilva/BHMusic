@@ -9,6 +9,8 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -119,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private static SongAdapter songAdt;
     private static AlbumAdapter albumAdt;
     private static ArtistAdapter artistAdt;
-    private static PlaylistListAdapter playlistAdt;
+    public static PlaylistListAdapter playlistAdt;
     private static String abTitle;
     private static SharedPreferences sharedPref;
     private static ArtistArtTask mArtistArtTask;
@@ -583,6 +585,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     protected void onDestroy() {
+        Toast mtToast = Toast.makeText(getApplicationContext(), " Calling onDestroy playlist check...", Toast.LENGTH_SHORT);
+        mtToast.show();
+        for(int i = 0; i < playlistList.size(); i++)
+        {
+            if(playlistList.get(i).isChanged()) {
+                savePlaylist(playlistList.get(i));
+                mtToast.setText("Saving: " + playlistList.get(i).getTitle());
+                mtToast.show();
+            }
+        }
+
+
         stopService(playIntent);
         if(musicSrv != null) {
             musicSrv.removeNotification(getApplicationContext());
@@ -695,17 +709,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         String[] projection = {   MediaStore.Audio.Playlists.Members.AUDIO_ID,
                 MediaStore.Audio.Playlists.Members.ARTIST,
                 MediaStore.Audio.Playlists.Members.TITLE,
-                MediaStore.Audio.Playlists.Members._ID
+                MediaStore.Audio.Playlists.Members._ID,
+                MediaStore.Audio.Playlists.Members.PLAY_ORDER
         };
 
 
         ContentResolver playlistResolver = getContentResolver();
         Uri playlistUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
         Cursor playlistCursor = playlistResolver.query(playlistUri, null, null, null, null);
-        //
+        //TODO: Use projection on playlist cursor
 
-
-        //
         if (playlistCursor != null && playlistCursor.moveToFirst()) {       //Get PlayLists
             int idColumn = playlistCursor.getColumnIndex
                     (MediaStore.Audio.Playlists._ID);
@@ -715,7 +728,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             {
                 long thisId = playlistCursor.getLong(idColumn);
                 String thisTitle = playlistCursor.getString(titleColumn);
-                temp =  new Playlist(thisTitle);
+                temp =  new Playlist(thisTitle, thisId);
 
                 ContentResolver tracksResolver = getContentResolver();
                 Uri tracksUri = MediaStore.Audio.Playlists.Members.getContentUri("external", thisId);
@@ -725,11 +738,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     int trackTitleColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.TITLE);
                     int trackArtistColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.ARTIST);
                     int trackIdColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID);
+                    int orderColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.PLAY_ORDER);
 
                     do      //Loop through playlist members
                     {
                         long trackId = trackCursor.getLong(trackIdColumn);
+                        int playOrder = trackCursor.getInt(orderColumn);
+                        String title = trackCursor.getString(trackTitleColumn);
                         temp.addSong(trackId);
+                        Log.d("BHCA-P1", "Reading: " + title + " with Order: " + playOrder);
                     }
                     while (trackCursor.moveToNext());
                 }
@@ -737,6 +754,62 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
             while (playlistCursor.moveToNext());
         }
+    }
+
+    public void savePlaylist(Playlist playlist)
+    {
+        ContentResolver resolver = getContentResolver();
+
+        Uri playlistsUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+
+        Log.d("BHCA-P", "Checking for existing playlist for " + playlist.getTitle());
+        Cursor c = resolver.query(playlistsUri, new String[] {"*"}, null, null, null);
+        long playlistId = 0;
+        String plname;
+        c.moveToFirst();
+        do {
+            plname = c.getString(c.getColumnIndex(MediaStore.Audio.Playlists.NAME));
+            if (plname.equalsIgnoreCase(playlist.getTitle())) {
+                playlistId = c.getLong(c.getColumnIndex(MediaStore.Audio.Playlists._ID));
+                break;
+            }
+        } while (c.moveToNext());
+        c.close();
+
+        if (playlistId!=0) {
+            Uri deleteUri = ContentUris.withAppendedId(playlistsUri, playlistId);
+            Log.d("BHCA-P", "REMOVING Existing Playlist: " + plname);
+
+            // delete the playlist
+            resolver.delete(deleteUri, null, null);
+        }
+
+        Log.d("BHCA-P", "CREATING PLAYLIST: " + playlist.getTitle());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Audio.Playlists.NAME, playlist.getTitle());
+        contentValues.put(MediaStore.Audio.Playlists.DATE_MODIFIED, System.currentTimeMillis());
+        Uri newPlaylistUri = resolver.insert(playlistsUri, contentValues);
+        Log.d("BHCA-P", "Added PlayLIst: " + newPlaylistUri);
+
+        Uri insUri = Uri.withAppendedPath(newPlaylistUri, MediaStore.Audio.Playlists.Members.CONTENT_DIRECTORY);
+
+        Log.d("BHCA-P", "Playlist Members Url: " + insUri);
+
+        if (playlist.getSize() != 0)
+        {
+            ArrayList<Long> songIds = playlist.getSongIds();
+            Log.d("BHCA-P", "Adding Songs to PlayList...");
+            int i = 0;
+            do {
+                long id = songIds.get(i);
+                ContentValues cv = new ContentValues();
+                cv.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, ++i);
+                cv.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, id);
+                Uri u = resolver.insert(insUri, cv);
+                Log.d("BHCA-P", "Added Playlist Item: " + playlist.getMembers().get(i-1).getTitle() + " with play order:  " + i);
+            } while (i < playlist.getSize());
+        }
+        c.close();
     }
 
     private int artistMatch(String current) {
@@ -758,64 +831,78 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    public void openSongOptions(final int pos, final Context context)
+    private void addToPlaylistPressed(final int songPosition, Context context)
     {
         /* Initialize playlists */
-        final String[] playlists = new String[playlistList.size()];
+        String[] playlists = new String[playlistList.size()];
         for(int i = 0; i < playlistList.size(); i ++)
         {
             playlists[i] = playlistList.get(i).getTitle();
         }
 
-        final MaterialDialog.ListCallback playlistCallBack = new MaterialDialog.ListCallback()
+        MaterialDialog.ListCallback playlistCallBack = new MaterialDialog.ListCallback()
         {
             @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
+            public void onSelection(MaterialDialog materialDialog, View view, int playlistPosition, CharSequence charSequence)
             {
-                String title = MainActivity.playlistList.get(position).getTitle();
-                MainActivity.playlistList.get(position).addSong(songList.get(pos));
+                String title = MainActivity.playlistList.get(playlistPosition).getTitle();
+                MainActivity.playlistList.get(playlistPosition).addSong(songList.get(songPosition));
                 Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
+                //savePlaylist(MainActivity.playlistList.get(playlistPosition));
             }
         };
+        MaterialDialog md = new MaterialDialog
+                .Builder(context)
+                .title("Add to playlist")
+                .titleColor(accentColor)
+                .items(playlists)
+                .itemsCallback(playlistCallBack)
+                .show();
+    }
+
+    private void goToArtistPressed(int songPos, Context context)
+    {
+        String artist = songList.get(songPos).getArtist();
+        int i;
+        for( i = 0; i < artistList.size(); i++)
+        {
+            if(artist.equalsIgnoreCase(artistList.get(i).getName()))
+                break;
+        }
+        currArtist = artistList.get(i);
+        Intent intent = new Intent(context, ViewArtistActivity.class);
+        startActivity(intent);
+    }
+
+    private void goToAlbumPressed(int songPos, Context context)
+    {
+        currAlbum = songList.get(songPos).getAlbumObj();
+        Intent intent = new Intent(context, ViewAlbumActivity.class);
+        startActivity(intent);
+    }
+
+    public void openSongOptions(final int songPos, final Context context)
+    {
         /* Callback for when option is chosen */
         MaterialDialog.ListCallback callback = new MaterialDialog.ListCallback()
         {
             @Override
             public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
             {
-
                 switch (position)
                 {
                     case ADD_TO_PLAYLIST:
-                        MaterialDialog md = new MaterialDialog
-                                .Builder(context)
-                                .title(charSequence)
-                                .titleColor(accentColor)
-                                .items(playlists)
-                                .itemsCallback(playlistCallBack)
-                                .show();
+                        addToPlaylistPressed(songPos, context);
                         break;
-                    case GO_TO_ARTIST:      //TODO: Stuck on first artist
-                        String artist = songList.get(pos).getArtist();
-                        int i;
-                        for( i = 0; i < artistList.size(); i++)
-                        {
-                            if(artist.equalsIgnoreCase(artistList.get(i).getName()))
-                                break;
-                        }
-                        currArtist = artistList.get(i);
-                        Intent intent = new Intent(context, ViewArtistActivity.class);
-                        startActivity(intent);
+                    case GO_TO_ARTIST:
+                        goToArtistPressed(songPos, context);
                         break;
                     case GO_TO_ALBUM:       //TODO: Need to implement
-                        currAlbum = songList.get(pos).getAlbumObj();
-                        intent = new Intent(context, ViewAlbumActivity.class);
-                        startActivity(intent);
+                        goToAlbumPressed(songPos, context);
                         break;
                     default:
-                        Toast.makeText(context,"NOTHING",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context,"Invalid Selection",Toast.LENGTH_SHORT).show();
                         break;
-
                 }
             }
         };
@@ -823,7 +910,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         /* Create song options dialog */
         MaterialDialog dialog = new MaterialDialog
                 .Builder(context)
-                .title(songList.get(pos).getTitle())
+                .title(songList.get(songPos).getTitle())
                 .titleColor(accentColor)
                 .items(R.array.song_options)
                 .itemsCallback(callback)
