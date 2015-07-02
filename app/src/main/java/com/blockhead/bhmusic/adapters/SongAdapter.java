@@ -33,6 +33,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
     private ImageLoader imageLoader;
     private DisplayImageOptions options;
     private Context context;
+    private MainActivity main;
 
 
     public SongAdapter(Context c, ArrayList<Song> theSongs) {
@@ -44,6 +45,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
                 .showImageOnFail(R.drawable.default_cover)
                 .build();
         context = c;
+        main = (MainActivity)context;
 
     }
 
@@ -98,13 +100,14 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         songLay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.songPicked(postion);
+                main.songPicked(postion);
             }
         });
         songLay.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(context, "Long Clicked: " + postion, Toast.LENGTH_SHORT).show();
+                main = (MainActivity)context;
+                main.openSongOptions(postion, context);
                 return false;
             }
         });

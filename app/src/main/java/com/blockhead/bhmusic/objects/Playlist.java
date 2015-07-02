@@ -18,6 +18,7 @@ public class Playlist {
     {
         title = name;
         songIds = new ArrayList<>();
+        members = new ArrayList<>();
     }
 
     public String getTitle(){ return title; }
@@ -30,6 +31,24 @@ public class Playlist {
     public void addSong(Long trackId)
     {
         songIds.add(trackId);
+    }
+
+    public void addSong(Song song)
+    {
+        if(song != null)
+        {
+            if(members == null || members.size() == 0)
+            {
+                songIds.add(song.getID());
+                generateMembers();
+            }
+            else
+            {
+                songIds.add(song.getID());
+                members.add(song);
+            }
+        }
+
     }
 
     public ArrayList<Long> getSongIds(){ return songIds; }
@@ -59,7 +78,7 @@ public class Playlist {
 
     public ArrayList<Song> getMembers()
     {
-        if(members == null)
+        if(members == null || members.size() == 0)
             generateMembers();
         return members;
     }

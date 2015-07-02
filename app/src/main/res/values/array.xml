@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string-array name="song_options">
+        <item>Add to Playlist</item>
+        <item>Go to Artist</item>
+        <item>Go to Album</item>
+    </string-array>
+</resources>

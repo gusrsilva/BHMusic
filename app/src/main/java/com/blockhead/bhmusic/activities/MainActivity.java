@@ -3,6 +3,7 @@ package com.blockhead.bhmusic.activities;
 
 import android.app.ActionBar;
 import android.app.ActivityOptions;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -53,6 +54,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
 import com.blockhead.bhmusic.adapters.ArtistAdapter;
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     };
     public static ArrayList<Song> songList;
-    private ArrayList<Playlist> playlistList;
+    private static ArrayList<Playlist> playlistList;
     private Intent playIntent;
     private boolean musicBound = false;
     private boolean paused = false;
@@ -144,12 +146,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private Drawable playDrawable, pauseDrawable;
     private static Drawable fabDrawable;
     private DiskLruImageCache mDiskLruCache;
+    private static CoordinatorLayout coordLay;
 
     //DEFINE COLORS FOR USERS TO CHOOSE
     public final static int MATERIAL_RED = 0,MATERIAL_PINK=1,MATERIAL_PURPLE=2,MATERIAL_DEEPPURPLE=3,
     MATERIAL_INDIGO=4,MATERIAL_BLUE=5,MATERIAL_LIGHTBLUE=6,MATERIAL_CYAN=7,MATERIAL_TEAL=8,
     MATERIAL_GREEN=9,MATERIAL_LIGHTGREEN=10,MATERIAL_NEONGREEN=11,MATERIAL_LIME=12,MATERIAL_YELLOW=13,MATERIAL_AMBER=14,
     MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18;
+
+    //Define song options
+    static final int ADD_TO_PLAYLIST = 0, GO_TO_ARTIST = 1, GO_TO_ALBUM = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {    //TODO: Add now playing indicator to song list adapters
@@ -258,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         nowPlayingTitle = (TextView) findViewById(R.id.trackTitle);
         nowPlayingArtist = (TextView) findViewById(R.id.trackArtist);
         coverArt = (ImageView) findViewById(R.id.coverArt);
+        coordLay = (CoordinatorLayout)findViewById(R.id.main_coordinator);
 
         //Set FAB onClickListener
         fab.setClickable(true);
@@ -742,13 +749,87 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         return -1;
     }
 
-    public static void songPicked(int pos) {
+    public void songPicked(int pos) {
         musicSrv.setSong(pos);
         //seekBar.setMax(musicSrv.getDur());
         musicSrv.playSong();
         if (playbackPaused) {
             playbackPaused = false;
         }
+    }
+
+    public void openSongOptions(final int pos, final Context context)
+    {
+        /* Initialize playlists */
+        final String[] playlists = new String[playlistList.size()];
+        for(int i = 0; i < playlistList.size(); i ++)
+        {
+            playlists[i] = playlistList.get(i).getTitle();
+        }
+
+        final MaterialDialog.ListCallback playlistCallBack = new MaterialDialog.ListCallback()
+        {
+            @Override
+            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
+            {
+                String title = MainActivity.playlistList.get(position).getTitle();
+                MainActivity.playlistList.get(position).addSong(songList.get(pos));
+                Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
+            }
+        };
+        /* Callback for when option is chosen */
+        MaterialDialog.ListCallback callback = new MaterialDialog.ListCallback()
+        {
+            @Override
+            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
+            {
+
+                switch (position)
+                {
+                    case ADD_TO_PLAYLIST:
+                        MaterialDialog md = new MaterialDialog
+                                .Builder(context)
+                                .title(charSequence)
+                                .titleColor(accentColor)
+                                .items(playlists)
+                                .itemsCallback(playlistCallBack)
+                                .show();
+                        break;
+                    case GO_TO_ARTIST:      //TODO: Stuck on first artist
+                        String artist = songList.get(pos).getArtist();
+                        int i;
+                        for( i = 0; i < artistList.size(); i++)
+                        {
+                            if(artist.equalsIgnoreCase(artistList.get(i).getName()))
+                                break;
+                        }
+                        currArtist = artistList.get(i);
+                        Intent intent = new Intent(context, ViewArtistActivity.class);
+                        startActivity(intent);
+                        break;
+                    case GO_TO_ALBUM:       //TODO: Need to implement
+                        currAlbum = songList.get(pos).getAlbumObj();
+                        intent = new Intent(context, ViewAlbumActivity.class);
+                        startActivity(intent);
+                        break;
+                    default:
+                        Toast.makeText(context,"NOTHING",Toast.LENGTH_SHORT).show();
+                        break;
+
+                }
+            }
+        };
+
+        /* Create song options dialog */
+        MaterialDialog dialog = new MaterialDialog
+                .Builder(context)
+                .title(songList.get(pos).getTitle())
+                .titleColor(accentColor)
+                .items(R.array.song_options)
+                .itemsCallback(callback)
+                .negativeText("Cancel")
+                .negativeColor(accentColor)
+                .show();
     }
 
     public void albumPicked(View view) {
@@ -997,7 +1078,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         };
 
         Snackbar
-                .make((CoordinatorLayout)findViewById(R.id.main_coordinator), " Now Shuffling: ", Snackbar.LENGTH_LONG)
+                .make(coordLay, " Now Shuffling: ", Snackbar.LENGTH_LONG)
                 .setAction(currPlaylist.getTitle(), listener)
                 .setActionTextColor(accentColor)
                 .show(); // Don’t forget to show!
