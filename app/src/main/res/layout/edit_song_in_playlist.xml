@@ -3,7 +3,10 @@
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/rect_ripple_background_color">
+    android:background="@drawable/rect_ripple_background_color"
+    android:focusable="false"
+    android:clickable="false"
+    android:longClickable="false">
 
     <ImageView
         android:layout_width="65dp"

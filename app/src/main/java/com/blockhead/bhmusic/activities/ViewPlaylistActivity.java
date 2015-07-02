@@ -248,9 +248,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         /* Enable swipe to dismiss */
         editListView.enableSimpleSwipeUndo();
 
-        /* Add new items on item click */
-        editListView.setOnItemClickListener(new MyOnItemClickListener(editListView));
-
         editListView.setVisibility(View.INVISIBLE);
     }
 
@@ -483,7 +480,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             artist.setText(members.get(position).getArtist());
             imageLoader.displayImage(members.get(position).getCoverURI(), cover);
 
-
             //set position as tag
             trackLay.setTag(position);
 
@@ -593,21 +589,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
                 currPlaylist.setChanged();
             }
 
-        }
-    }
-
-    private class MyOnItemClickListener implements AdapterView.OnItemClickListener {
-
-        private final DynamicListView mListView;
-
-        MyOnItemClickListener(final DynamicListView listView) {
-            mListView = listView;
-        }
-
-        @Override
-        public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-            mListView.insert(position, "Newly Added Item " + mNewItemCount);
-            mNewItemCount++;
         }
     }
 }
