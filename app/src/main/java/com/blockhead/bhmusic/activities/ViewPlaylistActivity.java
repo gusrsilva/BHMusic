@@ -50,11 +50,9 @@ import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAd
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FAB work!
@@ -435,13 +433,13 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
 
         private final Context mContext;
         private Playlist playlist;
-        private ArrayList<Song> members;
         private LayoutInflater songInf;
         private ImageLoader imageLoader;
 
         MyListAdapter(final Context context, Playlist pl) {
             mContext = context;
             playlist = pl;
+            ArrayList<Song> members;
             members = playlist.getMembers();
             for (int i = 0; i < members.size(); i++) {
                 add(members.get(i));
@@ -451,10 +449,10 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         }
 
         @Override
-        public long getItemId(final int position) {
+        public long getItemId(final int position)
+        {
             return getItem(position).getID();
         }
-
         @Override
         public boolean hasStableIds() {
             return true;
@@ -462,8 +460,10 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
 
         @Override
         public View getView(final int position, final View convertView, final ViewGroup parent) {
-            if(position >= members.size())
-                return  null;
+            if(position >= getCount()) {
+                Toast.makeText(mContext, "NULL VIEW", Toast.LENGTH_SHORT).show();
+                return null;
+            }
 
             LinearLayout trackLay;
             if (convertView == null)
@@ -476,9 +476,9 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             TextView artist = (TextView) trackLay.findViewById(R.id.song_in_edit_playlist_artist);
             ImageView cover = (ImageView) trackLay.findViewById(R.id.artImage_in_edit_playlist);
 
-            title.setText(members.get(position).getTitle());
-            artist.setText(members.get(position).getArtist());
-            imageLoader.displayImage(members.get(position).getCoverURI(), cover);
+            title.setText(getItem(position).getTitle());
+            artist.setText(getItem(position).getArtist());
+            imageLoader.displayImage(getItem(position).getCoverURI(), cover);
 
             //set position as tag
             trackLay.setTag(position);
@@ -494,7 +494,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
                 view = LayoutInflater.from(mContext).inflate(R.layout.undo_row, parent, false);
             }
             TextView tv = (TextView) view.findViewById(R.id.undo_row_texttv);
-            tv.setText("Removed " + members.get(position).getTitle());
+            tv.setText("Removed " + getItem(position).getTitle());
             return view;
         }
 
