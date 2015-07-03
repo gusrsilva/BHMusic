@@ -99,11 +99,12 @@ public class ViewAlbumActivity extends AppCompatActivity {
             mActionBar.setTitle("");
 
         /* Setup ActionBar Background */
-        final RelativeLayout abBackground = (RelativeLayout)findViewById(R.id.album_ab_background);
-        if(abBackground != null)
+        final RelativeLayout abHolder = (RelativeLayout)findViewById(R.id.album_ab_background);
+        FrameLayout abColorFrame = (FrameLayout)findViewById(R.id.album_ab_color_frame);
+        if(abHolder != null)
         {
-            abBackground.setBackgroundColor(actionBarColor);
-            abBackground.setAlpha(0);
+            abColorFrame.setBackgroundColor(actionBarColor);
+            abHolder.setAlpha(0);
         }
 
         //Define On Scroll Listener for ParallaxListView
@@ -117,14 +118,14 @@ public class ViewAlbumActivity extends AppCompatActivity {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (mActionBar != null)
                 {
-                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 1)
+                    if (firstVisibleItem == 0 && abHolder.getAlpha() == 1)
                     {
-                        abBackground.setAlpha(0);
+                        abHolder.setAlpha(0);
                         mActionBar.setTitle("");
                     }
-                    else if (firstVisibleItem >= 1 && abBackground.getAlpha() == 0)
+                    else if (firstVisibleItem >= 1 && abHolder.getAlpha() == 0)
                     {
-                        abBackground.setAlpha(1);
+                        abHolder.setAlpha(1);
                         mActionBar.setTitle(currAlbum.getTitle());
                     }
                 }
@@ -249,10 +250,13 @@ public class ViewAlbumActivity extends AppCompatActivity {
         if (id == R.id.action_now_playing) {
             Intent intent = new Intent(this, NowPlayingActivity.class);
 
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                    Pair.create((View) fab, "fab"));
-
-            startActivity(intent, options.toBundle());
+            if(MainActivity.isLollipop()) {
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                        Pair.create((View) fab, "fab"));
+                startActivity(intent, options.toBundle());
+            }
+            else
+            startActivity(intent);
 
             return true;
         }
@@ -283,10 +287,13 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                Pair.create((View)fab, "fab"));
-
-        startActivity(intent, options.toBundle());
+        if(MainActivity.isLollipop()) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab"));
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
     }
 
     private void setFabDrawable()
@@ -319,10 +326,13 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+        if(MainActivity.isLollipop()) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
-
-        startActivity(intent, options.toBundle());
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
     }
 
     public void viewAlbumShufflePressed(View view)

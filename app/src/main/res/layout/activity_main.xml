@@ -216,10 +216,10 @@
 
     <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="5dp"
+        android:layout_height="@dimen/action_bar_shadow_height"
         android:id="@+id/toolbar_dropshadow"
         android:layout_below="@+id/coverArt"
-        android:background="@drawable/toolbar_dropshadow" />
+        android:background="@drawable/actionbar_shadow" />
 
 
 </RelativeLayout>

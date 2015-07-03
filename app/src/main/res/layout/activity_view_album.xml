@@ -25,8 +25,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/view_album_coordinator"
-        android:layout_gravity="bottom"
-        android:elevation="2dp">
+        android:layout_gravity="bottom">
         <android.support.design.widget.FloatingActionButton
             android:layout_width="@dimen/fab_radius"
             android:layout_height="@dimen/fab_radius"
@@ -35,7 +34,7 @@
             android:id="@+id/albumFab"
             android:src="@drawable/play"
             android:transitionName="fab"
-            app:elevation="8dp"
+            app:borderWidth="0dp"
             app:rippleColor="@android:color/white"
             app:backgroundTint="@color/accent_color"
             app:pressedTranslationZ="12dp"/>
@@ -45,13 +44,21 @@
     <RelativeLayout
         android:id="@+id/album_ab_background"
         android:layout_width="fill_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/primary_color"
-        android:elevation="5dp"
-        android:paddingLeft="50dp"
-        android:paddingRight="70dp">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
 
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/action_bar_shadow_height"
+            android:id="@+id/view_album_ab_shadow"
+            android:background="@drawable/actionbar_shadow"
+            android:layout_below="@+id/album_ab_color_frame" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/primary_color"
+            android:id="@+id/album_ab_color_frame"></FrameLayout>
     </RelativeLayout>
 
 
