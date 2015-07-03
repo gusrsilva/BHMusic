@@ -569,7 +569,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             {
                 for(int i = originalPosition; i < newPosition; i++)
                 {
-                    mAdapter.swapItems(i, i+1);
                     Collections.swap(songList, i, i+1);
                     Collections.swap(idList, i, i+1);
                 }
@@ -581,7 +580,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
             {
                 for(int i = originalPosition; i > newPosition; i--)
                 {
-                    mAdapter.swapItems(i, i-1);
                     Collections.swap(songList, i, i-1);
                     Collections.swap(idList, i, i-1);
                 }
