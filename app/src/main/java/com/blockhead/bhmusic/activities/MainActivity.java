@@ -24,6 +24,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -908,10 +909,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         currAlbum = albumList.get(pos);
 
         Intent intent = new Intent(this, ViewAlbumActivity.class);
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                Pair.create((View) fab, "fab"));
+        if(isLollipop()) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab"));
 
-        startActivity(intent, options.toBundle());
+            startActivity(intent, options.toBundle());
+        }
+        else
+        {
+            startActivity(intent);
+        }
     }
 
     public void artistPicked(View view) {
@@ -921,12 +928,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         View artistImage = findViewById(R.id.artistImage);
 
         Intent intent = new Intent(this, ViewArtistActivity.class);
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                Pair.create((View) fab, "fab")
-                //,Pair.create(artistImage, "artistImage") TODO: Glitchy will fix later
-        );
-
-        startActivity(intent, options.toBundle());
+        if(isLollipop())
+        {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab")
+                    //,Pair.create(artistImage, "artistImage") TODO: Glitchy will fix later
+            );
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
     }
 
     public void playlistPicked(View view)
@@ -1039,6 +1050,19 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         catch (NullPointerException e)
         {
             //TODO: Handle exception
+        }
+    }
+
+    public boolean isLollipop()
+    {
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -1181,16 +1205,19 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                Pair.create((View) fab, "fab"));
 
-        if (musicSrv.getSmallSongCover() != null) {
-            options = ActivityOptions.makeSceneTransitionAnimation(this,
-                    Pair.create((View) coverArt, "coverArt"),
+        if(isLollipop()) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
+            if (musicSrv.getSmallSongCover() != null) {
+                options = ActivityOptions.makeSceneTransitionAnimation(this,
+                        Pair.create((View) coverArt, "coverArt"),
+                        Pair.create((View) fab, "fab"));
+            }
+            startActivity(intent, options.toBundle());
         }
-
-        startActivity(intent, options.toBundle());
+        else
+            startActivity(intent);
     }
 
     /**
