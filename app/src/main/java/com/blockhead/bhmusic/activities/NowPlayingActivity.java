@@ -36,6 +36,7 @@ import android.widget.Toast;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.npTracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
+import com.blockhead.bhmusic.objects.Playlist;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -78,7 +79,7 @@ public class NowPlayingActivity extends AppCompatActivity {
     private DisplayImageOptions displayOptions;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {    //TODO: Make FAB show playlist if playing playlist
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -259,15 +260,25 @@ public class NowPlayingActivity extends AppCompatActivity {
         //trkAlbum.setText(album);
     }
 
-    private void setTracklist() {
-        //Set Track List
-        if (musicSrv.getCurrSong().getAlbumObj() != null) {
-            npTrackListView = (ListView) findViewById(R.id.np_track_listview);
+    private void setTracklist()
+    {
+
+        npTrackListView = (ListView) findViewById(R.id.np_track_listview);
+
+        if(musicSrv.isPngPlaylist)  //Set tracks to show playlist if playing playlist
+        {
+            Playlist currPlaylist = musicSrv.getCurrPlaylist();
+            tracksAdapter = new npTracksAdapter(this, currPlaylist.getMembers());
+            npTrackListView.setAdapter(tracksAdapter);
+        }
+        else if (musicSrv.getCurrSong().getAlbumObj() != null)  //Otherwise show album tracks
+        {
             tracksAdapter = new npTracksAdapter(this, musicSrv.getCurrSong().getAlbumObj().getTracks());
             npTrackListView.setAdapter(tracksAdapter);
-            if (blurCov != null)
-                npTrackListView.setBackground(new BitmapDrawable(getResources(), blurCov));
         }
+
+        if (blurCov != null)
+            npTrackListView.setBackground(new BitmapDrawable(getResources(), blurCov));
     }
 
     private Album findAlbum(String albumTitle) {
@@ -398,7 +409,9 @@ public class NowPlayingActivity extends AppCompatActivity {
                     super.onAnimationEnd(animation);
                     if (actionBar != null) {
                         actionBar.setBackgroundDrawable(mListHeader);
-                        actionBar.setTitle(album);
+                        actionBar.setTitle(musicSrv.isPngPlaylist?
+                                "Playlist - " + musicSrv.getCurrPlaylist().getTitle()
+                                :"Album - " + album);
                     }
                 }
             });
@@ -462,7 +475,10 @@ public class NowPlayingActivity extends AppCompatActivity {
     public void npTrackPicked(View view) {
 
         int pos = Integer.parseInt(view.getTag().toString());
-        musicSrv.playAlbum(musicSrv.getCurrSong().getAlbumObj(), pos);
+        if(musicSrv.isPngPlaylist)  //Play playlist track
+            musicSrv.playPlaylist(musicSrv.getCurrPlaylist(), pos);
+        else                        //Otherwise play album track
+            musicSrv.playAlbum(musicSrv.getCurrSong().getAlbumObj(), pos);
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
         startActivity(intent);

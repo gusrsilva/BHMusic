@@ -599,6 +599,8 @@ public class MusicService extends Service implements
             return songs.get(songPosn);
     }
 
+    public Playlist getCurrPlaylist(){ return currPlaylist; }
+
     public Bitmap getSmallSongCover() {
         return smallCover;
     }
