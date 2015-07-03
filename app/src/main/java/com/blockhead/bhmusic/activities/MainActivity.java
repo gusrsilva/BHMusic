@@ -1053,7 +1053,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    public boolean isLollipop()
+    public static boolean isLollipop()
     {
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion >= Build.VERSION_CODES.LOLLIPOP)

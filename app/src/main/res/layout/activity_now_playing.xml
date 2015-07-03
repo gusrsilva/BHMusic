@@ -19,22 +19,15 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
-            <android.support.design.widget.FloatingActionButton
-                android:layout_width="@dimen/fab_radius"
-                android:layout_height="@dimen/fab_radius"
-                android:id="@+id/np_fab"
-                android:src="@drawable/play"
-                android:transitionName="fab"
-                app:elevation="8dp"
-                app:rippleColor="@android:color/white"
-                app:backgroundTint="@color/accent_color"
-                app:pressedTranslationZ="12dp"
-                app:layout_anchor="@id/coverArt"
-                app:layout_anchorGravity="bottom|right|end"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginBottom="190dp"
-                android:layout_marginRight="24dp" />
+            <ImageView
+                android:id="@+id/coverArt"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_above="@+id/fauxAB"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_cover_xlarge"
+                android:transitionName="coverArt"
+                android:adjustViewBounds="true" />
 
             <ListView
                 android:id="@+id/np_track_listview"
@@ -43,21 +36,9 @@
                 android:layout_alignTop="@+id/coverArt"
                 android:background="@color/accent_color"
                 android:dividerHeight="0dp"
-                android:elevation="2dp"
                 android:paddingTop="80dp"
                 android:visibility="invisible"
                 android:layout_above="@+id/fauxAB" />
-
-            <ImageView
-                android:id="@+id/coverArt"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_above="@+id/fauxAB"
-                android:elevation="1dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/default_cover_xlarge"
-                android:transitionName="coverArt"
-                android:adjustViewBounds="true" />
 
             <RelativeLayout
                 android:id="@+id/fauxAB"
@@ -65,7 +46,6 @@
                 android:layout_height="80dp"
                 android:layout_above="@+id/controlsHolder"
                 android:background="@color/dark_grey"
-                android:elevation="5dp"
                 android:transitionName="fauxAB">
 
                 <TextView
@@ -120,7 +100,6 @@
                 android:layout_height="140dp"
                 android:layout_alignParentBottom="true"
                 android:background="@color/background_color"
-                android:elevation="6dp"
                 android:transitionName="controlsHolder">
 
                 <ImageButton
@@ -232,6 +211,23 @@
                 android:layout_marginBottom="-100dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="@dimen/fab_radius"
+                android:layout_height="@dimen/fab_radius"
+                android:id="@+id/np_fab"
+                android:src="@drawable/play"
+                android:transitionName="fab"
+                app:borderWidth="0dp"
+                app:rippleColor="@android:color/white"
+                app:backgroundTint="@color/accent_color"
+                app:pressedTranslationZ="12dp"
+                app:layout_anchor="@id/coverArt"
+                app:layout_anchorGravity="bottom|right|end"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="190dp"
+                android:layout_marginRight="24dp" />
         </RelativeLayout>
 
     </android.support.design.widget.CoordinatorLayout>
