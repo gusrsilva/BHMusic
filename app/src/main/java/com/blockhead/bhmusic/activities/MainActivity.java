@@ -585,14 +585,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     protected void onDestroy() {
-        Toast mtToast = Toast.makeText(getApplicationContext(), " Calling onDestroy playlist check...", Toast.LENGTH_SHORT);
-        mtToast.show();
         for(int i = 0; i < playlistList.size(); i++)
         {
             if(playlistList.get(i).isChanged()) {
                 savePlaylist(playlistList.get(i));
-                mtToast.setText("Saving: " + playlistList.get(i).getTitle());
-                mtToast.show();
             }
         }
 
@@ -705,48 +701,34 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private void getPlaylistList() {
 
         Playlist temp;
-        //retreive song info
-        String[] projection = {   MediaStore.Audio.Playlists.Members.AUDIO_ID,
-                MediaStore.Audio.Playlists.Members.ARTIST,
-                MediaStore.Audio.Playlists.Members.TITLE,
-                MediaStore.Audio.Playlists.Members._ID,
-                MediaStore.Audio.Playlists.Members.PLAY_ORDER
-        };
-
-
+        String[] membersProjection = { MediaStore.Audio.Playlists.Members.AUDIO_ID,};
+        String[] playlistProjection = { MediaStore.Audio.Playlists._ID, MediaStore.Audio.Playlists.NAME};
         ContentResolver playlistResolver = getContentResolver();
         Uri playlistUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
-        Cursor playlistCursor = playlistResolver.query(playlistUri, null, null, null, null);
-        //TODO: Use projection on playlist cursor
+        Cursor playlistCursor = playlistResolver.query(playlistUri, playlistProjection, null, null, null);
 
-        if (playlistCursor != null && playlistCursor.moveToFirst()) {       //Get PlayLists
-            int idColumn = playlistCursor.getColumnIndex
-                    (MediaStore.Audio.Playlists._ID);
+        /* Get playlists */
+        if (playlistCursor != null && playlistCursor.moveToFirst())
+        {
+            int idColumn = playlistCursor.getColumnIndex(MediaStore.Audio.Playlists._ID);
             int titleColumn = playlistCursor.getColumnIndex(MediaStore.Audio.Playlists.NAME);
 
-            do      //Loop through playlists
+            do //Loop through playlists
             {
                 long thisId = playlistCursor.getLong(idColumn);
                 String thisTitle = playlistCursor.getString(titleColumn);
                 temp =  new Playlist(thisTitle, thisId);
-
                 ContentResolver tracksResolver = getContentResolver();
                 Uri tracksUri = MediaStore.Audio.Playlists.Members.getContentUri("external", thisId);
-                Cursor trackCursor = tracksResolver.query(tracksUri,projection,null,null,null);
+                Cursor trackCursor = tracksResolver.query(tracksUri,membersProjection,null,null,null);
+
                 if(trackCursor != null && trackCursor.moveToFirst())        //Get columns for play list members
                 {
-                    int trackTitleColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.TITLE);
-                    int trackArtistColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.ARTIST);
                     int trackIdColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID);
-                    int orderColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.PLAY_ORDER);
-
-                    do      //Loop through playlist members
+                    do //Loop through playlist members
                     {
                         long trackId = trackCursor.getLong(trackIdColumn);
-                        int playOrder = trackCursor.getInt(orderColumn);
-                        String title = trackCursor.getString(trackTitleColumn);
                         temp.addSong(trackId);
-                        Log.d("BHCA-P1", "Reading: " + title + " with Order: " + playOrder);
                     }
                     while (trackCursor.moveToNext());
                 }
@@ -897,7 +879,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     case GO_TO_ARTIST:
                         goToArtistPressed(songPos, context);
                         break;
-                    case GO_TO_ALBUM:       //TODO: Need to implement
+                    case GO_TO_ALBUM:
                         goToAlbumPressed(songPos, context);
                         break;
                     default:
@@ -1138,7 +1120,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    public void playlistShufflePressed(View view)   //TODO: Improve playPrev logic for shuffle playlist
+    public void playlistShufflePressed(View view)
     {
         final int pos = Integer.parseInt(view.getTag().toString());
         currPlaylist = playlistList.get(pos);

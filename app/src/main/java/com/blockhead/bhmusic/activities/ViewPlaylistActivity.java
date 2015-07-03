@@ -55,7 +55,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FAB work!
+public class ViewPlaylistActivity extends AppCompatActivity {
 
     Playlist currPlaylist;
     ArrayList<Song> songList;
@@ -278,7 +278,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
     public void playlistTrackPicked(View view, int position)
     {
         if(view.getTag() == null) {//Ignore clicks on header and footer
-            Toast.makeText(getApplicationContext(), "Pos: " + (position), Toast.LENGTH_SHORT).show();
             return;
         }
         int pos = Integer.parseInt(view.getTag().toString());
@@ -461,7 +460,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
         @Override
         public View getView(final int position, final View convertView, final ViewGroup parent) {
             if(position >= getCount()) {
-                Toast.makeText(mContext, "NULL VIEW", Toast.LENGTH_SHORT).show();
                 return null;
             }
 
@@ -526,9 +524,6 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
 
         private final ArrayAdapter<Song> mAdapter;
 
-        @Nullable
-        private Toast mToast;
-
         MyOnDismissCallback(final ArrayAdapter<Song> adapter) {
             mAdapter = adapter;
         }
@@ -541,14 +536,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {    //TODO: Make FA
                 songList.remove(position);
                 idList.remove(position);
                 currPlaylist.setChanged();
-                try
-                {
-                    plAdt.notifyDataSetChanged();
-                }
-                catch (Exception e)
-                {
-                    //TODO: Handle exception, remove generic type
-                }
+                plAdt.notifyDataSetChanged();
             }
         }
     }
