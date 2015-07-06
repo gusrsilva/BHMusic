@@ -1,15 +1,11 @@
 <resources>
 
-    <!-- Application theme. -->
+
+    <!-- Application theme for API 16+ -->
     <style name="DefaultCompatTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:statusBarColor">@color/statusbar_color</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
+        <item name="colorPrimaryDark">@color/statusbar_color</item>
         <item name="android:windowActionBarOverlay">true</item>
-
-
         <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <!-- Support library compatibility -->
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
