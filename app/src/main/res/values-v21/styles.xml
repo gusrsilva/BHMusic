@@ -1,53 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="DefaultTheme" parent="android:Theme.Material.Light.DarkActionBar">
-        <item name="android:statusBarColor">@color/statusbar_color</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:actionBarStyle">@style/TranslucentActionBar</item>
-        <item name="android:windowActionBarOverlay">true</item>
-    </style>
-
-    <!-- Application theme. -->
-    <style name="DefaultCompatTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:statusBarColor">@color/statusbar_color</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowActionBarOverlay">true</item>
-
-
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
-    </style>
-
-    <!-- ACTION BAR STYLES -->
-    <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/transparent</item>
-        <item name="android:windowActionBarOverlay">true</item>
-
-        <!-- Support library compatibility -->
-        <item name="background">@color/transparent</item>
-        <item name="windowActionBarOverlay">true</item>
-    </style>
 
     <style name="SettingsTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
         <item name="android:statusBarColor">@color/statusbar_color</item>
-    </style>
-
-    <style name="TranslucentActionBar" parent="android:Widget.Material.ActionBar">
-        <item name="android:elevation">0dp</item>
-        <item name="android:colorPrimary">@android:color/transparent</item>
-    </style>
-
-    <style name="PrimaryActionBar" parent="android:Widget.Material.ActionBar">
-        <item name="android:colorPrimary">@color/primary_color</item>
-    </style>
-
-    <style name="test" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:colorPrimary">@color/primary_color</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
 </resources>

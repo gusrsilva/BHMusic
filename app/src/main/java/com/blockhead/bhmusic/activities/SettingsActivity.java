@@ -157,12 +157,15 @@ public class SettingsActivity extends PreferenceActivity {
             actionBar.setBackgroundDrawable(mActionBarDrawable);
 
             //Create and set color for statusbar
-            float[] hsv = new float[3];
-            int color = MainActivity.primaryColor;
-            Color.colorToHSV(color, hsv);
-            hsv[2] *= 0.8f; // value component
-            color = Color.HSVToColor(hsv);
-            getWindow().setStatusBarColor(color);
+            if(MainActivity.isLollipop())
+            {
+                float[] hsv = new float[3];
+                int color = MainActivity.primaryColor;
+                Color.colorToHSV(color, hsv);
+                hsv[2] *= 0.8f; // value component
+                color = Color.HSVToColor(hsv);
+                getWindow().setStatusBarColor(color);
+            }
 
         }
     }

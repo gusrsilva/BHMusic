@@ -1,18 +1,30 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <!-- Application theme. -->
+    <style name="DefaultCompatTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/statusbar_color</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowActionBarOverlay">true</item>
+
+
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
+    <!-- ACTION BAR STYLES -->
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/transparent</item>
+        <item name="android:windowActionBarOverlay">true</item>
 
-    <!-- Can Delete These -->
-    <style name="Widget.CardContent" parent="android:Widget">
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">24dp</item>
-        <item name="android:paddingBottom">24dp</item>
-        <item name="android:orientation">vertical</item>
+        <!-- Support library compatibility -->
+        <item name="background">@color/transparent</item>
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="SettingsTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
+
     </style>
 
 </resources>
