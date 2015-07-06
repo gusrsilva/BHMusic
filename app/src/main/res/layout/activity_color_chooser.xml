@@ -69,25 +69,6 @@
         android:layout_height="fill_parent"
         android:layout_below="@+id/previewTitle">
 
-        <RelativeLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="80dp"
-            android:id="@+id/previewAB"
-            android:background="@color/primary_color"
-            android:elevation="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="My Music"
-                android:id="@+id/textView"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="30dp" />
-        </RelativeLayout>
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
@@ -175,8 +156,25 @@
             android:layout_alignParentBottom="true"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/pause"
-            android:elevation="6dp" />
+            android:src="@drawable/play"/>
+
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:id="@+id/previewAB"
+            android:background="@color/primary_color">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Music"
+                android:id="@+id/textView"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp" />
+        </RelativeLayout>
     </RelativeLayout>
 
 </RelativeLayout>
