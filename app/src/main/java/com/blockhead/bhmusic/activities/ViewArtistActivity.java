@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -12,6 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.Display;
 import android.view.Menu;
@@ -23,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.ArtistsTracksAdapter;
@@ -36,18 +40,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class ViewArtistActivity extends Activity {
-
-    Handler monitorHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            mediaPlayerMonitor();
-        }
-
-    };
+public class ViewArtistActivity extends AppCompatActivity {
     MusicService musicSrv;
-    ImageButton fab;
+    FloatingActionButton fab;
     Artist currArtist;
 
     @Override
@@ -56,14 +51,30 @@ public class ViewArtistActivity extends Activity {
         setContentView(R.layout.activity_view_artist);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-        final ActionBar mActionBar = getActionBar();
+        final android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
         if(mActionBar != null)
             mActionBar.setTitle("");
 
         musicSrv = MainActivity.getMusicService();
-        fab = (ImageButton)findViewById(R.id.artistFab);
-        Drawable fabBG = fab.getBackground();
-        fabBG.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
+        /* Setup Floating Action Button */
+        fab = (FloatingActionButton)findViewById(R.id.artistFab);
+        setFabDrawable();
+        fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
+        fab.setClickable(true);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabPressed();
+            }
+        });
+        fab.setLongClickable(true);
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                nowPlayingButtonPressed();
+                return true;
+            }
+        });
 
 
         ParallaxExpandableListView xLV = (ParallaxExpandableListView)findViewById(R.id.expandableListView);
@@ -149,39 +160,47 @@ public class ViewArtistActivity extends Activity {
 
         }
 
-        ScheduledExecutorService myScheduledExecutorService = Executors.newScheduledThreadPool(1);
-        myScheduledExecutorService.scheduleWithFixedDelay(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        monitorHandler.sendMessage(monitorHandler.obtainMessage());
-                    }
-                },
-                0, //initialDelay
-                200, //delay
-                TimeUnit.MILLISECONDS);
-
     }//END ON CREATE METHOD
 
-    //Media Player Monitor
-    private void mediaPlayerMonitor() {
-        //set FAB icon
-        if (musicSrv != null) {
-            if (musicSrv.isPng()) {
-                //set playButton icon to pause
-                Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
-                fab.setImageDrawable(pauseDrawable);
-            } else {
-                //set playButton icon to play
-                Drawable playDrawable = getResources().getDrawable(R.drawable.play);
-                fab.setImageDrawable(playDrawable);
-            }
-        }
+    private void setFabDrawable()
+    {
+        Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
+        Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+        if(musicSrv.isPng())
+            fab.setImageDrawable(pauseDrawable);
+        else
+            fab.setImageDrawable(playDrawable);
     }
 
-    public void artistFabPressed(View v)
+    private void fabPressed()
     {
-        MainActivity.fabPressed(v);
+        if(musicSrv.isPng())
+            musicSrv.pausePlayer();
+        else
+            musicSrv.resumePlayer();
+
+        setFabDrawable();
+    }
+
+    private void nowPlayingButtonPressed()
+    {
+        if(musicSrv == null || musicSrv.getCurrSong() == null)
+        {
+            Toast
+                    .makeText(getApplicationContext(), "Please select song first.", Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+
+        Intent intent = new Intent(this, NowPlayingActivity.class);
+
+        if(MainActivity.isLollipop()) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab"));
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
     }
 
     public void artistTrackPicked(int groupPostion, int childPosition)
@@ -189,6 +208,7 @@ public class ViewArtistActivity extends Activity {
         Album currAlbum = currArtist.albums.get(groupPostion);
         musicSrv.setSong(childPosition);
         musicSrv.playAlbum(currAlbum, childPosition);
+        setFabDrawable();
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
@@ -251,6 +271,7 @@ public class ViewArtistActivity extends Activity {
             if (NowPlayingActivity.shuffleButton != null)
                 NowPlayingActivity.shuffleButton.setSelected(false);
         }
+        setFabDrawable();
     }
 
     public int getStatusBarHeight() {
