@@ -14,7 +14,6 @@
         android:id="@+id/view_artist_header_child_text"
         android:textColor="@color/white"
         android:layout_centerVertical="true"
-        android:elevation="4dp"
         android:textSize="16sp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"

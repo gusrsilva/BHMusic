@@ -22,7 +22,6 @@
             android:textColor="@color/white"
             android:layout_centerVertical="true"
             android:layout_marginLeft="60dp"
-            android:elevation="4dp"
             android:textSize="22sp" />
 
         <TextView
@@ -33,7 +32,6 @@
             android:textColor="@color/white"
             android:layout_centerVertical="true"
             android:layout_marginLeft="60dp"
-            android:elevation="4dp"
             android:textSize="14sp" />
     </LinearLayout>
 
