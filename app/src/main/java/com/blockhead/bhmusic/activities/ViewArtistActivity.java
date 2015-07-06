@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ExpandableListView;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -81,12 +82,12 @@ public class ViewArtistActivity extends AppCompatActivity {
         currArtist = MainActivity.currArtist;
         ArrayList<Album> albums = currArtist.getAlbums();
 
-        final RelativeLayout abBackground = (RelativeLayout)findViewById(R.id.artist_ab_background);
-        TextView abTitle = (TextView)findViewById(R.id.artist_ab_title);
+        final RelativeLayout abHolder = (RelativeLayout)findViewById(R.id.artist_ab_holder);
+        FrameLayout abBackground = (FrameLayout)findViewById(R.id.artist_ab_background);
 
-        abTitle.setText(currArtist.getName());
+
         abBackground.setBackgroundColor(currArtist.getAccentColor());
-        abBackground.setAlpha(0);
+        abHolder.setAlpha(0);
 
         AbsListView.OnScrollListener mOnScrollListener = new AbsListView.OnScrollListener() {
             @Override
@@ -97,10 +98,12 @@ public class ViewArtistActivity extends AppCompatActivity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (mActionBar != null) {
-                    if (firstVisibleItem == 0 && abBackground.getAlpha() == 1) {
-                        abBackground.setAlpha(0);
-                    } else if (firstVisibleItem >= 1 && abBackground.getAlpha() == 0) {
-                        abBackground.setAlpha(1);
+                    if (firstVisibleItem == 0 && abHolder.getAlpha() == 1) {
+                        abHolder.setAlpha(0);
+                        mActionBar.setTitle("");
+                    } else if (firstVisibleItem >= 1 && abHolder.getAlpha() == 0) {
+                        abHolder.setAlpha(1);
+                        mActionBar.setTitle(currArtist.getName());
                     }
                 }
             }

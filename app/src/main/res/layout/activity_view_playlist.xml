@@ -35,7 +35,7 @@
         android:layout_gravity="bottom|end"
         android:id="@+id/playlist_FAB"
         android:src="@drawable/play"
-        app:elevation="8dp"
+        app:borderWidth="0dp"
         app:rippleColor="@android:color/white"
         app:pressedTranslationZ="12dp"
         android:transitionName="fab"
@@ -43,14 +43,22 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <RelativeLayout
-        android:id="@+id/artist_ab_background"
+        android:id="@+id/playlist_ab_holder"
         android:layout_width="fill_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/primary_color"
-        android:elevation="5dp"
-        android:paddingLeft="60dp"
-        android:paddingRight="60dp">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/primary_color"
+            android:id="@+id/playlist_ab_background"></FrameLayout>
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/action_bar_shadow_height"
+            android:id="@+id/imageView4"
+            android:layout_below="@+id/playlist_ab_background"
+            android:background="@drawable/actionbar_shadow" />
     </RelativeLayout>
 </FrameLayout>

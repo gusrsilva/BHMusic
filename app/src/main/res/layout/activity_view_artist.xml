@@ -34,26 +34,23 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <RelativeLayout
-        android:id="@+id/artist_ab_background"
+        android:id="@+id/artist_ab_holder"
         android:layout_width="fill_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/primary_color"
-        android:elevation="5dp"
-        android:paddingLeft="60dp"
-        android:paddingRight="60dp">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
 
-        <TextView
-            android:id="@+id/artist_ab_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="15dp"
-            android:singleLine="true"
-            android:text="Album Name"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/white"
-            android:textSize="22sp" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@color/primary_color"
+            android:id="@+id/artist_ab_background"></FrameLayout>
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/action_bar_shadow_height"
+            android:id="@+id/imageView5"
+            android:background="@drawable/actionbar_shadow"
+            android:layout_below="@+id/artist_ab_background" />
     </RelativeLayout>
 </FrameLayout>
 
