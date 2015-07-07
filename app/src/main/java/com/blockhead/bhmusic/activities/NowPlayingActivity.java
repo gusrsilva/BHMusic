@@ -3,6 +3,7 @@ package com.blockhead.bhmusic.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -13,8 +14,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.renderscript.RenderScript;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -25,7 +26,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -72,7 +72,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         private final WeakReference<NowPlayingActivity> mActivity;
 
         public MyHandler(NowPlayingActivity activity) {
-            mActivity = new WeakReference<NowPlayingActivity>(activity);
+            mActivity = new WeakReference<>(activity);
         }
 
         @Override
@@ -90,14 +90,14 @@ public class NowPlayingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-
+        Context context = getApplicationContext();
 
         /* Initialize Drawables */
-        pauseDrawable = getResources().getDrawable(R.drawable.ic_nowplaying_pause_312);
-        playDrawable = getResources().getDrawable(R.drawable.ic_nowplaying_play_312);
-        seekThumb = getResources().getDrawable(R.drawable.seekbar_thumb);
-        seekThumbSelected = getResources().getDrawable(R.drawable.seekbar_thumb_selected);
-        Drawable seekProgress = getResources().getDrawable(R.drawable.now_playing_seekbar_progress);
+        pauseDrawable = ContextCompat.getDrawable(context, R.drawable.ic_nowplaying_pause_312);
+        playDrawable = ContextCompat.getDrawable(context, R.drawable.ic_nowplaying_play_312);
+        seekThumb = ContextCompat.getDrawable(context, R.drawable.seekbar_thumb);
+        seekThumbSelected = ContextCompat.getDrawable(context, R.drawable.seekbar_thumb_selected);
+        Drawable seekProgress = ContextCompat.getDrawable(context, R.drawable.now_playing_seekbar_progress);
 
         musicSrv = MainActivity.getMusicService();
         musicSrv.isFinished = false;
@@ -122,7 +122,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         /* Set up Floating Action Button */
         fab = (FloatingActionButton) findViewById(R.id.np_fab);
         fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
-        fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_format_list_bulleted_white_24dp));
+        fab.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_format_list_bulleted_white_24dp));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,7 +141,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         seek.setThumb(seekThumb);
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
         coverArt = (ImageView) findViewById(R.id.coverArt);
-        mListHeader = getResources().getDrawable(R.drawable.rect_ripple_semitransparent_black);
+        mListHeader = ContextCompat.getDrawable(context, R.drawable.rect_ripple_semitransparent_black);
 
 
         //Check Shuffle & Repeat
@@ -243,7 +243,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         else
         {
             //set playButton icon to play
-            Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_black_48dp);
+            Drawable playDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_black_48dp);
             playButton.setImageDrawable(playDrawable);
         }
 
@@ -310,7 +310,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         } else {
             vibrantColor = getResources().getColor(R.color.dark_grey);
             fauxAB.setBackgroundColor(vibrantColor);
-            coverArt.setImageDrawable(getResources().getDrawable(R.drawable.default_cover_xlarge));
+            coverArt.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.default_cover_xlarge));
             getWindow().setBackgroundDrawableResource(musicSrv.getCurrSong().getRandomColor());
             //coverArt.startAnimation(vinylAnimation);
             needsRotation = true;
@@ -356,7 +356,7 @@ public class NowPlayingActivity extends AppCompatActivity {
 
     //Button Press Actions
     public void npPlayPressed(View v) {
-        MainActivity.fabPressed(v);
+        MainActivity.fabPressed();
     }
 
     @TargetApi(21)
@@ -458,25 +458,26 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     private void setRepeatDrawable() {
+        Context context = getApplicationContext();
         try {
-            if (musicSrv.getRepeat() == musicSrv.REPEAT_ALL) {
+            if (musicSrv.getRepeat() == MusicService.REPEAT_ALL) {
                 repeatButton.startAnimation(repeatAnimation);
                 repeatButton.setSelected(true);
-                repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_repeat_white_24dp));
                 repeatDrawable = repeatButton.getDrawable();
                 repeatDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
                 MainActivity.repeatButton.setSelected(true);
-            } else if (musicSrv.getRepeat() == musicSrv.REPEAT_ONE) {
+            } else if (musicSrv.getRepeat() == MusicService.REPEAT_ONE) {
                 repeatButton.startAnimation(repeatAnimation);
                 repeatButton.setSelected(true);
-                repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_once_white_24dp));
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_repeat_once_white_24dp));
                 repeatDrawable = repeatButton.getDrawable();
                 repeatDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
                 MainActivity.repeatButton.setSelected(true);
             } else { //Repeat is off
                 repeatButton.startAnimation(repeatAnimation);
                 repeatButton.setSelected(false);
-                repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
+                repeatButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_repeat_white_24dp));
                 repeatDrawable = repeatButton.getDrawable();
                 MainActivity.repeatButton.setSelected(false);
                 repeatDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
@@ -500,12 +501,12 @@ public class NowPlayingActivity extends AppCompatActivity {
 
     public void prevPressed(View v)
     {
-        MainActivity.prevPressed(v);
+        MainActivity.prevPressed();
         setInfo();
     }
 
     public void nextPressed(View v) {
-        MainActivity.nextPressed(v);
+        MainActivity.nextPressed();
         setInfo();
     }
 

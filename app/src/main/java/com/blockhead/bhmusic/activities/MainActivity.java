@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -34,6 +35,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -95,6 +97,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
+@SuppressWarnings("unchecked")
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
 
     public static ArrayList<Artist> artistList;
@@ -111,8 +114,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static ActionBar mActionBar;
     public static boolean artworkHeader = true;
     public static int primaryColor, accentColor;
-    private static ListView songView, playlistView;
-    private static GridView albumView, artistView;
+    private static GridView albumView;
     private static MusicService musicSrv = new MusicService();
     private static boolean playbackPaused = false;
     private static SeekBar seekBar;
@@ -123,22 +125,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static PlaylistListAdapter playlistAdt;
     private static String abTitle;
     private static SharedPreferences sharedPref;
-    private static ArtistArtTask mArtistArtTask;
-    private static GetListsTask mGetListTask;
     public static ArrayList<Song> songList;
     private static ArrayList<Playlist> playlistList;
     private Intent playIntent;
     private boolean musicBound = false;
     private boolean paused = false;
-    private boolean shuffle = false;
     private TextView timePos, timeDur;
     private ServiceConnection musicConnection;
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
     public static Animation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
-    private static Drawable fabDrawable;
-    private DiskLruImageCache mDiskLruCache;
     private static CoordinatorLayout coordLay;
 
     //DEFINE COLORS FOR USERS TO CHOOSE
@@ -155,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         private final WeakReference<MainActivity> mActivity;
 
         public MyHandler(MainActivity activity) {
-            mActivity = new WeakReference<MainActivity>(activity);
+            mActivity = new WeakReference<>(activity);
         }
 
         @Override
@@ -208,18 +203,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
-
-        songList = new ArrayList<Song>();
-        albumList = new ArrayList<Album>();
-        artistList = new ArrayList<Artist>();
-        playlistList = new ArrayList<Playlist>();
+        songList = new ArrayList<>();
+        albumList = new ArrayList<>();
+        artistList = new ArrayList<>();
+        playlistList = new ArrayList<>();
 
 
         songAdt = new SongAdapter(this, songList);
@@ -227,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         artistAdt = new ArtistAdapter(this, artistList);
         playlistAdt = new PlaylistListAdapter(this, playlistList);
 
-        mGetListTask = new GetListsTask();
+        GetListsTask mGetListTask = new GetListsTask();
         mGetListTask.execute();
 
 
@@ -277,13 +270,31 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         nowPlayingArtist = (TextView) findViewById(R.id.trackArtist);
         coverArt = (ImageView) findViewById(R.id.coverArt);
         coordLay = (CoordinatorLayout)findViewById(R.id.main_coordinator);
+        ImageButton backButton = (ImageButton)findViewById(R.id.backButton);
+        ImageButton fowardButton = (ImageButton)findViewById(R.id.fowardButton);
+
+
+        /* Set OnClickListeners */
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prevPressed();
+            }
+        });
+        fowardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextPressed();
+            }
+        });
+
 
         //Set FAB onClickListener
         fab.setClickable(true);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fabPressed(v);
+                fabPressed();
             }
         });
         fab.setLongClickable(true);
@@ -305,8 +316,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
 
         //Define Drawables
-        pauseDrawable = getResources().getDrawable(R.drawable.ic_pause_white_36dp);
-        playDrawable = getResources().getDrawable(R.drawable.ic_play_white_36dp);
+        pauseDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_white_36dp);
+        playDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_white_36dp);
 
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -376,10 +387,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         return musicSrv;
     }
 
-    public FloatingActionButton getFab() {
-        return fab;
-    }
-
     public static int randomColor() {
         Random rand = new Random();
         int color = rand.nextInt(18);
@@ -433,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    public static void fabPressed(View v) {
+    public static void fabPressed() {
         if(musicSrv == null){
             musicSrv = new MusicService();
             musicSrv.initMusicPlayer();
@@ -449,11 +456,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
     }
 
-    public static void prevPressed(View v) {
+    public static void prevPressed() {
         playPrev();
     }
 
-    public static void nextPressed(View v) {
+    public static void nextPressed() {
         playNext();
     }
 
@@ -628,7 +635,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
 
         //
-        if (musicCursor != null && musicCursor.moveToFirst()) {
+        if (musicCursor != null && musicCursor.moveToFirst())
+        {
             //get columns
             int titleColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.TITLE);
@@ -662,6 +670,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
             while (musicCursor.moveToNext());
         }
+        if(musicCursor != null)
+            musicCursor.close();
     }
 
     public void getAlbumList() {
@@ -671,7 +681,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         Album temp;
 
 
-        if (coverCursor != null && coverCursor.moveToFirst()) {
+        if (coverCursor != null && coverCursor.moveToFirst())
+        {
             int coverColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
             int albumColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM);
             int artistColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST);
@@ -687,6 +698,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
             while (coverCursor.moveToNext());
         }
+
+        if(coverCursor != null)
+            coverCursor.close();
 
     }
 
@@ -743,9 +757,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     while (trackCursor.moveToNext());
                 }
                 playlistList.add(temp);
+                if(trackCursor != null)
+                    trackCursor.close();
             }
             while (playlistCursor.moveToNext());
         }
+
+        if(playlistCursor != null)
+            playlistCursor.close();
     }
 
     public void savePlaylist(Playlist playlist)
@@ -797,7 +816,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 ContentValues cv = new ContentValues();
                 cv.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, ++i);
                 cv.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, id);
-                Uri u = resolver.insert(insUri, cv);
                 Log.d("BHCA-P", "Added Playlist Item: " + playlist.getMembers().get(i-1).getTitle() + " with play order:  " + i);
             } while (i < playlist.getSize());
         }
@@ -823,6 +841,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
+    @SuppressWarnings("unused")
     private void addToPlaylistPressed(final int songPosition, Context context)
     {
         /* Initialize playlists */
@@ -873,6 +892,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         startActivity(intent);
     }
 
+    @SuppressWarnings("unused")
     public void openSongOptions(final int songPos, final Context context)
     {
         /* Callback for when option is chosen */
@@ -936,7 +956,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         int pos = Integer.parseInt(view.getTag().toString());
         currArtist = artistList.get(pos);
-        View artistImage = findViewById(R.id.artistImage);
+        //View artistImage = findViewById(R.id.artistImage);
 
         Intent intent = new Intent(this, ViewArtistActivity.class);
         if(isLollipop())
@@ -998,9 +1018,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     public boolean isPlaying() {
-        if (musicSrv != null && musicBound)
-            return musicSrv.isPng();
-        return false;
+        return (musicSrv != null && musicBound && musicSrv.isPng());
     }
 
     @Override
@@ -1023,22 +1041,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void start() {
         musicSrv.go();
     }
-
-    // Creates a unique subdirectory of the designated app cache directory. Tries to use external
-    // but if not mounted, falls back on internal storage.
-
-    public void closePressed(View v) {
-        stopService(playIntent);
-        musicSrv = null;
-        System.exit(0);
-        finish();
-    }
-
-
-    ////////////////////////// BEGIN
-    ////////////////////////////////// BUTTON
-    //////////////////////////////////////////// PRESSED
-    ////////////////////////////////////////////////////// ACTIONS
 
     public void setNowPlayingInfo() {
         nowPlayingTitle.setText(musicSrv.getSongTitle());
@@ -1067,14 +1069,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static boolean isLollipop()
     {
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        if (currentapiVersion >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (currentapiVersion >= Build.VERSION_CODES.LOLLIPOP);
     }
 
     private Bitmap getBitmapFromURL(String src) {
@@ -1084,8 +1079,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
+            return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -1190,18 +1184,19 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     public void repeatPressed(View v) {
         musicSrv.setRepeat();
+        Context context = getApplicationContext();
 
         if (musicSrv.getRepeat() == MusicService.REPEAT_ALL) {
             repeatButton.startAnimation(repeatRotationAnimation);
-            repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
+            repeatButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_repeat_white_24dp));
             repeatButton.setSelected(true);
         } else if (musicSrv.getRepeat() == MusicService.REPEAT_ONE) {
-            repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_once_white_24dp));
+            repeatButton.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_repeat_once_white_24dp));
             repeatButton.startAnimation(repeatRotationAnimation);
             repeatButton.setSelected(true);
         } else {
             repeatButton.startAnimation(repeatRotationAnimation);
-            repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
+            repeatButton.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_repeat_white_24dp));
             repeatButton.setSelected(false);
         }
     }
@@ -1288,14 +1283,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             else if (page == 3)
             {
                 rootView = inflater.inflate(R.layout.artist_list, container, false);
-                artistView = (GridView) rootView.findViewById(R.id.artistGrid);
+                GridView artistView = (GridView) rootView.findViewById(R.id.artistGrid);
                 if (artistView != null)
                     artistView.setAdapter(artistAdt);
             }
             else if (page == 4)
             {
                 rootView = inflater.inflate(R.layout.playlist_list, container, false);
-                playlistView = (ListView) rootView.findViewById(R.id.playlist_listview);
+                ListView playlistView = (ListView) rootView.findViewById(R.id.playlist_listview);
                 if (playlistView != null)
                     playlistView.setAdapter(playlistAdt);
             }
@@ -1310,7 +1305,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public class ArtistArtTask extends AsyncTask<Void, Void, String> {
 
         long t1, t2;
-        private String key = "89b0d2bf4200f9b85e3741e5c07b807d";
         private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
         private int mCompressQuality = 100;
 
@@ -1321,7 +1315,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             String artistArtUrl = "", artistName, encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
             Bitmap artistImage = null;
-            mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
+            DiskLruImageCache mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
                     1024 * 1024 * 10, mCompressFormat, mCompressQuality);
             SharedPreferences.Editor mEditor = sharedPref.edit();
 
@@ -1434,7 +1428,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 albumView.setAdapter(albumAdt);
 
             //Start Artist Art Async Task
-            mArtistArtTask = new ArtistArtTask();
+            ArtistArtTask mArtistArtTask = new ArtistArtTask();
             mArtistArtTask.execute();
         }
 
