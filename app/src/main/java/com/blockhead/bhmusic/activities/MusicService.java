@@ -1,5 +1,6 @@
 package com.blockhead.bhmusic.activities;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,6 +15,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
@@ -85,11 +87,13 @@ public class MusicService extends Service implements
     private Toast mToast;
     private ImageLoader imageLoader;
     public boolean isFinished = false;
+    private int currentApi;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
+        currentApi = android.os.Build.VERSION.SDK_INT;
         imageLoader = ImageLoader.getInstance(); // Get singleton instance
         songPosn = -1;
         player = new MediaPlayer();
@@ -739,6 +743,7 @@ public class MusicService extends Service implements
     }
 
     //Notification Functions
+    @TargetApi(21)
     private void createNotification() {
 
         notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -786,17 +791,22 @@ public class MusicService extends Service implements
         closePendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE, closeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         mBuilder = new Notification.Builder(this);
+
+
+        if(currentApi >= Build.VERSION_CODES.LOLLIPOP)
+            mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+
         notification = mBuilder
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setPriority(Notification.PRIORITY_HIGH)
                 .setContentTitle(getSongTitle())
                 .setContentText(getSongArtist())
                 .setContent(smallNotificationView)
                 .setContentIntent(pendingContentIntent)
-                .setSmallIcon(R.drawable.status_icon)
+                .setSmallIcon(R.drawable.ic_music_circle_white_24dp)
                 .setLargeIcon(getSmallSongCover())
                 .setDeleteIntent(closePendingIntent)
-                .setShowWhen(false)
                 .setOngoing(true)
+                .setShowWhen(false)
                 .build();
         notification.bigContentView = notificationView;
 

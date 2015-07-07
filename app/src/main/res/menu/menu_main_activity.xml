@@ -5,7 +5,7 @@
     <!-- Search, should appear as action button -->
     <item
         android:id="@+id/action_now_playing"
-        android:icon="@drawable/ic_action_now_playing"
+        android:icon="@drawable/ic_music_circle_white_24dp"
         app:showAsAction="ifRoom"
         android:title="@string/action_now_playing" />
 

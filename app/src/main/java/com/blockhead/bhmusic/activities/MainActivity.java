@@ -1,9 +1,9 @@
 package com.blockhead.bhmusic.activities;
 
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActivityOptions;
-import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -20,7 +20,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -82,6 +81,7 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -97,8 +97,6 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
 
-    private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-    private static final String DISK_CACHE_SUBDIR = "thumbnails";
     public static ArrayList<Artist> artistList;
     public static ArrayList<Album> albumList;
     public static TextView nowPlayingArtist, nowPlayingTitle;
@@ -127,14 +125,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private static SharedPreferences sharedPref;
     private static ArtistArtTask mArtistArtTask;
     private static GetListsTask mGetListTask;
-    Handler monitorHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            mediaPlayerMonitor();
-        }
-
-    };
     public static ArrayList<Song> songList;
     private static ArrayList<Playlist> playlistList;
     private Intent playIntent;
@@ -159,6 +149,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     //Define song options
     static final int ADD_TO_PLAYLIST = 0, GO_TO_ARTIST = 1, GO_TO_ALBUM = 2;
+
+    /* Instantiate Handler in Leak Preventative manner */
+    private static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        public MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+            if (activity != null) {
+                activity.mediaPlayerMonitor();
+            }
+        }
+    }
+    private final MyHandler monitorHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {    //TODO: Add now playing indicator to song list adapters
@@ -205,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
 
 
         songList = new ArrayList<Song>();
@@ -296,8 +305,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
 
         //Define Drawables
-        pauseDrawable = getResources().getDrawable(R.drawable.pause);
-        playDrawable = getResources().getDrawable(R.drawable.play);
+        pauseDrawable = getResources().getDrawable(R.drawable.ic_pause_white_36dp);
+        playDrawable = getResources().getDrawable(R.drawable.ic_play_white_36dp);
 
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -723,7 +732,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 Uri tracksUri = MediaStore.Audio.Playlists.Members.getContentUri("external", thisId);
                 Cursor trackCursor = tracksResolver.query(tracksUri,membersProjection,null,null,null);
 
-                if(trackCursor != null && trackCursor.moveToFirst())        //Get columns for play list members
+                if(trackCursor != null && trackCursor.moveToFirst())        //Get columns for ic_play_white_36dp list members
                 {
                     int trackIdColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID);
                     do //Loop through playlist members
@@ -902,6 +911,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 .show();
     }
 
+    @TargetApi(21)
     public void albumPicked(View view) {
         //musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
 
@@ -921,6 +931,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
+    @TargetApi(21)
     public void artistPicked(View view) {
 
         int pos = Integer.parseInt(view.getTag().toString());
@@ -1195,6 +1206,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
+    @TargetApi(21)
     public void nowPlayingButtonPressed(View v) {
         if(musicSrv == null || musicSrv.getCurrSong() == null)
         {

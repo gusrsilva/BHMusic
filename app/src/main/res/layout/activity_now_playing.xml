@@ -139,8 +139,7 @@
                     android:background="@drawable/oval_ripple_background_color"
                     android:clickable="true"
                     android:onClick="npPlayPressed"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_play_black_48dp"
+                    android:src="@drawable/ic_nowplaying_play_312"
                     android:tint="@android:color/black" />
 
                 <ImageButton
@@ -161,6 +160,7 @@
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="3dp"
                     android:layout_toRightOf="@+id/fowardButton"
@@ -216,7 +216,7 @@
                 android:layout_width="@dimen/fab_radius"
                 android:layout_height="@dimen/fab_radius"
                 android:id="@+id/np_fab"
-                android:src="@drawable/play"
+                android:src="@drawable/ic_play_white_36dp"
                 android:transitionName="fab"
                 app:borderWidth="0dp"
                 app:rippleColor="@android:color/white"
@@ -237,6 +237,7 @@
         android:layout_width="fill_parent"
         android:layout_height="30dp"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="bottom"
         android:layout_marginBottom="125dp"

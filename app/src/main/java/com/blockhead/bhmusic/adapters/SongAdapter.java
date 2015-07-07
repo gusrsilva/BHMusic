@@ -2,6 +2,7 @@ package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,7 +92,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         else
         {
             int color = parent.getResources().getColor(currSong.getRandomColor());
-            coverView.setImageDrawable(context.getDrawable(R.drawable.default_cover));
+            coverView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.default_cover));
             coverView.setBackgroundColor(color);
             Log.d("DEBUG-BHCA", "Setting random color with: " + (color));
         }

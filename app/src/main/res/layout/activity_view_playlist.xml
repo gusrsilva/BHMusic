@@ -34,7 +34,7 @@
         android:layout_margin="24dp"
         android:layout_gravity="bottom|end"
         android:id="@+id/playlist_FAB"
-        android:src="@drawable/play"
+        android:src="@drawable/ic_play_white_36dp"
         app:borderWidth="0dp"
         app:rippleColor="@android:color/white"
         app:pressedTranslationZ="12dp"

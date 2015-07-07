@@ -2,8 +2,7 @@ package com.blockhead.bhmusic.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.ActionBar;
-import android.app.Activity;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -40,6 +39,7 @@ import com.blockhead.bhmusic.objects.Playlist;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -48,41 +48,56 @@ import java.util.concurrent.TimeUnit;
 public class NowPlayingActivity extends AppCompatActivity {
 
     public static ImageButton shuffleButton, repeatButton;
-    Handler monitorHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            mediaPlayerMonitor();
-        }
-
-    };
     private MusicService musicSrv = new MusicService();
     private ImageButton playButton;
     private FloatingActionButton fab;
-    private TextView trkTitle, trkArtist, trkAlbum, timePos, timeDur;
+    private TextView trkTitle, trkArtist, timePos, timeDur;
     private SeekBar seek;
-    private RelativeLayout controlsHolder, fauxAB;
-    private ImageView coverArt, bgBlurred;
-    private String title, artist, album;
-    private Bitmap regCov, blurCov;
-    private RenderScript rs;
+    private RelativeLayout fauxAB;
+    private ImageView coverArt;
+    private String album;
+    private Bitmap blurCov;
     private Drawable shuffleDrawable, repeatDrawable;
     private ListView npTrackListView;
-    private npTracksAdapter tracksAdapter;
-    private LinearLayout npTrackHolder;
-    private Drawable mListHeader, seekThumb, seekThumbSelected, seekProgress, fabDrawable;
+    private Drawable mListHeader, seekThumb, seekThumbSelected;
     private android.support.v7.app.ActionBar actionBar;
-    private int vibrantColor;
-    private Animation repeatAnimation, shuffleAnimation, vinylAnimation;
+    private Animation repeatAnimation, shuffleAnimation;
     private boolean needsRotation = false;
     private ImageLoader imageLoader;
     private DisplayImageOptions displayOptions;
+    private Drawable pauseDrawable, playDrawable;
+
+    /* Instantiate Handler in Leak Preventative manner */
+    private static class MyHandler extends Handler {
+        private final WeakReference<NowPlayingActivity> mActivity;
+
+        public MyHandler(NowPlayingActivity activity) {
+            mActivity = new WeakReference<NowPlayingActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            NowPlayingActivity activity = mActivity.get();
+            if (activity != null) {
+                activity.mediaPlayerMonitor();
+            }
+        }
+    }
+    private final MyHandler monitorHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_playing);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+
+        /* Initialize Drawables */
+        pauseDrawable = getResources().getDrawable(R.drawable.ic_nowplaying_pause_312);
+        playDrawable = getResources().getDrawable(R.drawable.ic_nowplaying_play_312);
+        seekThumb = getResources().getDrawable(R.drawable.seekbar_thumb);
+        seekThumbSelected = getResources().getDrawable(R.drawable.seekbar_thumb_selected);
+        Drawable seekProgress = getResources().getDrawable(R.drawable.now_playing_seekbar_progress);
 
         musicSrv = MainActivity.getMusicService();
         musicSrv.isFinished = false;
@@ -100,16 +115,12 @@ public class NowPlayingActivity extends AppCompatActivity {
                 .build();
 
         /* Set up layout */
-        seekThumb = getResources().getDrawable(R.drawable.seekbar_thumb);
-        seekThumbSelected = getResources().getDrawable(R.drawable.seekbar_thumb_selected);
-        seekProgress = getResources().getDrawable(R.drawable.now_playing_seekbar_progress);
         seekThumbSelected.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         seekThumb.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         seekProgress.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
 
         /* Set up Floating Action Button */
         fab = (FloatingActionButton) findViewById(R.id.np_fab);
-        fabDrawable = fab.getBackground();
         fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
         fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_format_list_bulleted_white_24dp));
         fab.setOnClickListener(new View.OnClickListener() {
@@ -123,16 +134,13 @@ public class NowPlayingActivity extends AppCompatActivity {
         playButton = (ImageButton) findViewById(R.id.floating_action_button);
         trkTitle = (TextView) findViewById(R.id.trackTitle);
         trkArtist = (TextView) findViewById(R.id.trackArtist);
-        trkAlbum = (TextView) findViewById(R.id.trackAlbum);
         shuffleButton = (ImageButton) findViewById(R.id.shuffleButton);
         repeatButton = (ImageButton) findViewById(R.id.repeatButton);
         seek = (SeekBar) findViewById(R.id.progressBar);
         seek.setProgressDrawable(seekProgress);
         seek.setThumb(seekThumb);
-        controlsHolder = (RelativeLayout) findViewById(R.id.controlsHolder);
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
         coverArt = (ImageView) findViewById(R.id.coverArt);
-        bgBlurred = (ImageView) findViewById(R.id.bgBlurredCover);
         mListHeader = getResources().getDrawable(R.drawable.rect_ripple_semitransparent_black);
 
 
@@ -143,13 +151,12 @@ public class NowPlayingActivity extends AppCompatActivity {
         //Set Animations
         repeatAnimation = AnimationUtils.loadAnimation(this, R.anim.repeat_rotate_animation);
         shuffleAnimation = AnimationUtils.loadAnimation(this, R.anim.shuffle_rotate_animation);
-        vinylAnimation = AnimationUtils.loadAnimation(this, R.anim.vinyl_rotation);
 
 
         if (musicSrv != null) {
             if (musicSrv.shuffle) {
                 shuffleButton.setSelected(true);
-                shuffleDrawable.setTint(MainActivity.accentColor);
+                shuffleDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
             }
             setRepeatDrawable();
         }
@@ -207,7 +214,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             if (musicSrv.isPng())
             {
                 //set playButton icon to pause
-                Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
                 playButton.setImageDrawable(pauseDrawable);
 
                 //set seek bar
@@ -231,14 +237,13 @@ public class NowPlayingActivity extends AppCompatActivity {
             else
             {
                 //set playButton icon to play
-                Drawable playDrawable = getResources().getDrawable(R.drawable.play);
                 playButton.setImageDrawable(playDrawable);
             }
         }
         else
         {
             //set playButton icon to play
-            Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+            Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_black_48dp);
             playButton.setImageDrawable(playDrawable);
         }
 
@@ -246,23 +251,20 @@ public class NowPlayingActivity extends AppCompatActivity {
 
 
     private void setTitle() {
-        title = musicSrv.getSongTitle();
-        trkTitle.setText(title);
+        trkTitle.setText(musicSrv.getSongTitle());
     }
 
     private void setArtist() {
-        artist = musicSrv.getSongArtist();
-        trkArtist.setText(artist);
+        trkArtist.setText(musicSrv.getSongArtist());
     }
 
     private void setAlbum() {
         album = musicSrv.getSongAlbum();
-        //trkAlbum.setText(album);
     }
 
     private void setTracklist()
     {
-
+        npTracksAdapter tracksAdapter;
         npTrackListView = (ListView) findViewById(R.id.np_track_listview);
 
         if(musicSrv.isPngPlaylist)  //Set tracks to show playlist if playing playlist
@@ -294,6 +296,7 @@ public class NowPlayingActivity extends AppCompatActivity {
 
 
     private void setCover() {
+        int vibrantColor;
         if (musicSrv.getCoverURI() != null) {
             coverArt.clearAnimation();
             coverArt.setRotation(0);
@@ -356,69 +359,80 @@ public class NowPlayingActivity extends AppCompatActivity {
         MainActivity.fabPressed(v);
     }
 
-    public void npFabPressed(View v) {
+    @TargetApi(21)
+    public void npFabPressed(View v)
+    {
         if (npTrackListView.getVisibility() == View.VISIBLE) {
             //HIDE TRACKLIST IF SHOWING
 
+            if(MainActivity.isLollipop())
+            {
+                // get the center for the clipping circle
+                int cx = (fab.getLeft() + fab.getRight()) / 2;
+                int cy = (fab.getTop() + fab.getBottom()) / 2;
+                // get the initial radius for the clipping circle
+                int initialRadius = npTrackListView.getWidth();
+                // create the animation (the final radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(npTrackListView, cx, cy, initialRadius, 0);
+                // make the view invisible when the animation is done
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        npTrackListView.setVisibility(View.INVISIBLE);
+                        fab.setVisibility(View.VISIBLE);
+                    }
+                });
+                // start the animation
+                anim.start();
+            }
+            else
+            {
+                npTrackListView.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.INVISIBLE);
+            }
 
-            // get the center for the clipping circle
-            int cx = (fab.getLeft() + fab.getRight()) / 2;
-            int cy = (fab.getTop() + fab.getBottom()) / 2;
-
-            // get the initial radius for the clipping circle
-            int initialRadius = npTrackListView.getWidth();
-
-            // create the animation (the final radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(npTrackListView, cx, cy, initialRadius, 0);
-
-            // make the view invisible when the animation is done
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    npTrackListView.setVisibility(View.INVISIBLE);
-                    fab.setVisibility(View.VISIBLE);
-                }
-            });
-            // start the animation
-            anim.start();
             if (actionBar != null) {
                 actionBar.setBackgroundDrawable(null);
                 actionBar.setTitle("");
             }
 
-        } else { //SHOW TRACKLIST IF HIDING
+        }
+        else
+        { //SHOW TRACKLIST IF HIDING
             fab.setVisibility(View.INVISIBLE);
-            // get the center for the clipping circle
-            int cx = (fab.getLeft() + fab.getRight()) / 2;
-            int cy = (fab.getTop() + fab.getBottom()) / 2;
 
-            // get the final radius for the clipping circle
-            int finalRadius = Math.max(npTrackListView.getWidth(), npTrackListView.getHeight());
-
-            // create the animator for this view (the start radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(npTrackListView, cx, cy, 0, finalRadius);
-            anim.setDuration(300);
-
-            // make the view invisible when the animation is done
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    if (actionBar != null) {
-                        actionBar.setBackgroundDrawable(mListHeader);
-                        actionBar.setTitle(musicSrv.isPngPlaylist?
-                                "Playlist - " + musicSrv.getCurrPlaylist().getTitle()
-                                :"Album - " + album);
+            if(MainActivity.isLollipop())
+            {
+                // get the center for the clipping circle
+                int cx = (fab.getLeft() + fab.getRight()) / 2;
+                int cy = (fab.getTop() + fab.getBottom()) / 2;
+                // get the final radius for the clipping circle
+                int finalRadius = Math.max(npTrackListView.getWidth(), npTrackListView.getHeight());
+                // create the animator for this view (the start radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(npTrackListView, cx, cy, 0, finalRadius);
+                anim.setDuration(300);
+                // make the view invisible when the animation is done
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        if (actionBar != null) {
+                            actionBar.setBackgroundDrawable(mListHeader);
+                            actionBar.setTitle(musicSrv.isPngPlaylist ?
+                                    "Playlist - " + musicSrv.getCurrPlaylist().getTitle()
+                                    : "Album - " + album);
+                        }
                     }
-                }
-            });
-
-            // make the view visible and start the animation
-            npTrackListView.setVisibility(View.VISIBLE);
-            anim.start();
+                });
+                // make the view visible and start the animation
+                npTrackListView.setVisibility(View.VISIBLE);
+                anim.start();
+            }
+            else
+                npTrackListView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -427,13 +441,13 @@ public class NowPlayingActivity extends AppCompatActivity {
         if (musicSrv.shuffle) {
             shuffleButton.startAnimation(shuffleAnimation);
             shuffleButton.setSelected(true);
-            shuffleDrawable.setTint(MainActivity.accentColor);
+            shuffleDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
             MainActivity.shuffleButton.setSelected(true);
         } else {
             shuffleButton.startAnimation(shuffleAnimation);
             shuffleButton.setSelected(false);
             MainActivity.shuffleButton.setSelected(false);
-            shuffleDrawable.setTint(Color.BLACK);
+            shuffleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
         }
     }
 
@@ -450,14 +464,14 @@ public class NowPlayingActivity extends AppCompatActivity {
                 repeatButton.setSelected(true);
                 repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
                 repeatDrawable = repeatButton.getDrawable();
-                repeatDrawable.setTint(MainActivity.accentColor);
+                repeatDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
                 MainActivity.repeatButton.setSelected(true);
             } else if (musicSrv.getRepeat() == musicSrv.REPEAT_ONE) {
                 repeatButton.startAnimation(repeatAnimation);
                 repeatButton.setSelected(true);
                 repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_once_white_24dp));
                 repeatDrawable = repeatButton.getDrawable();
-                repeatDrawable.setTint(MainActivity.accentColor);
+                repeatDrawable.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
                 MainActivity.repeatButton.setSelected(true);
             } else { //Repeat is off
                 repeatButton.startAnimation(repeatAnimation);
@@ -465,7 +479,7 @@ public class NowPlayingActivity extends AppCompatActivity {
                 repeatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_repeat_white_24dp));
                 repeatDrawable = repeatButton.getDrawable();
                 MainActivity.repeatButton.setSelected(false);
-                repeatDrawable.setTint(Color.BLACK);
+                repeatDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
             }
         } catch (NullPointerException e) {
             Log.d("BHCA", "Error: " + e.getMessage());
@@ -477,7 +491,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         int pos = Integer.parseInt(view.getTag().toString());
         if(musicSrv.isPngPlaylist)  //Play playlist track
             musicSrv.playPlaylist(musicSrv.getCurrPlaylist(), pos);
-        else                        //Otherwise play album track
+        else                        //Otherwise ic_play_white_36dp album track
             musicSrv.playAlbum(musicSrv.getCurrSong().getAlbumObj(), pos);
 
         Intent intent = new Intent(this, NowPlayingActivity.class);

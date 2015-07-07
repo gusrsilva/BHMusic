@@ -2,6 +2,8 @@ package com.blockhead.bhmusic.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -12,12 +14,12 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,7 +47,6 @@ import com.nhaarman.listviewanimations.itemmanipulation.DynamicListView;
 import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.OnItemMovedListener;
 import com.nhaarman.listviewanimations.itemmanipulation.dragdrop.TouchViewDraggableManager;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.OnDismissCallback;
-import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.SimpleSwipeUndoAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.TimedUndoAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
@@ -53,7 +54,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 public class ViewPlaylistActivity extends AppCompatActivity {
@@ -114,6 +114,13 @@ public class ViewPlaylistActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 fabPressed();
+            }
+        });
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                nowPlayingButtonPressed();
+                return true;
             }
         });
 
@@ -332,8 +339,8 @@ public class ViewPlaylistActivity extends AppCompatActivity {
 
     private void setFabDrawable()
     {
-        Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
-        Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+        Drawable pauseDrawable = getResources().getDrawable(R.drawable.ic_pause_white_36dp);
+        Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_white_36dp);
         if(musicSrv.isPng())
             fab.setImageDrawable(pauseDrawable);
         else
@@ -348,6 +355,30 @@ public class ViewPlaylistActivity extends AppCompatActivity {
         setFabDrawable();
     }
 
+    @TargetApi(21)
+    private void nowPlayingButtonPressed()
+    {
+        if(musicSrv == null || musicSrv.getCurrSong() == null)
+        {
+            Toast
+                    .makeText(getApplicationContext(), "Please select song first.", Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+
+        Intent intent = new Intent(this, NowPlayingActivity.class);
+
+        if(MainActivity.isLollipop())
+        {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab"));
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
+    }
+
+    @TargetApi(21)
     public void editButtonPressed(View v)
     {
         if(editListView == null)
@@ -355,29 +386,35 @@ public class ViewPlaylistActivity extends AppCompatActivity {
 
         if(editListView.getVisibility() == View.VISIBLE)
         {   //HIDE TRACKLIST IF SHOWING
+            if(MainActivity.isLollipop()) //If supports circular reveal effect
+            {
+                // get the center for the clipping circle
+                int cx = (editButton.getLeft() + editButton.getRight()) / 2;
+                int cy = (size.y) / 2;
+                // get the initial radius for the clipping circle
+                int initialRadius = editListView.getWidth();
+                // create the animation (the final radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(editListView, cx, cy, initialRadius, 0);
+                // make the view invisible when the animation is done
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        editListView.setVisibility(View.INVISIBLE);
+                        fab.setVisibility(View.VISIBLE);
+                    }
+                });
+                // start the animation
+                anim.start();
+            }
+            else
+            {
+                editListView.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.VISIBLE);
+            }
 
-            // get the center for the clipping circle
-            int cx = (editButton.getLeft() + editButton.getRight()) / 2;
-            int cy = (size.y) / 2;
 
-            // get the initial radius for the clipping circle
-            int initialRadius = editListView.getWidth();
-
-            // create the animation (the final radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(editListView, cx, cy, initialRadius, 0);
-
-            // make the view invisible when the animation is done
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    editListView.setVisibility(View.INVISIBLE);
-                    fab.setVisibility(View.VISIBLE);
-                }
-            });
-            // start the animation
-            anim.start();
             if (mActionBar != null) {
                 mActionBar.setBackgroundDrawable(null);
                 mActionBar.setTitle("");
@@ -386,33 +423,35 @@ public class ViewPlaylistActivity extends AppCompatActivity {
         else
         {
             fab.setVisibility(View.INVISIBLE);
-            // get the center for the clipping circle
-            int cx = (editButton.getLeft() + editButton.getRight()) / 2;
-            int cy = (size.y) / 2;
-
-            // get the final radius for the clipping circle
-            int finalRadius = Math.max(editListView.getWidth(), editListView.getHeight());
-
-            // create the animator for this view (the start radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(editListView, cx, cy, 0, finalRadius);
-            anim.setDuration(300);
-
-            // make the view invisible when the animation is done
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    if (mActionBar != null) {
-                        mActionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
-                        mActionBar.setTitle("Edit "+currPlaylist.getTitle());
+            if(MainActivity.isLollipop())
+            {
+                // get the center for the clipping circle
+                int cx = (editButton.getLeft() + editButton.getRight()) / 2;
+                int cy = (size.y) / 2;
+                // get the final radius for the clipping circle
+                int finalRadius = Math.max(editListView.getWidth(), editListView.getHeight());
+                // create the animator for this view (the start radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(editListView, cx, cy, 0, finalRadius);
+                anim.setDuration(300);
+                // make the view invisible when the animation is done
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        if (mActionBar != null) {
+                            mActionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
+                            mActionBar.setTitle("Edit " + currPlaylist.getTitle());
+                        }
                     }
-                }
-            });
+                });
 
-            // make the view visible and start the animation
-            editListView.setVisibility(View.VISIBLE);
-            anim.start();
+                // make the view visible and start the animation
+                editListView.setVisibility(View.VISIBLE);
+                anim.start();
+            }
+            else
+                editListView.setVisibility(View.VISIBLE);
         }
 
 

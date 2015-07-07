@@ -1,5 +1,6 @@
 package com.blockhead.bhmusic.activities;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -23,7 +24,7 @@ public class ColorChooserActivity extends Activity {
     private ImageView previewFab;
     private Drawable fabDrawable;
 
-    @Override
+    @Override @TargetApi(21)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_color_chooser);
@@ -37,13 +38,16 @@ public class ColorChooserActivity extends Activity {
             mActionBarDrawable.setColorFilter(MainActivity.primaryColor, PorterDuff.Mode.SRC_ATOP);
             mActionBar.setBackgroundDrawable(mActionBarDrawable);
 
-            //Create and set color for statusbar
-            float[] hsv = new float[3];
-            int color = MainActivity.primaryColor;
-            Color.colorToHSV(color, hsv);
-            hsv[2] *= 0.8f; // value component
-            color = Color.HSVToColor(hsv);
-            getWindow().setStatusBarColor(color);
+            if(MainActivity.isLollipop())
+            {
+                //Create and set color for statusbar
+                float[] hsv = new float[3];
+                int color = MainActivity.primaryColor;
+                Color.colorToHSV(color, hsv);
+                hsv[2] *= 0.8f; // value component
+                color = Color.HSVToColor(hsv);
+                getWindow().setStatusBarColor(color);
+            }
 
         }
 

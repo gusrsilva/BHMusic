@@ -156,7 +156,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/play"/>
+            android:src="@drawable/ic_play_white_36dp"/>
 
         <RelativeLayout
             android:orientation="vertical"

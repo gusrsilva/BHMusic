@@ -1,41 +1,30 @@
 package com.blockhead.bhmusic.activities;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.annotation.TargetApi;
 import android.app.ActivityOptions;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,16 +32,11 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.TracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Song;
-import com.blockhead.bhmusic.utils.NotifyingScrollView;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 
 
 public class ViewAlbumActivity extends AppCompatActivity {
@@ -227,7 +211,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
+    @Override @TargetApi(21)
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -250,7 +234,8 @@ public class ViewAlbumActivity extends AppCompatActivity {
         if (id == R.id.action_now_playing) {
             Intent intent = new Intent(this, NowPlayingActivity.class);
 
-            if(MainActivity.isLollipop()) {
+            if(MainActivity.isLollipop())
+            {
                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                         Pair.create((View) fab, "fab"));
                 startActivity(intent, options.toBundle());
@@ -278,16 +263,17 @@ public class ViewAlbumActivity extends AppCompatActivity {
         }
     }
 
+    @TargetApi(21)
     public void trackPicked(View view)
     {
-
         int pos = Integer.parseInt(view.getTag().toString());
         musicSrv.setSong(pos);
         musicSrv.playAlbum(currAlbum, pos);
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
-        if(MainActivity.isLollipop()) {
+        if(MainActivity.isLollipop())
+        {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
             startActivity(intent, options.toBundle());
@@ -298,8 +284,8 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
     private void setFabDrawable()
     {
-        Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
-        Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+        Drawable pauseDrawable = getResources().getDrawable(R.drawable.ic_pause_white_36dp);
+        Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_white_36dp);
         if(musicSrv.isPng())
             fab.setImageDrawable(pauseDrawable);
         else
@@ -314,6 +300,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
         setFabDrawable();
     }
 
+    @TargetApi(21)
     private void nowPlayingButtonPressed()
     {
         if(musicSrv == null || musicSrv.getCurrSong() == null)
@@ -326,7 +313,8 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
-        if(MainActivity.isLollipop()) {
+        if(MainActivity.isLollipop())
+        {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
             startActivity(intent, options.toBundle());
@@ -340,7 +328,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
         musicSrv.shuffle = true;
         if(MainActivity.shuffleAnimation != null)
             shuffleButton.startAnimation(MainActivity.shuffleAnimation);
-        int pos = new Random().nextInt(albumSize - 1);
+        int pos = new Random().nextInt(albumSize);
         musicSrv.setSong(pos);
         musicSrv.playAlbum(currAlbum, pos);
         setFabDrawable();

@@ -1,18 +1,15 @@
 package com.blockhead.bhmusic.activities;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
@@ -23,10 +20,8 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
@@ -36,9 +31,6 @@ import com.blockhead.bhmusic.objects.Artist;
 import com.nirhart.parallaxscroll.views.ParallaxExpandableListView;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 public class ViewArtistActivity extends AppCompatActivity {
@@ -149,7 +141,11 @@ public class ViewArtistActivity extends AppCompatActivity {
             }
         };
         xLV.setOnChildClickListener(mOnClickedListener);
-        xLV.setIndicatorBoundsRelative(size.x - 150, size.x);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+            xLV.setIndicatorBoundsRelative(size.x - 150, size.x);
+        else
+            xLV.setIndicatorBounds(size.x - 150,size.x);
 
         //Fill the rest of the list if its not long enough to cover the background
         if( currArtist.getAlbums().size() <= 3)
@@ -167,8 +163,8 @@ public class ViewArtistActivity extends AppCompatActivity {
 
     private void setFabDrawable()
     {
-        Drawable pauseDrawable = getResources().getDrawable(R.drawable.pause);
-        Drawable playDrawable = getResources().getDrawable(R.drawable.play);
+        Drawable pauseDrawable = getResources().getDrawable(R.drawable.ic_pause_white_36dp);
+        Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_white_36dp);
         if(musicSrv.isPng())
             fab.setImageDrawable(pauseDrawable);
         else
@@ -185,6 +181,7 @@ public class ViewArtistActivity extends AppCompatActivity {
         setFabDrawable();
     }
 
+    @TargetApi(21)
     private void nowPlayingButtonPressed()
     {
         if(musicSrv == null || musicSrv.getCurrSong() == null)
@@ -197,7 +194,8 @@ public class ViewArtistActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
-        if(MainActivity.isLollipop()) {
+        if(MainActivity.isLollipop())
+        {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
             startActivity(intent, options.toBundle());
@@ -206,6 +204,7 @@ public class ViewArtistActivity extends AppCompatActivity {
             startActivity(intent);
     }
 
+    @TargetApi(21)
     public void artistTrackPicked(int groupPostion, int childPosition)
     {
         Album currAlbum = currArtist.albums.get(groupPostion);
@@ -215,10 +214,13 @@ public class ViewArtistActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, NowPlayingActivity.class);
 
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                Pair.create((View)fab, "fab"));
-
-        startActivity(intent, options.toBundle());
+        if(MainActivity.isLollipop()) {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab"));
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
     }
 
     @Override
@@ -228,7 +230,7 @@ public class ViewArtistActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
+    @Override @TargetApi(21)
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -251,10 +253,14 @@ public class ViewArtistActivity extends AppCompatActivity {
         if (id == R.id.action_now_playing) {
             Intent intent = new Intent(this, NowPlayingActivity.class);
 
-            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
-                    Pair.create((View) fab, "fab"));
-
-            startActivity(intent, options.toBundle());
+            if(MainActivity.isLollipop())
+            {
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                        Pair.create((View) fab, "fab"));
+                startActivity(intent, options.toBundle());
+            }
+            else
+            startActivity(intent);
 
             return true;
         }
