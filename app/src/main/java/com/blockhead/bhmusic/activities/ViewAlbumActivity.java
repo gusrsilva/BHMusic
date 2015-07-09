@@ -5,12 +5,15 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.Display;
@@ -33,12 +36,13 @@ import com.blockhead.bhmusic.adapters.TracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Song;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-
+@SuppressWarnings("unchecked")
 public class ViewAlbumActivity extends AppCompatActivity {
 
     private Album currAlbum;
@@ -77,8 +81,9 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         /* Setup ActionBar */
         int actionBarColor = MainActivity.primaryColor;
-        if(currAlbum != null && currAlbum.getAccentColor() != Color.WHITE)
+        if(currAlbum != null && currAlbum.getAccentColor() != Color.WHITE && coverUri != null)
             actionBarColor = currAlbum.getAccentColor();
+
         if(mActionBar != null)
             mActionBar.setTitle("");
 
@@ -100,7 +105,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (mActionBar != null)
+                if (mActionBar != null && abHolder != null)
                 {
                     if (firstVisibleItem == 0 && abHolder.getAlpha() == 1)
                     {
@@ -118,13 +123,13 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
         /* Set Image Header attributes */
         ImageView header = new ImageView(this);
-        if(coverUri == null)
-        { //Set default art if none
-            header.setImageResource(R.drawable.default_cover_xlarge);
-            header.setBackgroundColor(MainActivity.randomColor());
-        }
-        else
-            imageLoader.displayImage(coverUri, header);
+        DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+            .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
+            .showImageOnFail(R.drawable.default_cover_xlarge)
+            .build();
+        imageLoader.displayImage(coverUri, header, displayOptions);
+        header.setBackgroundColor(getBaseContext().getResources().getColor(currAlbum.getRandomColor()));
+
         header.setAdjustViewBounds(true);
         header.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Display display = getWindowManager().getDefaultDisplay();
@@ -284,8 +289,8 @@ public class ViewAlbumActivity extends AppCompatActivity {
 
     private void setFabDrawable()
     {
-        Drawable pauseDrawable = getResources().getDrawable(R.drawable.ic_pause_white_36dp);
-        Drawable playDrawable = getResources().getDrawable(R.drawable.ic_play_white_36dp);
+        Drawable pauseDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_white_36dp);
+        Drawable playDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_white_36dp);
         if(musicSrv.isPng())
             fab.setImageDrawable(pauseDrawable);
         else

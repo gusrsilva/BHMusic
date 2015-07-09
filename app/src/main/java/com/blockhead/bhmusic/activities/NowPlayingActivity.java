@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -56,7 +57,6 @@ public class NowPlayingActivity extends AppCompatActivity {
     private RelativeLayout fauxAB;
     private ImageView coverArt;
     private String album;
-    private Bitmap blurCov;
     private Drawable shuffleDrawable, repeatDrawable;
     private ListView npTrackListView;
     private Drawable mListHeader, seekThumb, seekThumbSelected;
@@ -149,8 +149,26 @@ public class NowPlayingActivity extends AppCompatActivity {
         repeatDrawable = repeatButton.getDrawable();
 
         //Set Animations
-        repeatAnimation = AnimationUtils.loadAnimation(this, R.anim.repeat_rotate_animation);
-        shuffleAnimation = AnimationUtils.loadAnimation(this, R.anim.shuffle_rotate_animation);
+        int repeatId, shuffleId;
+        if(MainActivity.isLollipop())
+        {
+            repeatId = R.anim.repeat_rotate_animation;
+            shuffleId = R.anim.shuffle_rotate_animation;
+        }
+        else
+        {
+            repeatId = R.animator.repeat_rotate_animation;
+            shuffleId = R.animator.shuffle_rotate_animation;
+        }
+        try
+        {
+            repeatAnimation = AnimationUtils.loadAnimation(this, repeatId);
+            shuffleAnimation = AnimationUtils.loadAnimation(this, shuffleId);
+        }
+        catch(Resources.NotFoundException e)
+        {
+            Toast.makeText(getApplicationContext(), "Error setting animation" , Toast.LENGTH_SHORT).show();
+        }
 
 
         if (musicSrv != null) {
@@ -279,8 +297,8 @@ public class NowPlayingActivity extends AppCompatActivity {
             npTrackListView.setAdapter(tracksAdapter);
         }
 
-        if (blurCov != null)
-            npTrackListView.setBackground(new BitmapDrawable(getResources(), blurCov));
+        if (musicSrv.getSuperBlurredCover() != null)
+            npTrackListView.setBackground(new BitmapDrawable(getResources(), musicSrv.getSuperBlurredCover()));
     }
 
     private Album findAlbum(String albumTitle) {
@@ -303,9 +321,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             needsRotation = false;
             vibrantColor = findAlbum(album).getAccentColor();
             fauxAB.setBackgroundColor(vibrantColor);
-            //regCov = musicSrv.getSongCover().copy(musicSrv.getSongCover().getConfig(), true);
-            //coverArt.setImageBitmap(regCov);
-            blurCov = musicSrv.getSuperBlurredCover();
             imageLoader.displayImage(musicSrv.getCoverURI(), coverArt, displayOptions);
         } else {
             vibrantColor = getResources().getColor(R.color.dark_grey);

@@ -23,7 +23,6 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -38,9 +37,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 
-/**
- * Created by Gus on 2/25/2015.
- */
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
@@ -52,7 +48,6 @@ public class MusicService extends Service implements
     public static final int REPEAT_NONE = 0;
     public static final int REPEAT_ONE = 1;
     public static final int REPEAT_ALL = 2;
-    private static final int NOTIFY_ID = 1;
     private static final int NOTIFICATION_ID = 27;
     private static final int REQUEST_CODE = 127;
     private static NotificationListener notificationListener;
@@ -69,7 +64,7 @@ public class MusicService extends Service implements
     private String songArtist = "";
     private String songAlbum = "";
     private String coverURI;
-    private Bitmap songCover, smallCover, blurredCover, superBlurredCover;
+    private Bitmap superBlurredCover;
     public boolean isPngAlbum = false, isPngPlaylist = false;
     private Random rand;
     private RenderScript rs;
@@ -81,7 +76,6 @@ public class MusicService extends Service implements
     private boolean wasPlaying = false;
     private Notification.Builder mBuilder;
     private Notification notification;
-    private PendingIntent playPausePendingIntent, prevPendingIntent, nextPendingIntent, closePendingIntent;
     private NotificationManager notificationManager;
     private RemoteViews notificationView, smallNotificationView;
     private Toast mToast;
@@ -234,10 +228,10 @@ public class MusicService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         //blur and set cover
-        if (smallCover != null && MainActivity.artworkHeader) {
+        if (coverURI != null && MainActivity.artworkHeader) {
             MainActivity.fauxAB.setBackgroundColor(cTransparent);
             MainActivity.pagerTitleStrip.setBackgroundColor(cTransparent);
-            MainActivity.coverArt.setImageBitmap(blurredCover);
+            MainActivity.coverArt.setImageBitmap(superBlurredCover);
         } else {
             MainActivity.fauxAB.setBackgroundColor(MainActivity.primaryColor);
             MainActivity.pagerTitleStrip.setBackgroundColor(MainActivity.primaryColor);
@@ -282,9 +276,7 @@ public class MusicService extends Service implements
         songAlbum = playSong.getAlbumTitle();
         //songCover = playSong.getCover();
         coverURI = playSong.getCoverURI();
-        smallCover = imageLoader.loadImageSync(coverURI);
-        blurredCover = blurBitmap(smallCover);
-        superBlurredCover = blurBitmapStrong(blurredCover);
+        superBlurredCover = blurBitmapStrong(coverURI);
 
         long currSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(
@@ -362,6 +354,12 @@ public class MusicService extends Service implements
     }
 
     public void playPrev() {
+        if(songs.size() == 0)
+        {
+            Toast.makeText(getApplicationContext(), "No songs found on device.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (isPngAlbum)
         {
             if(getPosn() > 20000)
@@ -412,6 +410,11 @@ public class MusicService extends Service implements
     }
 
     public void playNext() {
+        if(songs.size() == 0)
+        {
+            Toast.makeText(getApplicationContext(), "No songs found on device.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (isPngAlbum) //If On Album
         {
             if (repeat == REPEAT_ONE)
@@ -605,15 +608,9 @@ public class MusicService extends Service implements
 
     public Playlist getCurrPlaylist(){ return currPlaylist; }
 
-    public Bitmap getSmallSongCover() {
-        return smallCover;
-    }
-
-    public Bitmap getBlurredCover() {
-        return blurredCover;
-    }
-
     public Bitmap getSuperBlurredCover() {
+        if(superBlurredCover == null && coverURI != null)
+            superBlurredCover = blurBitmapStrong(coverURI);
         return superBlurredCover;
     }
 
@@ -638,22 +635,22 @@ public class MusicService extends Service implements
             return null;
     }
 
-    public Bitmap blurBitmapStrong(Bitmap orig) {
-        Bitmap blur;
-        if (orig != null) {
+    public Bitmap blurBitmapStrong(String Uri) {
+        Bitmap bitmap = blurBitmap(imageLoader.loadImageSync(Uri));
+        if (bitmap != null) {
             //Blur & Set coverArt
-            blur = orig.copy(orig.getConfig(), true);
+            bitmap = bitmap.copy(bitmap.getConfig(), true);
             //this will blur the bitmapOriginal with a radius of 8 and save it in bitmapOriginal
             rs = RenderScript.create(getApplicationContext());
-            final Allocation input = Allocation.createFromBitmap(rs, blur); //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
+            final Allocation input = Allocation.createFromBitmap(rs, bitmap); //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
             final Allocation output = Allocation.createTyped(rs, input.getType());
             final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
             script.setRadius(16.f);
             script.setInput(input);
             script.forEach(output);
-            output.copyTo(blur);
+            output.copyTo(bitmap);
 
-            return blur;
+            return bitmap;
         } else
             return null;
     }
@@ -680,9 +677,7 @@ public class MusicService extends Service implements
             songAlbum = albumSong.getAlbumTitle();
             //songCover = albumSong.getCover();
             coverURI = albumSong.getCoverURI();
-            smallCover = imageLoader.loadImageSync(coverURI);
-            blurredCover = blurBitmap(smallCover);
-            superBlurredCover = blurBitmapStrong(smallCover);
+            superBlurredCover = blurBitmapStrong(coverURI);
 
             long currSong = albumSong.getID();
             Uri trackUri = ContentUris.withAppendedId(
@@ -722,9 +717,7 @@ public class MusicService extends Service implements
             songAlbum = playlistSong.getAlbumTitle();
             //songCover = albumSong.getCover();
             coverURI = playlistSong.getCoverURI();
-            smallCover = imageLoader.loadImageSync(coverURI);
-            blurredCover = blurBitmap(smallCover);
-            superBlurredCover = blurBitmapStrong(smallCover);
+            superBlurredCover = blurBitmapStrong(coverURI);
 
             long currSong = playlistSong.getID();
             Uri trackUri = ContentUris.withAppendedId(
@@ -747,6 +740,7 @@ public class MusicService extends Service implements
     private void createNotification() {
 
         notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        PendingIntent playPausePendingIntent, prevPendingIntent, nextPendingIntent, closePendingIntent;
 
 
         //Set Large Notification View
@@ -754,7 +748,8 @@ public class MusicService extends Service implements
         notificationView.setTextViewText(R.id.notificationTitle, getSongTitle());
         notificationView.setTextViewText(R.id.notificationText, getSongArtist());
         //Set Cover
-        Bitmap cov = getSmallSongCover();
+
+        Bitmap cov = imageLoader.loadImageSync(coverURI);
         if (cov == null)
             notificationView.setImageViewResource(R.id.notificationImage, R.drawable.default_cover_xlarge);
         else
@@ -803,7 +798,7 @@ public class MusicService extends Service implements
                 .setContent(smallNotificationView)
                 .setContentIntent(pendingContentIntent)
                 .setSmallIcon(R.drawable.ic_music_circle_white_24dp)
-                .setLargeIcon(getSmallSongCover())
+                .setLargeIcon(imageLoader.loadImageSync(coverURI))
                 .setDeleteIntent(closePendingIntent)
                 .setOngoing(true)
                 .setShowWhen(false)

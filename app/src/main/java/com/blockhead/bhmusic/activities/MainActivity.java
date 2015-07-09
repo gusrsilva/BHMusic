@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static Animation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
     private static CoordinatorLayout coordLay;
+    private MaterialDialog md;
 
     //DEFINE COLORS FOR USERS TO CHOOSE
     public final static int MATERIAL_RED = 0,MATERIAL_PINK=1,MATERIAL_PURPLE=2,MATERIAL_DEEPPURPLE=3,
@@ -199,6 +200,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         //Set ActionBar Title
         if (mActionBar != null)
             mActionBar.setTitle(abTitle);
+
+
+        md = new MaterialDialog.Builder(MainActivity.this)
+                .content("Preparing Library...")
+                .widgetColor(MainActivity.accentColor)
+                .progress(true, 0)
+                .show();
+        md.setCanceledOnTouchOutside(false);
 
 
         // Create the adapter that will return a fragment for each of the three
@@ -311,8 +320,25 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         pagerTitleStrip.setBackgroundColor(primaryColor);
 
         //Set Animations
-        repeatRotationAnimation = AnimationUtils.loadAnimation(this, R.anim.repeat_rotate_animation);
-        shuffleAnimation = AnimationUtils.loadAnimation(this, R.anim.shuffle_rotate_animation);
+        int repeatId, shuffleId;
+        if(isLollipop())
+        {
+            repeatId = R.anim.repeat_rotate_animation;
+            shuffleId = R.anim.shuffle_rotate_animation;
+        }
+        else
+        {
+            repeatId = R.animator.repeat_rotate_animation;
+            shuffleId = R.animator.shuffle_rotate_animation;
+        }
+        try {
+            repeatRotationAnimation = AnimationUtils.loadAnimation(this, repeatId);
+            shuffleAnimation = AnimationUtils.loadAnimation(this, shuffleId);
+        }
+        catch(Resources.NotFoundException e)
+        {
+            Toast.makeText(getApplicationContext(), "Error setting animation" , Toast.LENGTH_SHORT).show();
+        }
 
 
         //Define Drawables
@@ -971,12 +997,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             startActivity(intent);
     }
 
+    @TargetApi(21)
     public void playlistPicked(View view)
     {
         int pos = Integer.parseInt(view.getTag().toString());
         currPlaylist = playlistList.get(pos);
         Intent intent = new Intent(this, ViewPlaylistActivity.class);
-        startActivity(intent);
+
+        if(isLollipop())
+        {
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                    Pair.create((View) fab, "fab")
+            );
+            startActivity(intent, options.toBundle());
+        }
+        else
+            startActivity(intent);
 
     }
 
@@ -1216,7 +1252,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         if(isLollipop()) {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab"));
-            if (musicSrv.getSmallSongCover() != null) {
+            if (musicSrv.getCoverURI() != null) {
                 options = ActivityOptions.makeSceneTransitionAnimation(this,
                         Pair.create((View) coverArt, "coverArt"),
                         Pair.create((View) fab, "fab"));
@@ -1302,32 +1338,49 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     //Begin AsyncTask Class
-    public class ArtistArtTask extends AsyncTask<Void, Void, String> {
+    public class ArtistArtTask extends AsyncTask<Void, Integer, String> {
 
         long t1, t2;
         private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
         private int mCompressQuality = 100;
+        private DiskLruImageCache mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
+                1024 * 1024 * 10, mCompressFormat, mCompressQuality);
+        private SharedPreferences.Editor mEditor = sharedPref.edit();
+        private String artistName, fromWhere = "...";
+
+
+        @Override
+        protected void onPreExecute()
+        {
+            md.dismiss();
+            md = md.getBuilder()
+                    .title("Preparing Artist Images")
+                    .content("Checking cache...")
+                    .widgetColor(MainActivity.accentColor)
+                    .negativeText("Do In Background")
+                    .negativeColor(MainActivity.accentColor)
+                    .progress(false, MainActivity.artistList.size())
+                    .show();
+        }
 
         @Override
         protected String doInBackground(Void... artists) {
 
             t1 = System.currentTimeMillis();
-            String artistArtUrl = "", artistName, encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
+            String artistArtUrl = "", encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
             Bitmap artistImage = null;
-            DiskLruImageCache mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
-                    1024 * 1024 * 10, mCompressFormat, mCompressQuality);
-            SharedPreferences.Editor mEditor = sharedPref.edit();
 
-
-
-            for (int i = 0; i < artistList.size(); i++) {
+            for (int i = 0; i < artistList.size(); i++)
+            {
                 artistName = artistList.get(i).getName();
                 key = artistName.toLowerCase();
                 key = key.replaceAll("[^a-z0-9_-]+", "");
                 sumKey = key + "summary";
 
-                if (mDiskLruCache.containsKey(key)) {
+                if (mDiskLruCache.containsKey(key))
+                {
+                    fromWhere = "cache...";
                     artistImage = mDiskLruCache.getBitmap(key);
                     artistList.get(i).setImage(artistImage);
                     artistList.get(i).setAccentColor();
@@ -1336,7 +1389,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         artistSummary = sharedPref.getString(sumKey, artistSummary);
                         artistList.get(i).setSummary(artistSummary);
                     }
-                } else {
+                }
+                else
+                {
+                    fromWhere = "online...";
                     try {
                         encodedArtistName = URLEncoder.encode(artistName, "UTF-8");
                     } catch (Exception e) {
@@ -1344,7 +1400,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     }
                     artistArtUrl = getArtURL(BaseURL + encodedArtistName);
                     artistSummary = getArtistSummary(BaseURL + encodedArtistName);
-                    if(artistName.contains("<")){
+                    if(artistName.contains("<"))
+                    {
                         artistImage = null;
                     } else
                         artistImage = getBitmapFromURL(artistArtUrl);
@@ -1361,6 +1418,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     }
 
                 }
+                publishProgress(i);
             }
 
             mDiskLruCache.put("null", artistImage);
@@ -1370,9 +1428,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
 
         @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            md.setProgress(progress[0]);
+            md.setContent("Loading " + artistName + " from " + fromWhere);
+        }
+
+        @Override
         protected void onPostExecute(String url) {
             t2 = System.currentTimeMillis();
             Log.d("BHCA", "Async Complete: " + (t2 - t1) + " ms");
+            if(md.isShowing())
+                md.dismiss();
         }
 
     }
@@ -1383,9 +1450,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            /*
             pd = new ProgressDialog(MainActivity.this);
             pd.setMessage("Preparing Library...");
             pd.show();
+            */
+
         }
 
         @Override
@@ -1421,7 +1491,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         @Override
         protected void onPostExecute(String url) {
-            pd.dismiss();
+            //pd.dismiss();
             if(mListView != null)
                 mListView.setAdapter(songAdt);
             if (albumView != null)

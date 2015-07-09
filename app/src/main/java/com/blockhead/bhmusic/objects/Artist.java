@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
+import com.blockhead.bhmusic.activities.MainActivity;
+
 import java.util.ArrayList;
 
 /**
@@ -17,13 +19,17 @@ public class Artist {
     public ArrayList<Album> albums = new ArrayList<Album>();
     private String name, summaryHTML;
     private int accentColor = Color.WHITE;
+    private int randomColor;
     private Bitmap image;
     private boolean accentColorSet = false;
 
     public Artist(String artistName)
     {
         name = artistName;
+        randomColor = MainActivity.randomColor();
     }
+
+    public int getRandomColor(){ return randomColor; }
 
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {

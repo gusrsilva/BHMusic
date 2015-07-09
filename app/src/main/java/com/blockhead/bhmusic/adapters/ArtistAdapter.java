@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Artist;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 
 import java.util.ArrayList;
 
@@ -29,11 +30,18 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
     private Context context;
     private String mSections = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private ImageView coverView;
+    private DisplayImageOptions options;
 
     public ArtistAdapter(Context c, ArrayList<Artist> theArtists) {
         artists = theArtists;
         artistInflater = LayoutInflater.from(c);
         context = c;
+        options = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
+                .showImageOnFail(R.drawable.default_cover_xlarge)
+                .resetViewBeforeLoading(false)  // default
+                .cacheInMemory(true)
+                .build();
     }
 
     @Override
@@ -79,15 +87,23 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
             coverView.setImageBitmap(cover);
         else {
             //set random cover color
-            coverView.setBackgroundColor(parent.getResources().getColor(MainActivity.randomColor()));
+            coverView.setImageResource(R.drawable.default_artist_xlarge);
+            coverView.setBackgroundColor(parent.getResources().getColor(currArtist.getRandomColor()));
         }
 
         //Accent Color
         int accentColor = currArtist.getAccentColor();
-        if (accentColor != Color.WHITE) {
+        if (accentColor != Color.WHITE && cover != null)
+        {
             cardView.setCardBackgroundColor(accentColor);
             artistTitleView.setTextColor(parent.getResources().getColor(R.color.white));
             artistTrackNumView.setTextColor(parent.getResources().getColor(R.color.hint_white));
+        }
+        else
+        {
+            cardView.setCardBackgroundColor(Color.WHITE);
+            artistTitleView.setTextColor(Color.BLACK);
+            artistTrackNumView.setTextColor(parent.getResources().getColor(R.color.secondary_text_default_material_light));
         }
 
 

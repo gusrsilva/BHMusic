@@ -84,23 +84,23 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
         albumTitleView.setText(currAlbum.getTitle());
         artistView.setText(currAlbum.getArtist());
 
+
+        imageLoader.displayImage(currAlbum.getCoverURI(), coverView, options);
+        coverView.setBackgroundColor(parent.getResources().getColor(currAlbum.getRandomColor()));
+
         //Accent Color
         int accentColor = currAlbum.getAccentColor();
-        if (accentColor != Color.WHITE) {
-            cardView.setCardBackgroundColor(accentColor);
-            albumTitleView.setTextColor(parent.getResources().getColor(R.color.white));
-            artistView.setTextColor(parent.getResources().getColor(R.color.hint_white));
-        }
-
-        if (currAlbum.getCoverURI() != null)
+        if (accentColor != Color.WHITE && currAlbum.getCoverURI() != null)
         {
-            //Picasso.with(context).load(currAlbum.getCoverURI()).centerCrop().resize(300,300).into(coverView);
-            imageLoader.displayImage(currAlbum.getCoverURI(), coverView, options);
+            cardView.setCardBackgroundColor(accentColor);
+            albumTitleView.setTextColor(Color.WHITE);
+            artistView.setTextColor(parent.getResources().getColor(R.color.hint_white));
         }
         else
         {
-            //set random cover color
-            coverView.setBackgroundColor(parent.getResources().getColor(MainActivity.randomColor()));
+            cardView.setCardBackgroundColor(Color.WHITE);
+            albumTitleView.setTextColor(Color.BLACK);
+            artistView.setTextColor(parent.getResources().getColor(R.color.secondary_text_default_material_light));
         }
 
 

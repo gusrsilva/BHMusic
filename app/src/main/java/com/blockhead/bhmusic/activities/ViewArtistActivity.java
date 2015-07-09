@@ -77,8 +77,11 @@ public class ViewArtistActivity extends AppCompatActivity {
         final RelativeLayout abHolder = (RelativeLayout)findViewById(R.id.artist_ab_holder);
         FrameLayout abBackground = (FrameLayout)findViewById(R.id.artist_ab_background);
 
+        int accentColor = currArtist.getAccentColor();
+        if(accentColor == Color.WHITE)
+            accentColor = MainActivity.primaryColor;
 
-        abBackground.setBackgroundColor(currArtist.getAccentColor());
+        abBackground.setBackgroundColor(accentColor);
         abHolder.setAlpha(0);
 
         AbsListView.OnScrollListener mOnScrollListener = new AbsListView.OnScrollListener() {
@@ -102,9 +105,10 @@ public class ViewArtistActivity extends AppCompatActivity {
         };
 
         ImageView header = new ImageView(this);
-        if(currArtist.getImage() == null) { //Set default artist art if none
+        if(currArtist.getImage() == null)
+        { //Set default artist art if none
             header.setImageResource(R.drawable.default_artist_xlarge);
-            header.setBackgroundColor(MainActivity.randomColor());
+            header.setBackgroundColor(getResources().getColor(currArtist.getRandomColor()));
         }
         else
             header.setImageBitmap(currArtist.getImage());
@@ -123,10 +127,7 @@ public class ViewArtistActivity extends AppCompatActivity {
         //Set Expanded List View Properties
         xLV.addParallaxedHeaderView(header);
         xLV.setDivider(null);
-        if(currArtist.getAccentColor() == Color.WHITE)
-            xLV.setBackgroundColor(MainActivity.primaryColor);
-        else
-            xLV.setBackgroundColor(currArtist.getAccentColor());
+        xLV.setBackgroundColor(accentColor);
 
         int headerHeight = getActionBarHeight() + getStatusBarHeight();
         ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums, headerHeight);

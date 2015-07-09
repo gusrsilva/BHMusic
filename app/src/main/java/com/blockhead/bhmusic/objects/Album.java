@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
+import com.blockhead.bhmusic.activities.MainActivity;
+
 import java.util.ArrayList;
 
 /**
@@ -15,28 +17,29 @@ public class Album {
 
     public ArrayList<Song> tracks = new ArrayList<Song>();
     private String title, artist, URI;
-    private int accentColor = Color.WHITE;
+    private int accentColor = Color.WHITE, randomColor;
     private Artist artistObj;
 
     public Album(String albumTitle, String albumCoverURI, String artistTitle) {
         title = albumTitle;
         artist = artistTitle;
         URI = albumCoverURI;
+        randomColor = MainActivity.randomColor();
 
-        Bitmap smallCover;
-        if(albumCoverURI != null)
+        if(URI != null && !URI.isEmpty())
         {
-            //cover = decodeSampledBitmapFromResource(albumCoverURI, 500, 500);
-            smallCover = decodeSampledBitmapFromResource(albumCoverURI, 75, 75);
-
-            if(smallCover != null)
-            Palette.generateAsync(smallCover, new Palette.PaletteAsyncListener() {
-                public void onGenerated(Palette palette) {
-                    accentColor = palette.getVibrantColor(Color.WHITE);
-                    if (accentColor == Color.WHITE)
-                        accentColor = palette.getMutedColor(Color.WHITE);
-                }
-            });
+            Bitmap smallCover = decodeSampledBitmapFromResource(albumCoverURI, 200, 200);
+            if(smallCover == null)
+            {
+                Log.d("BHCA-Palette", albumTitle + " cover is null.");
+            }
+            else
+            {
+                Palette palette = Palette.from(smallCover).generate();
+                accentColor = palette.getVibrantColor(Color.WHITE);
+                if (accentColor == Color.WHITE)
+                    accentColor = palette.getMutedColor(Color.WHITE);
+            }
         }
 
 
@@ -99,6 +102,8 @@ public class Album {
     public String getCoverURI()
     {   if(URI == null)
             return null;
+        else if(URI.isEmpty())
+            return null;
         else
             return "file:///" + URI;
     }
@@ -109,6 +114,9 @@ public class Album {
     }
     public int getAccentColor() {
         return accentColor;
+    }
+    public int getRandomColor(){
+        return randomColor;
     }
 
     public void addSong(Song newSong) {

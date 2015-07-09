@@ -16,7 +16,8 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
 import com.blockhead.bhmusic.objects.Song;
-import com.squareup.picasso.Picasso;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -28,11 +29,18 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
     private final ArrayList<Album> albumList;
     private final LayoutInflater inflater;
     private int headerHeight;
+    private ImageLoader imageLoader;
+    private DisplayImageOptions options;
 
     public ArtistsTracksAdapter(Context context, ArrayList<Album> itemList, int headHt) {
         this.inflater = LayoutInflater.from(context);
         this.albumList = itemList;
         headerHeight = headHt;  //Had to be passed from Main, cannot be calculated in Adapter
+        imageLoader = ImageLoader.getInstance();
+        options = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.default_album_cover) // resource or drawable
+                .showImageOnFail(R.drawable.default_album_cover)
+                .build();
     }
 
     @Override
@@ -59,13 +67,15 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
         Artist mArtist = albumList.get(groupPosition).getArtistObj();
 
         try {
-            if (groupPosition == 0) {
+            if (groupPosition == 0)
+            {
                 resultView = inflater.inflate(R.layout.view_artist_header_child, null);
 
                 TextView info = (TextView) resultView.findViewById(R.id.view_artist_header_child_text);
                 LinearLayout lin = (LinearLayout) resultView.findViewById(R.id.view_artist_header_child_lin);
 
-                if (mArtist != null) {
+                if (mArtist != null)
+                {
                     Log.d("BHCA1", "Artist: " + mArtist.getName());
                     if(mArtist.getSummaryHTML() != null)
                         info.setText(Html.fromHtml(mArtist.getSummaryHTML()));
@@ -74,7 +84,9 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
                     }
                     lin.setBackgroundColor(mArtist.getAccentColor());
                 }
-            } else {
+            }
+            else
+            {
 
                 resultView = inflater.inflate(R.layout.artist_tracks_child, null);
 
@@ -116,7 +128,8 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
         Album album = getGroup(groupPosition);
 
         try {
-            if (groupPosition == 0) {
+            if (groupPosition == 0)
+            {
                 Artist artistObj = album.getArtistObj();
                 resultView = inflater.inflate(R.layout.view_artist_header, null);
                 resultView.setMinimumHeight(headerHeight);
@@ -129,15 +142,17 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
                         linLay.setBackgroundColor(artistObj.getAccentColor());
                 }
 
-            } else {
+            }
+            else
+            {
                 resultView = inflater.inflate(R.layout.artist_tracks_parent, null);
 
                 ImageView cover = (ImageView) resultView.findViewById(R.id.artist_albumImage);
                 TextView title = (TextView) resultView.findViewById(R.id.artist_albumTitle);
                 TextView info = (TextView) resultView.findViewById(R.id.artist_albumInfo);
 
-                if (album.getCoverURI() != null && cover!=null)
-                    Picasso.with(parent.getContext()).load(album.getCoverURI()).fit().centerCrop().into(cover);
+                imageLoader.displayImage(album.getCoverURI(), cover, options);
+
                 if(title != null)
                     title.setText(album.getTitle());
                 if(info != null)
