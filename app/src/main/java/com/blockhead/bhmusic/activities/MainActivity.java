@@ -59,6 +59,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.blockhead.bhmusic.BuildConfig;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
 import com.blockhead.bhmusic.adapters.ArtistAdapter;
@@ -1381,10 +1382,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 if (mDiskLruCache.containsKey(key))
                 {
                     fromWhere = "cache...";
-                    artistImage = mDiskLruCache.getBitmap(key);
 
+                    /* Set Image Path & Summary */
                     artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
-                    artistList.get(i).setAccentColor();
                     if(sharedPref.contains(sumKey))
                     {
                         artistSummary = sharedPref.getString(sumKey, artistSummary);
@@ -1393,36 +1393,41 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 }
                 else
                 {
+                    if(true)
+                    {
+                        Log.d("BHCA-CACHE", artistName + " NOT IN CACHE");
+                    }
                     fromWhere = "online...";
-                    try {
+                    try
+                    {
                         encodedArtistName = URLEncoder.encode(artistName, "UTF-8");
                     } catch (Exception e) {
                         e.getMessage();
                     }
-                    artistArtUrl = getArtURL(BaseURL + encodedArtistName);
-                    artistSummary = getArtistSummary(BaseURL + encodedArtistName);
-                    if(artistName.contains("<"))
-                    {
-                        artistImage = null;
-                    } else
-                        artistImage = getBitmapFromURL(artistArtUrl);
 
-                    artistList.get(i).setAccentColor();
+                    /* Set Summary & Add to Cache */
+                    artistSummary = getArtistSummary(BaseURL + encodedArtistName);
+
                     artistList.get(i).setSummary(artistSummary);
-                    if (artistImage != null)
-                        mDiskLruCache.put(key, artistImage);
                     if(artistSummary != null)
                     {
                         mEditor.putString(sumKey, artistSummary);
                         mEditor.apply();
                     }
-                    artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
 
+                    /* Set Image & Add to Cache */
+                    artistArtUrl = getArtURL(BaseURL + encodedArtistName);
+                    if(artistName.contains("<"))
+                        artistImage = null;
+                    else
+                        artistImage = getBitmapFromURL(artistArtUrl);
+
+                    mDiskLruCache.put(key, artistImage);
+
+                    artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
                 }
                 publishProgress(i);
             }
-
-            mDiskLruCache.put("null", artistImage);
 
             return artistArtUrl;
 

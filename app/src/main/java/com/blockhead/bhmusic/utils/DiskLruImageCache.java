@@ -143,7 +143,6 @@ public class DiskLruImageCache {
 
         if(containsKey(key)) {
             String str = mDiskCache.getDirectory().getAbsolutePath() + "/" + key + "." + 0;
-            Log.d("BHCA-CACHE", key + " PATH: " + str);
             return str;
         }
         else

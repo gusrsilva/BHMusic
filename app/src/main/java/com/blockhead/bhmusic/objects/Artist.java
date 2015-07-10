@@ -115,16 +115,18 @@ public class Artist {
 
     public void setAccentColor()
     {
-        Bitmap image = decodeSampledBitmapFromResource(imagePath, 200, 200);
-        if (image != null) {
-            Palette palette = Palette.from(image).generate();
+        if(!accentColorSet) {
+            Bitmap image = decodeSampledBitmapFromResource(imagePath, 200, 200);
+            if (image != null) {
+                Palette palette = Palette.from(image).generate();
 
-            accentColor = palette.getVibrantColor(Color.WHITE);
-            if (accentColor == Color.WHITE)
-                accentColor = palette.getMutedColor(Color.WHITE);
+                accentColor = palette.getVibrantColor(Color.WHITE);
+                if (accentColor == Color.WHITE)
+                    accentColor = palette.getMutedColor(Color.WHITE);
+            }
+
+            accentColorSet = true;
         }
-
-        accentColorSet = true;
     }
 
     public void setImagePath(String path){ imagePath = path; setAccentColor(); }
