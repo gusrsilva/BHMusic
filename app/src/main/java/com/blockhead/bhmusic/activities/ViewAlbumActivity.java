@@ -229,7 +229,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_shuffle_all) {
-            shufflePressed(null);
+            viewAlbumShufflePressed(null);
         }
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -252,20 +252,6 @@ public class ViewAlbumActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void shufflePressed(View v) {
-        musicSrv.setShuffle();
-        if (musicSrv.shuffle) {
-            musicSrv.resumePlayer();
-            MainActivity.shuffleButton.setSelected(true);
-            if (NowPlayingActivity.shuffleButton != null)
-                NowPlayingActivity.shuffleButton.setSelected(true);
-        } else {
-            MainActivity.shuffleButton.setSelected(false);
-            if (NowPlayingActivity.shuffleButton != null)
-                NowPlayingActivity.shuffleButton.setSelected(false);
-        }
     }
 
     @TargetApi(21)
@@ -336,12 +322,12 @@ public class ViewAlbumActivity extends AppCompatActivity {
         int pos = new Random().nextInt(albumSize);
         musicSrv.setSong(pos);
         musicSrv.playAlbum(currAlbum, pos);
-        setFabDrawable();
         MainActivity.shuffleButton.setSelected(true);
         if (NowPlayingActivity.shuffleButton != null)
             NowPlayingActivity.shuffleButton.setSelected(true);
         Snackbar.make(findViewById(R.id.view_album_coordinator), "Now Shuffling: " + currAlbum.getTitle(), Snackbar.LENGTH_SHORT)
                 .show();
+        setFabDrawable();
     }
 
     public int getActionBarHeight(){

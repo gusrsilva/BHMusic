@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -66,6 +67,7 @@ public class NowPlayingActivity extends AppCompatActivity {
     private ImageLoader imageLoader;
     private DisplayImageOptions displayOptions;
     private Drawable pauseDrawable, playDrawable;
+    private CoordinatorLayout coordLay;
 
     /* Instantiate Handler in Leak Preventative manner */
     private static class MyHandler extends Handler {
@@ -142,6 +144,7 @@ public class NowPlayingActivity extends AppCompatActivity {
         fauxAB = (RelativeLayout) findViewById(R.id.fauxAB);
         coverArt = (ImageView) findViewById(R.id.coverArt);
         mListHeader = ContextCompat.getDrawable(context, R.drawable.rect_ripple_semitransparent_black);
+        coordLay = (CoordinatorLayout)findViewById(R.id.np_coordinator);
 
 
         //Check Shuffle & Repeat
@@ -452,7 +455,7 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     public void npShufflePressed(View v) {
-        musicSrv.setShuffle();
+        musicSrv.setShuffle(coordLay);
         if (musicSrv.shuffle) {
             shuffleButton.startAnimation(shuffleAnimation);
             shuffleButton.setSelected(true);

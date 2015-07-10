@@ -23,6 +23,8 @@ import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -540,16 +542,27 @@ public class MusicService extends Service implements
 
     }
 
-    public void setShuffle() {
+    public void setShuffle(CoordinatorLayout coordLay)
+    {
         if (shuffle) {
             shuffle = false;
-            mToast.setText("Shuffle Off");
-            mToast.show();
+            if(coordLay != null)
+                Snackbar.make(coordLay, "Shuffle Off", Snackbar.LENGTH_SHORT).show();
+            else
+            {
+                mToast.setText("Shuffle Off");
+                mToast.show();
+            }
         } else {
             shuffle = true;
             shuffleStack = new Stack<>();
-            mToast.setText("Shuffle On");
-            mToast.show();
+            if(coordLay != null)
+                Snackbar.make(coordLay, "Shuffle On", Snackbar.LENGTH_SHORT).show();
+            else
+            {
+                mToast.setText("Shuffle On");
+                mToast.show();
+            }
         }
     }
 

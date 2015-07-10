@@ -1171,7 +1171,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     public void shufflePressed(View v) {
-        musicSrv.setShuffle();
+        musicSrv.setShuffle(coordLay);
         if (musicSrv.shuffle) {
             musicSrv.resumePlayer();
             shuffleButton.startAnimation(shuffleAnimation);
@@ -1370,7 +1370,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             t1 = System.currentTimeMillis();
             String artistArtUrl = "", encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
-            Bitmap artistImage = null;
+            Bitmap artistImage;
 
             for (int i = 0; i < artistList.size(); i++)
             {
@@ -1393,10 +1393,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 }
                 else
                 {
-                    if(true)
-                    {
-                        Log.d("BHCA-CACHE", artistName + " NOT IN CACHE");
-                    }
                     fromWhere = "online...";
                     try
                     {
@@ -1405,30 +1401,29 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         e.getMessage();
                     }
 
-                    /* Set Summary & Add to Cache */
+                    /* Set Summary, Add to Cache, & Assign to Artist */
                     artistSummary = getArtistSummary(BaseURL + encodedArtistName);
-
-                    artistList.get(i).setSummary(artistSummary);
                     if(artistSummary != null)
                     {
                         mEditor.putString(sumKey, artistSummary);
                         mEditor.apply();
                     }
+                    artistList.get(i).setSummary(artistSummary);
 
-                    /* Set Image & Add to Cache */
+                    /* Set Image, Add to Cache, & Assign to Artist */
                     artistArtUrl = getArtURL(BaseURL + encodedArtistName);
                     if(artistName.contains("<"))
                         artistImage = null;
                     else
                         artistImage = getBitmapFromURL(artistArtUrl);
 
-                    mDiskLruCache.put(key, artistImage);
+                    if(artistImage != null)
+                        mDiskLruCache.put(key, artistImage);
 
                     artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
                 }
                 publishProgress(i);
             }
-
             return artistArtUrl;
 
         }
