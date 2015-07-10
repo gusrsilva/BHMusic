@@ -17,6 +17,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Artist;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -30,12 +31,14 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
     private Context context;
     private String mSections = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private ImageView coverView;
+    private ImageLoader imageLoader;
     private DisplayImageOptions options;
 
     public ArtistAdapter(Context c, ArrayList<Artist> theArtists) {
         artists = theArtists;
         artistInflater = LayoutInflater.from(c);
         context = c;
+        imageLoader = ImageLoader.getInstance();
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
                 .showImageOnFail(R.drawable.default_cover_xlarge)
@@ -82,9 +85,16 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
         artistTrackNumView.setText(currArtist.getTracks().size() + " Tracks");
 
         //Try to set Cover
+        /*
         Bitmap cover = currArtist.getImage();
         if (cover != null)
             coverView.setImageBitmap(cover);
+            */
+        String imgPath = currArtist.getImagePath();
+        if(imgPath != null && !imgPath.isEmpty())
+        {
+            imageLoader.displayImage(currArtist.getImagePath(), coverView, options);
+        }
         else {
             //set random cover color
             coverView.setImageResource(R.drawable.default_artist_xlarge);
@@ -93,7 +103,7 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
 
         //Accent Color
         int accentColor = currArtist.getAccentColor();
-        if (accentColor != Color.WHITE && cover != null)
+        if (accentColor != Color.WHITE && imgPath != null)
         {
             cardView.setCardBackgroundColor(accentColor);
             artistTitleView.setTextColor(parent.getResources().getColor(R.color.white));

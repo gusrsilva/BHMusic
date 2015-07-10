@@ -17,10 +17,9 @@ public class Artist {
 
     public ArrayList<Song> tracks = new ArrayList<Song>();
     public ArrayList<Album> albums = new ArrayList<Album>();
-    private String name, summaryHTML;
+    private String name, summaryHTML, imagePath;
     private int accentColor = Color.WHITE;
     private int randomColor;
-    private Bitmap image;
     private boolean accentColorSet = false;
 
     public Artist(String artistName)
@@ -83,20 +82,10 @@ public class Artist {
     public int getAccentColor()
     {
 
-        if (image != null || !accentColorSet) {
-            try {
-                Palette.generateAsync(image, new Palette.PaletteAsyncListener() {
-                    public void onGenerated(Palette palette) {
-                        accentColor = palette.getVibrantColor(Color.WHITE);
-                        if (accentColor == Color.WHITE)
-                            accentColor = palette.getMutedColor(Color.WHITE);
-                    }
-                });
-            } catch (Exception e) {
-                //TODO: Handle Exception
-            }
+        if (imagePath != null && !accentColorSet)
+        {
+            setAccentColor();
         }
-        accentColorSet = true;
 
         return accentColor;
     }
@@ -126,25 +115,28 @@ public class Artist {
 
     public void setAccentColor()
     {
+        Bitmap image = decodeSampledBitmapFromResource(imagePath, 200, 200);
         if (image != null) {
-            Palette.generateAsync(image, new Palette.PaletteAsyncListener() {
-                public void onGenerated(Palette palette) {
-                    accentColor = palette.getVibrantColor(Color.WHITE);
-                    if (accentColor == Color.WHITE)
-                        accentColor = palette.getMutedColor(Color.WHITE);
-                }
-            });
+            Palette palette = Palette.from(image).generate();
+
+            accentColor = palette.getVibrantColor(Color.WHITE);
+            if (accentColor == Color.WHITE)
+                accentColor = palette.getMutedColor(Color.WHITE);
         }
 
         accentColorSet = true;
     }
 
-    public Bitmap getImage() {
-        return image;
-    }
+    public void setImagePath(String path){ imagePath = path; setAccentColor(); }
 
-    public void setImage(Bitmap bitmap) {
-        image = bitmap;
+    public String getImagePath()
+    {
+        if(imagePath == null)
+            return null;
+        else if(imagePath.isEmpty())
+            return null;
+        else
+            return "file:///" + imagePath;
     }
 
     public void setSummary(String sum)
@@ -156,7 +148,6 @@ public class Artist {
     {
         return summaryHTML;
     }
-
 
 
 }

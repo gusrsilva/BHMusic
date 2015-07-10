@@ -1382,7 +1382,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 {
                     fromWhere = "cache...";
                     artistImage = mDiskLruCache.getBitmap(key);
-                    artistList.get(i).setImage(artistImage);
+
+                    artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
                     artistList.get(i).setAccentColor();
                     if(sharedPref.contains(sumKey))
                     {
@@ -1406,7 +1407,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     } else
                         artistImage = getBitmapFromURL(artistArtUrl);
 
-                    artistList.get(i).setImage(artistImage);
                     artistList.get(i).setAccentColor();
                     artistList.get(i).setSummary(artistSummary);
                     if (artistImage != null)
@@ -1416,6 +1416,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         mEditor.putString(sumKey, artistSummary);
                         mEditor.apply();
                     }
+                    artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
 
                 }
                 publishProgress(i);

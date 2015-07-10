@@ -29,6 +29,8 @@ import com.blockhead.bhmusic.adapters.ArtistsTracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
 import com.nirhart.parallaxscroll.views.ParallaxExpandableListView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -104,14 +106,23 @@ public class ViewArtistActivity extends AppCompatActivity {
             }
         };
 
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.default_artist_xlarge) // resource or drawable
+                .showImageOnFail(R.drawable.default_artist_xlarge)
+                .build();
+
         ImageView header = new ImageView(this);
-        if(currArtist.getImage() == null)
+        String coverPath = currArtist.getImagePath();
+        if(coverPath == null)
         { //Set default artist art if none
             header.setImageResource(R.drawable.default_artist_xlarge);
             header.setBackgroundColor(getResources().getColor(currArtist.getRandomColor()));
         }
         else
-            header.setImageBitmap(currArtist.getImage());
+        {
+            imageLoader.displayImage(coverPath, header, displayOptions);
+        }
         header.setAdjustViewBounds(true);
         header.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
