@@ -470,7 +470,7 @@ public class NowPlayingActivity extends AppCompatActivity {
     }
 
     public void npRepeatPressed(View v) {
-        musicSrv.setRepeat();
+        musicSrv.setRepeat(coordLay);
         setRepeatDrawable();
 
     }

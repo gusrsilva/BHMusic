@@ -566,18 +566,30 @@ public class MusicService extends Service implements
         }
     }
 
-    public void setRepeat() {
-        if (repeat == REPEAT_NONE) {
+    public void setRepeat(CoordinatorLayout coordLay) {
+        String message = "";
+        if (repeat == REPEAT_NONE)
+        {
             repeat = REPEAT_ALL;
-            mToast.setText("Repeat All");
-            mToast.show();
-        } else if (repeat == REPEAT_ALL) {
+            message = "Repeat All";
+        }
+        else if (repeat == REPEAT_ALL)
+        {
             repeat = REPEAT_ONE;
-            mToast.setText("Repeat Current");
-            mToast.show();
-        } else if (repeat == REPEAT_ONE) {
+            message = "Repeat Current";
+
+        }
+        else if (repeat == REPEAT_ONE)
+        {
             repeat = REPEAT_NONE;
-            mToast.setText("Repeat Off");
+            message = "Repeat Off";
+        }
+
+        if(coordLay != null)
+            Snackbar.make(coordLay, message, Snackbar.LENGTH_SHORT).show();
+        else
+        {
+            mToast.setText(message);
             mToast.show();
         }
     }

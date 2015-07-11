@@ -129,8 +129,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static ArrayList<Song> songList;
     private static ArrayList<Playlist> playlistList;
     private Intent playIntent;
-    private boolean musicBound = false;
-    private boolean paused = false;
+    private boolean musicBound = false, paused = false, loadInBackground = false;
     private TextView timePos, timeDur;
     private ServiceConnection musicConnection;
     public static Animation repeatRotationAnimation, shuffleAnimation;
@@ -181,6 +180,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         artworkHeader = sharedPref.getBoolean("artwork_header", true);
         abTitle = sharedPref.getString("main_title", "MUSIC");
+        loadInBackground = sharedPref.getBoolean("always_load_artist_in_background", false);
+
         int primaryColorKey, accentColorKey;
         try {
             primaryColorKey = Integer.parseInt(sharedPref.getString("primary_color_key", "4"));
@@ -1220,7 +1221,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     public void repeatPressed(View v) {
-        musicSrv.setRepeat();
+        musicSrv.setRepeat(coordLay);
         Context context = getApplicationContext();
 
         if (musicSrv.getRepeat() == MusicService.REPEAT_ALL) {
@@ -1348,20 +1349,26 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 1024 * 1024 * 10, mCompressFormat, mCompressQuality);
         private SharedPreferences.Editor mEditor = sharedPref.edit();
         private String artistName, fromWhere = "...";
+        private Bitmap nullBitmap;
 
 
         @Override
         protected void onPreExecute()
         {
             md.dismiss();
-            md = md.getBuilder()
-                    .title("Preparing Artist Images")
-                    .content("Checking cache...")
-                    .widgetColor(MainActivity.accentColor)
-                    .negativeText("Do In Background")
-                    .negativeColor(MainActivity.accentColor)
-                    .progress(false, MainActivity.artistList.size())
-                    .show();
+            if(!loadInBackground)
+            {
+                md = md.getBuilder()
+                        .title("Preparing Artist Images")
+                        .content("Checking cache...")
+                        .widgetColor(MainActivity.accentColor)
+                        .negativeText("Do In Background")
+                        .negativeColor(MainActivity.accentColor)
+                        .progress(false, MainActivity.artistList.size())
+                        .show();
+            }
+
+            nullBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.null_bitmap);
         }
 
         @Override
@@ -1371,6 +1378,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             String artistArtUrl = "", encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
             Bitmap artistImage;
+
 
             for (int i = 0; i < artistList.size(); i++)
             {
@@ -1383,8 +1391,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 {
                     fromWhere = "cache...";
 
+                    artistImage = mDiskLruCache.getBitmap(key);
+
                     /* Set Image Path & Summary */
-                    artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
+                    if(artistImage.getByteCount() <= 50)
+                    {
+                        artistList.get(i).setImagePath(null);
+                    }
+                    else
+                    {
+                        artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
+                    }
+
                     if(sharedPref.contains(sumKey))
                     {
                         artistSummary = sharedPref.getString(sumKey, artistSummary);
@@ -1417,12 +1435,20 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     else
                         artistImage = getBitmapFromURL(artistArtUrl);
 
-                    if(artistImage != null)
+                    if(artistImage == null)
+                    {
+                        artistImage = nullBitmap;
+                        artistList.get(i).setImagePath(null);
                         mDiskLruCache.put(key, artistImage);
-
-                    artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
+                    }
+                    else
+                    {
+                        mDiskLruCache.put(key, artistImage);
+                        artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
+                    }
                 }
-                publishProgress(i);
+                if(!loadInBackground)
+                    publishProgress(i);
             }
             return artistArtUrl;
 

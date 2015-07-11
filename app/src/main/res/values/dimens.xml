@@ -3,7 +3,7 @@
     <dimen name="activity_horizontal_margin">0dp</dimen>
     <dimen name="activity_vertical_margin">0dp</dimen>
     <dimen name="action_bar_default_height">56dp</dimen>
-    <dimen name="action_bar_shadow_height">12dp</dimen>
+    <dimen name="action_bar_shadow_height">10dp</dimen>
     <dimen name="control_inset_material">4dp</dimen>
     <dimen name="card_elevation">3dp</dimen>
     <dimen name="divider_height">1dp</dimen>

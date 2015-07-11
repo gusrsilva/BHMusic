@@ -6,6 +6,12 @@
         android:summary="@string/pref_description_artwork_header"
         android:defaultValue="true" />
 
+    <SwitchPreference
+        android:key="always_load_artist_in_background"
+        android:title="@string/pref_title_always_load_artist_in_background"
+        android:summary="@string/pref_description_always_load_artist_in_background"
+        android:defaultValue="false" />
+
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
     <EditTextPreference
