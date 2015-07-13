@@ -9,6 +9,8 @@ import android.util.Log;
 import com.blockhead.bhmusic.activities.MainActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by Gus on 2/26/2015.
@@ -149,6 +151,16 @@ public class Artist {
     public String getSummaryHTML()
     {
         return summaryHTML;
+    }
+
+    public void sortAlbums()
+    {
+        Collections.sort(albums, new Comparator<Album>() {
+            @Override
+            public int compare(Album a, Album b) {
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
     }
 
 

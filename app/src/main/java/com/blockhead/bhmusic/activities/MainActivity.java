@@ -750,6 +750,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
+    private void sortArtistsAlbums()
+    {
+        for( Artist a : artistList)
+            a.sortAlbums();
+    }
+
     private void getPlaylistList() {
 
         Playlist temp;
@@ -1511,6 +1517,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     return a.getName().compareTo(b.getName());
                 }
             });
+
+            sortArtistsAlbums();
 
             return "Success";
 
