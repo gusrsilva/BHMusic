@@ -15,6 +15,7 @@
     <color name="cover_tint">#dddddd</color>
     <color name="dark_grey">#232323</color>
     <color name="divider_color">#22000000</color>
+    <color name="file_info_dialog_color">#555555</color>
     <color name="semi_transparent">#22000000</color>
     <color name="note_bg">#f0f0f0</color>
     <color name="notification_bg">#414141</color>

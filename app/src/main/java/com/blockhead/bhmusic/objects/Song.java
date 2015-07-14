@@ -9,19 +9,31 @@ import com.blockhead.bhmusic.activities.MainActivity;
 public class Song {
 
     private long id;
-    private String title, artist, albumTitle, duration, coverURI;
+    private String title, artist, albumTitle, duration, coverURI, path, extension;
     private Album albumObj;
-    private int track, accentColor, randomColor;
+    private int track, accentColor, randomColor, size;
 
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, int trackNumber, String songDuration) {
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, int trackNumber
+            , String songDuration, String songPath, int songSize, String songExtenstion) {
         id = songID;
         title = songTitle;
         artist = songArtist;
         albumTitle = songAlbum;
         track = trackNumber;
         duration = songDuration;
+        path = songPath;
+        size = songSize;
+
+        if(songExtenstion != null)
+            extension = songExtenstion.toUpperCase();
+
         randomColor = MainActivity.randomColor();
         setCover();
+    }
+
+    public Song(String songArtist)
+    {
+        artist = songArtist;
     }
 
     public long getID() {
@@ -46,6 +58,28 @@ public class Song {
 
     public String getDuration() {
         return duration;
+    }
+
+    public String getPath(){ return path; }
+
+    public String getExtension(){ return extension; }
+
+    public int getSizeRaw(){ return size; }
+
+    public String getSizeFormatted()
+    {
+        return humanReadableByteCount(size, true);
+    }
+    /**
+     *  Function to Display Human Readable File Size
+     *  Written By: "aioobe" on StackOverFlow
+     */
+    public String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     private void setCover() {

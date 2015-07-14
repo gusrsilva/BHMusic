@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18;
 
     //Define song options
-    static final int ADD_TO_PLAYLIST = 0, GO_TO_ARTIST = 1, GO_TO_ALBUM = 2;
+    static final int ADD_TO_PLAYLIST = 0, GO_TO_ARTIST = 1, GO_TO_ALBUM = 2, FILE_INFO = 3;
 
     /* Instantiate Handler in Leak Preventative manner */
     private static class MyHandler extends Handler {
@@ -658,7 +659,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         //retreive song info
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        String[] proj = {MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.IS_MUSIC, MediaStore.Audio.Media.SIZE, MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DATE_ADDED, MediaStore.Audio.Media.MIME_TYPE};
+        Cursor musicCursor = musicResolver.query(musicUri, proj, null, null, null);
         //
 
 
@@ -677,6 +682,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             int trackNumberColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
             int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
             int isMusicColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC);
+            int sizeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.SIZE);
+            int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+
+            int mimeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE);
+            //int contentTypeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.CONTENT_TYPE);
 
 
             //add songs to list
@@ -690,9 +700,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 int duration = musicCursor.getInt(durationColumn);
                 String thisDuration = prettyTime(duration);
                 int isMusic = musicCursor.getInt(isMusicColumn);
+                String thisPath = musicCursor.getString(dataColumn);
+                int thisSize = musicCursor.getInt(sizeColumn);
+
+                String thisExtension = musicCursor.getString(mimeColumn);
+                thisExtension = MimeTypeMap.getSingleton().getExtensionFromMimeType(thisExtension);
 
                 if(isMusic != 0) {  //Add only music files TODO: Make this optional
-                    Song temp = new Song(thisId, thisTitle, thisArtist, thisAlbum, thisTrack, thisDuration);
+                    Song temp = new Song(thisId, thisTitle, thisArtist, thisAlbum, thisTrack,
+                            thisDuration, thisPath, thisSize, thisExtension);
                     songList.add(temp);
                 }
             }
@@ -705,7 +721,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void getAlbumList() {
         ContentResolver musicResolver = getContentResolver();
         Uri artUri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-        Cursor coverCursor = musicResolver.query(artUri, null, null, null, null);
+        String[] proj = {MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.ALBUM,
+                MediaStore.Audio.Albums.ARTIST, MediaStore.Audio.Albums._ID };
+        Cursor coverCursor = musicResolver.query(artUri, proj, null, null, null);
         Album temp;
 
 
@@ -714,6 +732,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             int coverColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
             int albumColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM);
             int artistColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST);
+            int idColumn = coverCursor.getColumnIndex(MediaStore.Audio.Albums._ID);
 
             do {
                 String thisCover = coverCursor.getString(coverColumn);
@@ -759,7 +778,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private void getPlaylistList() {
 
         Playlist temp;
-        String[] membersProjection = { MediaStore.Audio.Playlists.Members.AUDIO_ID,};
+        String[] membersProjection = { MediaStore.Audio.Playlists.Members.AUDIO_ID};
         String[] playlistProjection = { MediaStore.Audio.Playlists._ID, MediaStore.Audio.Playlists.NAME};
         ContentResolver playlistResolver = getContentResolver();
         Uri playlistUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
@@ -927,6 +946,38 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     @SuppressWarnings("unused")
+    private void fileInfoPressed(int songPos, Context context)
+    {
+        Song song = songList.get(songPos);
+
+        MaterialDialog md = new MaterialDialog
+                .Builder(context)
+                .title("File Info")
+                .customView(R.layout.file_info_dialog, false)
+                .titleColor(accentColor)
+                .show();
+
+        View view = md.getView();
+        try {
+            TextView temp = (TextView) (view.findViewById(R.id.file_info_name));
+            temp.setText(song.getTitle());
+            temp = (TextView) (view.findViewById(R.id.file_info_duration));
+            temp.setText(song.getDuration());
+            temp = (TextView) (view.findViewById(R.id.file_info_path));
+            temp.setText(song.getPath());
+            temp = (TextView) (view.findViewById(R.id.file_info_type));
+            temp.setText(song.getExtension());
+            temp = (TextView) (view.findViewById(R.id.file_info_size));
+            temp.setText(song.getSizeFormatted());
+        }
+        catch(NullPointerException e)
+        {
+            md.dismiss();
+            Toast.makeText(getApplicationContext(), "Unable to Retrieve Song Info", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @SuppressWarnings("unused")
     public void openSongOptions(final int songPos, final Context context)
     {
         /* Callback for when option is chosen */
@@ -945,6 +996,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         break;
                     case GO_TO_ALBUM:
                         goToAlbumPressed(songPos, context);
+                        break;
+                    case FILE_INFO:
+                        fileInfoPressed(songPos, context);
                         break;
                     default:
                         Toast.makeText(context,"Invalid Selection",Toast.LENGTH_SHORT).show();

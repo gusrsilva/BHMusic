@@ -96,7 +96,7 @@ public class Artist {
     {
         Album dummy = new Album("","",artist);
         dummy.setArtistObj(this);
-        Song dummySong = new Song(0,"dummy",artist, "", -1, "0");
+        Song dummySong = new Song(artist);
         dummySong.setAlbumObj(dummy);
         dummy.addSong(dummySong);
         albums.add(dummy);

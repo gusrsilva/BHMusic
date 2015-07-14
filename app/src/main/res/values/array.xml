@@ -5,5 +5,6 @@
         <item>Add to Playlist</item>
         <item>Go to Artist</item>
         <item>Go to Album</item>
+        <item>File Info</item>
     </string-array>
 </resources>
