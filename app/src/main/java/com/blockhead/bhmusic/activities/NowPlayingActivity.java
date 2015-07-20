@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -62,7 +63,7 @@ public class NowPlayingActivity extends AppCompatActivity {
     private ListView npTrackListView;
     private Drawable mListHeader, seekThumb, seekThumbSelected;
     private android.support.v7.app.ActionBar actionBar;
-    private Animation repeatAnimation, shuffleAnimation;
+    private RotateAnimation repeatAnimation, shuffleAnimation;
     private boolean needsRotation = false;
     private ImageLoader imageLoader;
     private DisplayImageOptions displayOptions;
@@ -152,26 +153,14 @@ public class NowPlayingActivity extends AppCompatActivity {
         repeatDrawable = repeatButton.getDrawable();
 
         //Set Animations
-        int repeatId, shuffleId;
-        if(MainActivity.isLollipop())
-        {
-            repeatId = R.anim.repeat_rotate_animation;
-            shuffleId = R.anim.shuffle_rotate_animation;
-        }
-        else
-        {
-            repeatId = R.animator.repeat_rotate_animation;
-            shuffleId = R.animator.shuffle_rotate_animation;
-        }
-        try
-        {
-            repeatAnimation = AnimationUtils.loadAnimation(this, repeatId);
-            shuffleAnimation = AnimationUtils.loadAnimation(this, shuffleId);
-        }
-        catch(Resources.NotFoundException e)
-        {
-            Toast.makeText(getApplicationContext(), "Error setting animation" , Toast.LENGTH_SHORT).show();
-        }
+        //Set Animations
+        repeatAnimation = new RotateAnimation(180, 360,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        repeatAnimation.setDuration(500);
+
+        shuffleAnimation = new RotateAnimation(0, 360,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        shuffleAnimation.setDuration(700);
 
 
         if (musicSrv != null) {

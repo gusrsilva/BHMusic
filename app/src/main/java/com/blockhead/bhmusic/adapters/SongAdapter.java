@@ -94,7 +94,6 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
             int color = parent.getResources().getColor(currSong.getRandomColor());
             coverView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.default_cover));
             coverView.setBackgroundColor(color);
-            Log.d("DEBUG-BHCA", "Setting random color with: " + (color));
         }
         //imageLoader.displayImage(currSong.getCoverURI(), coverView);
 

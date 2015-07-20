@@ -13,7 +13,6 @@
         card_view:cardCornerRadius="2dp"
         android:orientation="vertical"
         android:background="@drawable/rect_ripple_background_color"
-        android:stateListAnimator="@anim/card_animation"
         android:layout_marginTop="10dp">
 
         <RelativeLayout

@@ -3,6 +3,7 @@
     <string name="music">MUSIC</string>
 
     <string name="action_exit">Exit</string>
+    <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>
     <string name="action_shuffle_all">Shuffle All</string>
     <string name="action_now_playing">Now Playing</string>
@@ -35,5 +36,6 @@
     cheese caerphilly cheddar cheesecake cream cheese manchego lancashire. Roquefort squirty cheese
     the big cheese.</string>
     <string name="title_activity_view_playlist">ViewPlaylistActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
 
 </resources>

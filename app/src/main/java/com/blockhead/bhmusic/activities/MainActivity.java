@@ -48,6 +48,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.webkit.MimeTypeMap;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -113,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static Album currAlbum;
     public static Artist currArtist;
     public static Playlist currPlaylist;
-    public static ActionBar mActionBar;
+    public static android.support.v7.app.ActionBar mActionBar;
     public static boolean artworkHeader = true;
     public static int primaryColor, accentColor;
     private static GridView albumView;
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private boolean musicBound = false, paused = false, loadInBackground = false;
     private TextView timePos, timeDur;
     private ServiceConnection musicConnection;
-    public static Animation repeatRotationAnimation, shuffleAnimation;
+    public static RotateAnimation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
     private static CoordinatorLayout coordLay;
     private MaterialDialog md;
@@ -170,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        mActionBar = getActionBar();
+        mActionBar = getSupportActionBar();
 
         // Create global configuration and initialize ImageLoader with this config
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
@@ -323,26 +325,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         pagerTitleStrip.setBackgroundColor(primaryColor);
 
         //Set Animations
-        int repeatId, shuffleId;
-        if(isLollipop())
-        {
-            repeatId = R.anim.repeat_rotate_animation;
-            shuffleId = R.anim.shuffle_rotate_animation;
-        }
-        else
-        {
-            repeatId = R.animator.repeat_rotate_animation;
-            shuffleId = R.animator.shuffle_rotate_animation;
-        }
-        try {
-            repeatRotationAnimation = AnimationUtils.loadAnimation(this, repeatId);
-            shuffleAnimation = AnimationUtils.loadAnimation(this, shuffleId);
-        }
-        catch(Resources.NotFoundException e)
-        {
-            Toast.makeText(getApplicationContext(), "Error setting animation" , Toast.LENGTH_SHORT).show();
-        }
+        repeatRotationAnimation = new RotateAnimation(180, 360,
+             Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+         repeatRotationAnimation.setDuration(500);
 
+        shuffleAnimation = new RotateAnimation(0, 360,
+             Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+         shuffleAnimation.setDuration(700);
 
         //Define Drawables
         pauseDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_white_36dp);
@@ -609,10 +598,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_exit) {
-            finish();
-            return true;
-        }
         if (id == R.id.action_shuffle_all) {
             shufflePressed(null);
         }
@@ -623,6 +608,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
         if (id == R.id.action_now_playing) {
             nowPlayingButtonPressed(null);
+            return true;
+        }
+        if( id == R.id.action_search){
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -958,7 +948,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 .show();
 
         View view = md.getView();
-        try {
+        try
+        {
             TextView temp = (TextView) (view.findViewById(R.id.file_info_name));
             temp.setText(song.getTitle());
             temp = (TextView) (view.findViewById(R.id.file_info_duration));

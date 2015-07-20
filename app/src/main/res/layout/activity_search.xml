@@ -1,0 +1,69 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    tools:context="com.blockhead.bhmusic.activities.SearchActivity">
+
+    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_song_list"
+        android:layout_below="@+id/search_faux_ab"
+        android:overScrollMode="never" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/search_faux_ab"
+            android:gravity="center_vertical"
+            android:minHeight="56dp"
+            android:background="@color/primary_color"
+            android:paddingTop="25dp"
+            android:paddingEnd="15dp"
+            android:paddingStart="75dp"
+            android:clickable="false"
+            android:descendantFocusability="afterDescendants">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_icon"
+                android:src="@drawable/ic_magnify_white_24dp"
+                android:focusable="false"
+                android:clickable="false" />
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_text"
+                android:hint="Search songs, artists, or albums..."
+                android:textColorHint="@color/hint_white"
+                android:textColor="@color/white"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:imeOptions="actionDone"
+                android:clickable="true"
+                android:minHeight="45dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+        </LinearLayout>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/main_coordinator"
+        android:layout_gravity="bottom">
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="@dimen/fab_radius"
+            android:layout_height="@dimen/fab_radius"
+            android:layout_margin="24dp"
+            android:layout_gravity="bottom|end"
+            android:id="@+id/search_fab"
+            android:src="@drawable/ic_play_white_36dp"
+            android:transitionName="fab"
+            app:borderWidth="0dp"
+            app:rippleColor="@android:color/white"
+            app:backgroundTint="@color/accent_color"
+            app:pressedTranslationZ="12dp"/>
+    </android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

@@ -20,7 +20,6 @@
     </style>
 
     <style name="SettingsTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
-
     </style>
 
 </resources>
