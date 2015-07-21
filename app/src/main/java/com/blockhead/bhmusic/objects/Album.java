@@ -18,13 +18,15 @@ public class Album {
     public ArrayList<Song> tracks = new ArrayList<Song>();
     private String title, artist, URI;
     private int accentColor = Color.WHITE, randomColor;
+    private long id;
     private Artist artistObj;
 
-    public Album(String albumTitle, String albumCoverURI, String artistTitle) {
+    public Album(String albumTitle, String albumCoverURI, String artistTitle, long thisId) {
         title = albumTitle;
         artist = artistTitle;
         URI = albumCoverURI;
         randomColor = MainActivity.randomColor();
+        id = thisId;
 
         if(URI != null && !URI.isEmpty())
         {
@@ -71,7 +73,8 @@ public class Album {
     public static Bitmap decodeSampledBitmapFromResource(String pathName,
                                                          int reqWidth, int reqHeight) {
 
-        try {
+        try
+        {
             // First decode with inJustDecodeBounds=true to check dimensions
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -94,6 +97,8 @@ public class Album {
     public String getTitle() {
         return title;
     }
+
+    public long getId(){ return id; }
 
     public String getArtist() {
         return artist;
@@ -137,6 +142,11 @@ public class Album {
     }
 
     @Override
+    public int hashCode() {
+        return (int)id;
+    }
+
+    @Override
     public boolean equals(Object object) {
         if(object == null || !object.getClass().equals(this.getClass()))
         {
@@ -145,7 +155,7 @@ public class Album {
         }
 
         Album another = (Album) object;
-        return(another.getArtist().equalsIgnoreCase(artist) && another.getTitle().equalsIgnoreCase(title));
+        return(another.getId() == id);
     }
 
     public int getSize()

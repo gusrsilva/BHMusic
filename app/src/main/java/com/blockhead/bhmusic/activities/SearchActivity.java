@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
@@ -22,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -59,18 +61,11 @@ public class SearchActivity extends AppCompatActivity {
         /* Set up Action Bar */
         ActionBar mActionBar = getSupportActionBar();
         if(mActionBar != null)
-            mActionBar.setTitle("");
+            mActionBar.hide();
+
         LinearLayout fauxAB = (LinearLayout)findViewById(R.id.search_faux_ab);
-        if( fauxAB != null) {
+        if( fauxAB != null)
             fauxAB.setBackgroundColor(MainActivity.primaryColor);
-            fauxAB.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    Toast.makeText(getApplicationContext(), "Layout Clicked", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-            });
-        }
 
         /* Set up FAB */
         fab = (FloatingActionButton)findViewById(R.id.search_fab);
@@ -134,9 +129,16 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
         Drawable editTextBg = ContextCompat.getDrawable(getApplicationContext(), R.drawable.edit_text_bg);
-
         editTextBg.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
-        //searchText.setBackground(editTextBg);
+        searchText.setBackground(editTextBg);
+
+        ImageView backButton = (ImageView)findViewById(R.id.search_back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     @Override

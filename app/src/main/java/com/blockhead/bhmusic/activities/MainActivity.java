@@ -94,6 +94,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     public static ArrayList<Artist> artistList;
     public static ArrayList<Album> albumList;
+    public static HashMap<Long, Album> albumHashMap;
     public static TextView nowPlayingArtist, nowPlayingTitle;
     public static ImageView coverArt;
     public static ImageButton shuffleButton, repeatButton;
@@ -227,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         albumList = new ArrayList<>();
         artistList = new ArrayList<>();
         playlistList = new ArrayList<>();
+
+        albumHashMap = new HashMap<>();
 
 
         songAdt = new SongAdapter(this, songList);
@@ -650,14 +654,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] proj = {MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.IS_MUSIC, MediaStore.Audio.Media.SIZE, MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DATE_ADDED, MediaStore.Audio.Media.MIME_TYPE};
+                MediaStore.Audio.Media.MIME_TYPE, MediaStore.Audio.Media.ALBUM_ID};
         Cursor musicCursor = musicResolver.query(musicUri, proj, null, null, null);
-        //
 
-
-        //
         if (musicCursor != null && musicCursor.moveToFirst())
         {
             //get columns
@@ -667,38 +668,37 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     (android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.ARTIST);
-            int albumColumn = musicCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.ALBUM);
             int trackNumberColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
             int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
             int isMusicColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC);
             int sizeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.SIZE);
             int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-
             int mimeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE);
-            //int contentTypeColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.CONTENT_TYPE);
-
+            int albumIdColumn = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.ALBUM_ID);
 
             //add songs to list
             do
             {
-                long thisId = musicCursor.getLong(idColumn);
-                String thisTitle = musicCursor.getString(titleColumn);
-                String thisArtist = musicCursor.getString(artistColumn);
-                String thisAlbum = musicCursor.getString(albumColumn);
-                int thisTrack = musicCursor.getInt(trackNumberColumn);
-                int duration = musicCursor.getInt(durationColumn);
-                String thisDuration = prettyTime(duration);
                 int isMusic = musicCursor.getInt(isMusicColumn);
-                String thisPath = musicCursor.getString(dataColumn);
-                int thisSize = musicCursor.getInt(sizeColumn);
-
-                String thisExtension = musicCursor.getString(mimeColumn);
-                thisExtension = MimeTypeMap.getSingleton().getExtensionFromMimeType(thisExtension);
 
                 if(isMusic != 0) {  //Add only music files TODO: Make this optional
-                    Song temp = new Song(thisId, thisTitle, thisArtist, thisAlbum, thisTrack,
-                            thisDuration, thisPath, thisSize, thisExtension);
+                    long thisId = musicCursor.getLong(idColumn);
+                    String thisTitle = musicCursor.getString(titleColumn);
+                    String thisArtist = musicCursor.getString(artistColumn);
+                    int thisTrack = musicCursor.getInt(trackNumberColumn);
+                    int duration = musicCursor.getInt(durationColumn);
+                    String thisDuration = prettyTime(duration);
+                    String thisPath = musicCursor.getString(dataColumn);
+                    int thisSize = musicCursor.getInt(sizeColumn);
+                    long thisAlbumId = musicCursor.getLong(albumIdColumn);
+
+                    String thisExtension = musicCursor.getString(mimeColumn);
+                    thisExtension = MimeTypeMap.getSingleton().getExtensionFromMimeType(thisExtension);
+
+
+                    Song temp = new Song(thisId, thisTitle, thisArtist, thisTrack,
+                            thisDuration, thisPath, thisSize, thisExtension, thisAlbumId);
                     songList.add(temp);
                 }
             }
@@ -726,12 +726,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
             do {
                 String thisCover = coverCursor.getString(coverColumn);
-                String thisAlbum = coverCursor.getString(albumColumn);
+                String thisAlbumTitle = coverCursor.getString(albumColumn);
                 String thisArtist = coverCursor.getString(artistColumn);
+                long thisId = coverCursor.getLong(idColumn);
 
-                temp = new Album(thisAlbum, thisCover, thisArtist);
-                if(!albumList.contains(temp))
-                    albumList.add(temp);
+                temp = new Album(thisAlbumTitle, thisCover, thisArtist, thisId);
+                albumList.add(temp);
+                if(albumHashMap.put(thisId, temp) != null)
+                    Log.d("BHCA-OPTIMIZATION", "COULDNT ADD: " + thisAlbumTitle+thisArtist + " ID: " + thisId);
             }
             while (coverCursor.moveToNext());
         }
@@ -742,19 +744,23 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     private void getArtistList() {
-        String current;
+        String currArtistName;
         int matchResult;
-        for (int i = 0; i < albumList.size(); i++) {
-            current = albumList.get(i).getArtist();
-            matchResult = artistMatch(current);
-            if (matchResult == -1) {   //If its a new artist
-                Artist temp = new Artist(current);
-                temp.addDummyAlbum(current); //Add placeholder to new artists
-                temp.addAlbum(albumList.get(i));
-                albumList.get(i).setArtistObj(temp);
+        for (Album tempAlbum : albumList)
+        {
+            currArtistName = tempAlbum.getArtist();
+            matchResult = artistMatch(currArtistName);
+            if (matchResult == -1)
+            {   //If its a new artist
+                Artist temp = new Artist(currArtistName);
+                temp.addDummyAlbum(currArtistName); //Add placeholder to new artists
+                temp.addAlbum(tempAlbum);
+                tempAlbum.setArtistObj(temp);
                 artistList.add(temp);
-            } else {   //If its an existing artist add album to repo
-                artistList.get(matchResult).addAlbum(albumList.get(i));
+            }
+            else
+            {   //If its an existing artist add album to repo
+                artistList.get(matchResult).addAlbum(tempAlbum);
             }
         }
     }
@@ -789,7 +795,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 Uri tracksUri = MediaStore.Audio.Playlists.Members.getContentUri("external", thisId);
                 Cursor trackCursor = tracksResolver.query(tracksUri,membersProjection,null,null,null);
 
-                if(trackCursor != null && trackCursor.moveToFirst())        //Get columns for ic_play_white_36dp list members
+                if(trackCursor != null && trackCursor.moveToFirst())
                 {
                     int trackIdColumn = trackCursor.getColumnIndex(MediaStore.Audio.Playlists.Members.AUDIO_ID);
                     do //Loop through playlist members
@@ -859,6 +865,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 ContentValues cv = new ContentValues();
                 cv.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, ++i);
                 cv.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, id);
+                Uri u = resolver.insert(insUri, cv);
                 Log.d("BHCA-P", "Added Playlist Item: " + playlist.getMembers().get(i-1).getTitle() + " with play order:  " + i);
             } while (i < playlist.getSize());
         }
@@ -917,15 +924,17 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private void goToArtistPressed(int songPos, Context context)
     {
         String artist = songList.get(songPos).getArtist();
-        int i;
-        for( i = 0; i < artistList.size(); i++)
+
+        for( Artist tempArtist : artistList)
         {
-            if(artist.equalsIgnoreCase(artistList.get(i).getName()))
-                break;
+            if(artist.equalsIgnoreCase(tempArtist.getName()))
+            {
+                currArtist = tempArtist;
+                Intent intent = new Intent(context, ViewArtistActivity.class);
+                startActivity(intent);
+                return;
+            }
         }
-        currArtist = artistList.get(i);
-        Intent intent = new Intent(context, ViewArtistActivity.class);
-        startActivity(intent);
     }
 
     private void goToAlbumPressed(int songPos, Context context)
@@ -1430,10 +1439,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
             Bitmap artistImage;
 
-
-            for (int i = 0; i < artistList.size(); i++)
+            int i = 0;
+            for (Artist tempArtist : artistList)
             {
-                artistName = artistList.get(i).getName();
+                artistName = tempArtist.getName();
                 key = artistName.toLowerCase();
                 key = key.replaceAll("[^a-z0-9_-]+", "");
                 sumKey = key + "summary";
@@ -1447,17 +1456,17 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     /* Set Image Path & Summary */
                     if(artistImage.getByteCount() <= 50)
                     {
-                        artistList.get(i).setImagePath(null);
+                        tempArtist.setImagePath(null);
                     }
                     else
                     {
-                        artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
+                        tempArtist.setImagePath(mDiskLruCache.getFilePath(key));
                     }
 
                     if(sharedPref.contains(sumKey))
                     {
                         artistSummary = sharedPref.getString(sumKey, artistSummary);
-                        artistList.get(i).setSummary(artistSummary);
+                        tempArtist.setSummary(artistSummary);
                     }
                 }
                 else
@@ -1477,7 +1486,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         mEditor.putString(sumKey, artistSummary);
                         mEditor.apply();
                     }
-                    artistList.get(i).setSummary(artistSummary);
+                    tempArtist.setSummary(artistSummary);
 
                     /* Set Image, Add to Cache, & Assign to Artist */
                     artistArtUrl = getArtURL(BaseURL + encodedArtistName);
@@ -1489,17 +1498,17 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     if(artistImage == null)
                     {
                         artistImage = nullBitmap;
-                        artistList.get(i).setImagePath(null);
+                        tempArtist.setImagePath(null);
                         mDiskLruCache.put(key, artistImage);
                     }
                     else
                     {
                         mDiskLruCache.put(key, artistImage);
-                        artistList.get(i).setImagePath(mDiskLruCache.getFilePath(key));
+                        tempArtist.setImagePath(mDiskLruCache.getFilePath(key));
                     }
                 }
                 if(!loadInBackground)
-                    publishProgress(i);
+                    publishProgress(++i);
             }
             return artistArtUrl;
 
@@ -1524,15 +1533,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     //Begin AsyncTask Class
     public class GetListsTask extends AsyncTask<Void, Void, String> {
-        ProgressDialog pd;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            /*
-            pd = new ProgressDialog(MainActivity.this);
-            pd.setMessage("Preparing Library...");
-            pd.show();
-            */
 
         }
 

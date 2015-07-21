@@ -97,7 +97,8 @@ public class ViewPlaylistActivity extends AppCompatActivity {
         //Get first valid coverURI from songs in playlist
         while(coverUri == null && songList != null && i < songList.size() -1)
         {
-            coverUri = songList.get(i++).getCoverURI();
+            coverUri = songList.get(i).getCoverURI();
+            i++;
         }
 
         //Set ActionBar color

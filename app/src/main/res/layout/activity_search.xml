@@ -21,9 +21,15 @@
             android:background="@color/primary_color"
             android:paddingTop="25dp"
             android:paddingEnd="15dp"
-            android:paddingStart="75dp"
             android:clickable="false"
             android:descendantFocusability="afterDescendants">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_back"
+                android:src="@drawable/ic_arrow_left_white_24dp"
+                android:layout_marginLeft="20dp" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -31,7 +37,8 @@
                 android:id="@+id/search_icon"
                 android:src="@drawable/ic_magnify_white_24dp"
                 android:focusable="false"
-                android:clickable="false" />
+                android:clickable="false"
+                android:layout_marginLeft="20dp" />
 
             <EditText
                 android:layout_width="fill_parent"
@@ -46,6 +53,7 @@
                 android:minHeight="45dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true" />
+
         </LinearLayout>
 
     <android.support.design.widget.CoordinatorLayout

@@ -1,5 +1,7 @@
 package com.blockhead.bhmusic.objects;
 
+import android.util.Log;
+
 import com.blockhead.bhmusic.activities.MainActivity;
 
 /**
@@ -8,21 +10,21 @@ import com.blockhead.bhmusic.activities.MainActivity;
 
 public class Song {
 
-    private long id;
+    private long id, albumId;
     private String title, artist, albumTitle, duration, coverURI, path, extension;
     private Album albumObj;
     private int track, accentColor, randomColor, size;
 
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, int trackNumber
-            , String songDuration, String songPath, int songSize, String songExtenstion) {
+    public Song(long songID, String songTitle, String songArtist, int trackNumber
+            , String songDuration, String songPath, int songSize, String songExtenstion, long albId) {
         id = songID;
         title = songTitle;
         artist = songArtist;
-        albumTitle = songAlbum;
         track = trackNumber;
         duration = songDuration;
         path = songPath;
         size = songSize;
+        albumId = albId;
 
         if(songExtenstion != null)
             extension = songExtenstion.toUpperCase();
@@ -83,16 +85,17 @@ public class Song {
     }
 
     private void setCover() {
-        for (int i = 0; i < MainActivity.albumList.size(); i++) {
-            if (albumTitle.equalsIgnoreCase(MainActivity.albumList.get(i).getTitle())
-                    && artist.equalsIgnoreCase(MainActivity.albumList.get(i).getArtist()))
-            {
-                albumObj = MainActivity.albumList.get(i);
-                coverURI = albumObj.getCoverURI();
-                albumObj.addSong(this);
-                accentColor = albumObj.getAccentColor();
-            }
+
+        Album tempAlbum = MainActivity.albumHashMap.get(albumId);
+        if(tempAlbum != null) {
+            albumObj = tempAlbum;
+            albumTitle = albumObj.getTitle();
+            coverURI = albumObj.getCoverURI();
+            albumObj.addSong(this);
+            accentColor = albumObj.getAccentColor();
         }
+        else
+            Log.d("BHCA-OPTIMIZATION", "TEMP ALBUM NULL: " + albumTitle + " ID: " + albumId);
     }
 
     public String getCoverURI(){ return coverURI;}

@@ -64,10 +64,12 @@ public class Playlist {
         if(songList == null)
             return -1;
 
-        for(int i = 0; i < songList.size(); i++)
+        int i = 0;
+        for(Song temp : songList)
         {
-            if(songList.get(i).getID() == trackID)
+            if(temp.getID() == trackID)
                 return i;
+            i++;
         }
 
         return -1;
@@ -77,8 +79,8 @@ public class Playlist {
     {
         members = new ArrayList<>();
         ArrayList<Song> songList = MainActivity.songList;
-        for(int i = 0; i < songIds.size(); i ++)
-            members.add(songList.get(getPosFromId(songIds.get(i), songList)));
+        for(Long temp : songIds)
+            members.add(songList.get(getPosFromId(temp, songList)));
     }
 
     public ArrayList<Song> getMembers()

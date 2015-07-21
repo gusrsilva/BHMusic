@@ -94,7 +94,7 @@ public class Artist {
 
     public boolean addDummyAlbum(String artist)
     {
-        Album dummy = new Album("","",artist);
+        Album dummy = new Album("","",artist,-1);
         dummy.setArtistObj(this);
         Song dummySong = new Song(artist);
         dummySong.setAlbumObj(dummy);
@@ -163,5 +163,21 @@ public class Artist {
         });
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if(object == null || !object.getClass().equals(this.getClass()))
+        {
+            Log.d("DEBUG-BHCA", "Paramater type mismatch!");
+            return false;
+        }
+
+        Artist another = (Artist) object;
+        return(another.getName().equalsIgnoreCase(name));
+    }
 
 }
