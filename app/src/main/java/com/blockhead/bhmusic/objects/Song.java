@@ -13,7 +13,7 @@ public class Song {
     private long id, albumId;
     private String title, artist, albumTitle, duration, coverURI, path, extension;
     private Album albumObj;
-    private int track, accentColor, randomColor, size;
+    private int track, accentColor, randomColor = 0, size;
 
     public Song(long songID, String songTitle, String songArtist, int trackNumber
             , String songDuration, String songPath, int songSize, String songExtenstion, long albId) {
@@ -29,7 +29,6 @@ public class Song {
         if(songExtenstion != null)
             extension = songExtenstion.toUpperCase();
 
-        randomColor = MainActivity.randomColor();
         setCover();
     }
 
@@ -110,7 +109,13 @@ public class Song {
         return accentColor;
     }
 
-    public int getRandomColor(){ return randomColor; }
+    public int getRandomColor()
+    {
+        if(randomColor == 0)
+            randomColor = MainActivity.randomColor();
+
+        return randomColor;
+    }
 
     @Override
     public int hashCode() {

@@ -15,6 +15,11 @@
         startup instead of showing progress dialog.
     </string>
 
+    <string name="pref_title_improve_color_sampling">Improved Color Sampling</string>
+    <string name="pref_description_improve_color_sampling">Get more accurate accent colors when
+        pulled from cover art. (May slow start up time)
+    </string>
+
     <string name="pref_title_main_title">Main Screen Title</string>
     <string name="pref_default_display_name">Music</string>
 

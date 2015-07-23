@@ -17,7 +17,7 @@ public class Album {
 
     public ArrayList<Song> tracks = new ArrayList<Song>();
     private String title, artist, URI;
-    private int accentColor = Color.WHITE, randomColor;
+    private int accentColor = Color.WHITE, randomColor = 0;
     private long id;
     private Artist artistObj;
 
@@ -25,12 +25,12 @@ public class Album {
         title = albumTitle;
         artist = artistTitle;
         URI = albumCoverURI;
-        randomColor = MainActivity.randomColor();
         id = thisId;
 
         if(URI != null && !URI.isEmpty())
         {
-            Bitmap smallCover = decodeSampledBitmapFromResource(albumCoverURI, 200, 200);
+            int size = (MainActivity.improveColorSampling? 200 : 10);
+            Bitmap smallCover = decodeSampledBitmapFromResource(albumCoverURI, size, size);
             if(smallCover == null)
             {
                 Log.d("BHCA-Palette", albumTitle + " cover is null.");
@@ -120,7 +120,10 @@ public class Album {
     public int getAccentColor() {
         return accentColor;
     }
-    public int getRandomColor(){
+    public int getRandomColor()
+    {
+        if(randomColor == 0)
+            randomColor = MainActivity.randomColor();
         return randomColor;
     }
 
