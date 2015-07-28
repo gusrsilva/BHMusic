@@ -14,7 +14,7 @@ public class Playlist {
     long playlistId;
     ArrayList<Long> songIds;
     ArrayList<Song> members;
-    boolean changed;
+    boolean changed, isNew = false;
 
     public Playlist(String name, long Id)
     {
@@ -91,12 +91,10 @@ public class Playlist {
     }
 
     public boolean isChanged(){ return changed; }
+    public void setChanged() { changed = true; }
 
-    public void setChanged()
-    {
-        if(!changed)
-            changed = true;
-    }
+    public boolean isNew(){ return isNew; }
+    public void setNew() { isNew = true; }
 
     public long getPlaylistId(){ return playlistId; }
 

@@ -2,11 +2,9 @@ package com.blockhead.bhmusic.activities;
 
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.ActivityOptions;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -20,8 +18,8 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -47,10 +45,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
-import android.view.animation.TranslateAnimation;
 import android.webkit.MimeTypeMap;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -62,7 +59,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.blockhead.bhmusic.BuildConfig;
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
 import com.blockhead.bhmusic.adapters.ArtistAdapter;
@@ -151,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     //Define song options
     static final int ADD_TO_PLAYLIST = 0, GO_TO_ARTIST = 1, GO_TO_ALBUM = 2, FILE_INFO = 3;
+    //Define playlist options
+    final int RENAME_PLAYLIST = 0, DELETE_PLAYLIST = 1;
 
     /* Instantiate Handler in Leak Preventative manner */
     private static class MyHandler extends Handler {
@@ -627,11 +625,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     protected void onDestroy() {
-        for(int i = 0; i < playlistList.size(); i++)
+        for(Playlist temp : playlistList)
         {
-            if(playlistList.get(i).isChanged()) {
-                savePlaylist(playlistList.get(i));
-            }
+            if(temp.isNew())
+                writePlaylistToStore(temp);
+            else if(temp.isChanged())
+                updatePlaylistInStore(temp);
         }
 
 
@@ -818,14 +817,26 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             playlistCursor.close();
     }
 
-    public void savePlaylist(Playlist playlist)
+    public void updatePlaylistInStore(Playlist playlist)
+    {
+        removePlaylistFromStore(playlist);
+        writePlaylistToStore(playlist);
+    }
+
+    private void deletePlaylist(int position)
+    {
+        removePlaylistFromStore(playlistList.get(position));
+        playlistList.remove(position);
+        playlistAdt.notifyDataSetChanged();
+    }
+
+    private void removePlaylistFromStore(Playlist playlist)
     {
         ContentResolver resolver = getContentResolver();
-
         Uri playlistsUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        Cursor c = resolver.query(playlistsUri, new String[]{"*"}, null, null, null);
 
         Log.d("BHCA-P", "Checking for existing playlist for " + playlist.getTitle());
-        Cursor c = resolver.query(playlistsUri, new String[] {"*"}, null, null, null);
         long playlistId = 0;
         String plname;
         c.moveToFirst();
@@ -845,6 +856,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             // delete the playlist
             resolver.delete(deleteUri, null, null);
         }
+
+        c.close();
+    }
+    private void writePlaylistToStore(Playlist playlist)
+    {
+        ContentResolver resolver = getContentResolver();
+        Uri playlistsUri = MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI;
+        Cursor c = resolver.query(playlistsUri, new String[]{"*"}, null, null, null);
 
         Log.d("BHCA-P", "CREATING PLAYLIST: " + playlist.getTitle());
         ContentValues contentValues = new ContentValues();
@@ -871,6 +890,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 Log.d("BHCA-P", "Added Playlist Item: " + playlist.getMembers().get(i-1).getTitle() + " with play order:  " + i);
             } while (i < playlist.getSize());
         }
+
         c.close();
     }
 
@@ -894,33 +914,83 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     @SuppressWarnings("unused")
-    private void addToPlaylistPressed(final int songPosition, Context context)
+    private void addToPlaylistPressed(final int songPosition, final Context context)
     {
         /* Initialize playlists */
-        String[] playlists = new String[playlistList.size()];
-        for(int i = 0; i < playlistList.size(); i ++)
+        final int size = playlistList.size();
+        String[] playlists = new String[size + 1];
+        for(int i = 0; i < size; i ++)
         {
             playlists[i] = playlistList.get(i).getTitle();
         }
+        playlists[size] = " + Create New Playlist";
 
         MaterialDialog.ListCallback playlistCallBack = new MaterialDialog.ListCallback()
         {
             @Override
             public void onSelection(MaterialDialog materialDialog, View view, int playlistPosition, CharSequence charSequence)
             {
-                String title = MainActivity.playlistList.get(playlistPosition).getTitle();
-                MainActivity.playlistList.get(playlistPosition).addSong(songList.get(songPosition));
-                Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
-                //savePlaylist(MainActivity.playlistList.get(playlistPosition));
+                if(playlistPosition < size) //Selected An Existing Playlist
+                {
+                    String title = MainActivity.playlistList.get(playlistPosition).getTitle();
+                    MainActivity.playlistList.get(playlistPosition).addSong(songList.get(songPosition));
+                    Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
+                    //updatePlaylistInStore(MainActivity.playlistList.get(playlistPosition));
+                }
+                else    //Create New Playlist
+                {
+                    createNewPlaylistPressed(songPosition, context);
+                }
             }
         };
-        MaterialDialog md = new MaterialDialog
+        md = new MaterialDialog
                 .Builder(context)
                 .title("Add to playlist")
                 .titleColor(accentColor)
                 .items(playlists)
                 .itemsCallback(playlistCallBack)
                 .show();
+    }
+
+    private void createNewPlaylistPressed(final int songPos, final Context context)
+    {
+        View enterNameView = LayoutInflater
+                .from(context)
+                .inflate(R.layout.dialog_new_playlist_enter_name, null);
+
+        EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
+        Drawable editTextBg = ContextCompat.getDrawable(getApplicationContext(), R.drawable.edit_text_bg);
+        editTextBg.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
+        editText.setBackground(editTextBg);
+
+        md = new MaterialDialog
+                .Builder(context)
+                .title("Create New Playlist")
+                .titleColor(accentColor)
+                .positiveText("Save")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        View cv = dialog.getCustomView();
+                        if (cv != null) {
+                            String str = ((EditText) cv.findViewById(R.id.enter_playlist_name)).getText().toString();
+                            createNewPlaylist(str, songPos);
+                            md.dismiss();
+                        }
+                    }
+                })
+                .positiveColor(accentColor)
+                .customView(enterNameView, false)
+                .show();
+    }
+
+    private void createNewPlaylist(String title, int songPos)
+    {
+        Playlist temp = new Playlist(title, title.hashCode());
+        temp.addSong(songList.get(songPos));
+        temp.setNew();
+        playlistList.add(temp);
+        Snackbar.make(coordLay, "Added to: " + title, Snackbar.LENGTH_SHORT).show();
     }
 
     private void goToArtistPressed(int songPos, Context context)
@@ -1015,6 +1085,44 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 .title(songList.get(songPos).getTitle())
                 .titleColor(accentColor)
                 .items(R.array.song_options)
+                .itemsCallback(callback)
+                .negativeText("Cancel")
+                .negativeColor(accentColor)
+                .show();
+    }
+
+    @SuppressWarnings("unused")
+    public void openPlaylistOptions(final int position, final Context context)
+    {
+        /* Callback for when option is chosen */
+        MaterialDialog.ListCallback callback = new MaterialDialog.ListCallback()
+        {
+            @Override
+            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
+            {
+                switch (position)
+                {
+                    case RENAME_PLAYLIST:
+                        Toast.makeText(context,"Rename Playlist",Toast.LENGTH_SHORT).show();
+                        break;
+                    case DELETE_PLAYLIST:
+                        String name = playlistList.get(position).getTitle();
+                        deletePlaylist(position);
+                        Snackbar.make(coordLay, "Deleted: " + name, Snackbar.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Toast.makeText(context,"Invalid Selection",Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
+
+        /* Create song options dialog */
+        MaterialDialog dialog = new MaterialDialog
+                .Builder(context)
+                .title(playlistList.get(position).getTitle())
+                .titleColor(accentColor)
+                .items(R.array.playlist_options)
                 .itemsCallback(callback)
                 .negativeText("Cancel")
                 .negativeColor(accentColor)
@@ -1565,6 +1673,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 @Override
                 public int compare(Artist a, Artist b) {
                     return a.getName().compareTo(b.getName());
+                }
+            });
+            Collections.sort(playlistList, new Comparator<Playlist>() {
+                @Override
+                public int compare(Playlist lhs, Playlist rhs) {
+                    return lhs.getTitle().compareTo(rhs.getTitle());
                 }
             });
 

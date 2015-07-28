@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.blockhead.bhmusic.R;
+import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -25,12 +26,16 @@ public class PlaylistListAdapter extends BaseAdapter {
     private ArrayList<Playlist> playlists;
     private LayoutInflater songInf;
     private ImageLoader imageLoader;
+    private MainActivity main;
+    private Context context;
 
 
     public PlaylistListAdapter(Context c, ArrayList<Playlist> arr) {
         playlists = arr;
         songInf = LayoutInflater.from(c);
         imageLoader = ImageLoader.getInstance();
+        context = c;
+        main = (MainActivity)context;
     }
 
     @Override
@@ -49,7 +54,7 @@ public class PlaylistListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         //map to song layout
         LinearLayout trackLay;
         if(convertView == null)
@@ -75,6 +80,13 @@ public class PlaylistListAdapter extends BaseAdapter {
 
         //set position as tag
         trackLay.setTag(position);
+        trackLay.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                main.openPlaylistOptions(position, context);
+                return false;
+            }
+        });
         shuffleButton.setTag(position);
 
         return trackLay;

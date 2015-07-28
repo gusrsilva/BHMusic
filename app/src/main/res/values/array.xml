@@ -7,4 +7,10 @@
         <item>Go to Album</item>
         <item>File Info</item>
     </string-array>
+
+    <string-array name="playlist_options">
+        <item>Rename Playlist</item>
+        <item>Delete Playlist</item>
+    </string-array>
+
 </resources>
