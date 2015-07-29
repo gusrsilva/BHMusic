@@ -46,6 +46,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -993,6 +994,43 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         Snackbar.make(coordLay, "Added to: " + title, Snackbar.LENGTH_SHORT).show();
     }
 
+    private void renamePlaylistPressed(final int pos, final Context context)
+    {
+        View enterNameView = LayoutInflater
+                .from(context)
+                .inflate(R.layout.dialog_new_playlist_enter_name, null);
+
+        EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
+        Drawable editTextBg = ContextCompat.getDrawable(getApplicationContext(), R.drawable.edit_text_bg);
+        editTextBg.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
+        editText.setBackground(editTextBg);
+
+        String currTitle = playlistList.get(pos).getTitle();
+        editText.setText(currTitle);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        editText.setSelection(0,currTitle.length()-1);
+
+        md = new MaterialDialog
+                .Builder(context)
+                .title("Rename Playlist")
+                .titleColor(accentColor)
+                .positiveText("Save")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        View cv = dialog.getCustomView();
+                        if (cv != null) {
+                            String str = ((EditText) cv.findViewById(R.id.enter_playlist_name)).getText().toString();
+                            md.dismiss();
+                        }
+                    }
+                })
+                .positiveColor(accentColor)
+                .customView(enterNameView, false)
+                .show();
+    }
+
     private void goToArtistPressed(int songPos, Context context)
     {
         String artist = songList.get(songPos).getArtist();
@@ -1103,7 +1141,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 switch (position)
                 {
                     case RENAME_PLAYLIST:
-                        Toast.makeText(context,"Rename Playlist",Toast.LENGTH_SHORT).show();
+                        renamePlaylistPressed(position, context);
                         break;
                     case DELETE_PLAYLIST:
                         String name = playlistList.get(position).getTitle();
