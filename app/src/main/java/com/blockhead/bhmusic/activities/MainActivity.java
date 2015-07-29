@@ -824,9 +824,34 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         writePlaylistToStore(playlist);
     }
 
+    private void sortPlaylistList()
+    {
+        Collections.sort(playlistList, new Comparator<Playlist>() {
+            @Override
+            public int compare(Playlist lhs, Playlist rhs) {
+                return lhs.getTitle().compareTo(rhs.getTitle());
+            }
+        });
+    }
+
     private void deletePlaylist(int position)
     {
-        removePlaylistFromStore(playlistList.get(position));
+        final Playlist temp = playlistList.get(position);
+        Snackbar.make(coordLay
+                , "Deleted: " + temp.getTitle()
+                , Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        temp.setChanged();
+                        playlistList.add(temp);
+                        sortPlaylistList();
+                        playlistAdt.notifyDataSetChanged();
+                    }
+                })
+                .setActionTextColor(accentColor)
+                .show();
+        removePlaylistFromStore(temp);
         playlistList.remove(position);
         playlistAdt.notifyDataSetChanged();
     }
@@ -838,19 +863,23 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         Cursor c = resolver.query(playlistsUri, new String[]{"*"}, null, null, null);
 
         Log.d("BHCA-P", "Checking for existing playlist for " + playlist.getTitle());
-        long playlistId = 0;
-        String plname;
+        long playlistId;
+        String plname = null;
         c.moveToFirst();
-        do {
-            plname = c.getString(c.getColumnIndex(MediaStore.Audio.Playlists.NAME));
-            if (plname.equalsIgnoreCase(playlist.getTitle())) {
-                playlistId = c.getLong(c.getColumnIndex(MediaStore.Audio.Playlists._ID));
+        do
+        {
+            playlistId = c.getLong(c.getColumnIndex(MediaStore.Audio.Playlists._ID));
+            if (playlistId == playlist.getPlaylistId())
+            {
+                plname = c.getString(c.getColumnIndex(MediaStore.Audio.Playlists.NAME));
                 break;
             }
-        } while (c.moveToNext());
+        }
+        while (c.moveToNext());
         c.close();
 
-        if (playlistId!=0) {
+        if (plname != null)
+        {
             Uri deleteUri = ContentUris.withAppendedId(playlistsUri, playlistId);
             Log.d("BHCA-P", "REMOVING Existing Playlist: " + plname);
 
@@ -959,7 +988,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 .from(context)
                 .inflate(R.layout.dialog_new_playlist_enter_name, null);
 
-        EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
+        final EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
         Drawable editTextBg = ContextCompat.getDrawable(getApplicationContext(), R.drawable.edit_text_bg);
         editTextBg.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         editText.setBackground(editTextBg);
@@ -968,6 +997,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 .Builder(context)
                 .title("Create New Playlist")
                 .titleColor(accentColor)
+                .autoDismiss(false)
                 .positiveText("Save")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
@@ -975,8 +1005,21 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         View cv = dialog.getCustomView();
                         if (cv != null) {
                             String str = ((EditText) cv.findViewById(R.id.enter_playlist_name)).getText().toString();
-                            createNewPlaylist(str, songPos);
-                            md.dismiss();
+                            if (str.isEmpty()) {
+                                Toast.makeText(getApplicationContext()
+                                        , "Must enter a name!"
+                                        , Toast.LENGTH_SHORT)
+                                        .show();
+                            } else if (!isNewPlaylistName(str)) {
+                                Toast.makeText(getApplicationContext()
+                                        , "Name is already taken!"
+                                        , Toast.LENGTH_SHORT)
+                                        .show();
+                                editText.selectAll();
+                            } else {
+                                createNewPlaylist(str, songPos);
+                                md.dismiss();
+                            }
                         }
                     }
                 })
@@ -991,7 +1034,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         temp.addSong(songList.get(songPos));
         temp.setNew();
         playlistList.add(temp);
+        sortPlaylistList();
         Snackbar.make(coordLay, "Added to: " + title, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private boolean isNewPlaylistName(String str)
+    {
+        for(Playlist pl : playlistList)
+        {
+            if(pl.getTitle().equalsIgnoreCase(str))
+                return false;
+        }
+        return true;
     }
 
     private void renamePlaylistPressed(final int pos, final Context context)
@@ -1000,7 +1054,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 .from(context)
                 .inflate(R.layout.dialog_new_playlist_enter_name, null);
 
-        EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
+        final EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
         Drawable editTextBg = ContextCompat.getDrawable(getApplicationContext(), R.drawable.edit_text_bg);
         editTextBg.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
         editText.setBackground(editTextBg);
@@ -1009,12 +1063,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         editText.setText(currTitle);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-        editText.setSelection(0,currTitle.length()-1);
+        editText.selectAll();
 
         md = new MaterialDialog
                 .Builder(context)
                 .title("Rename Playlist")
                 .titleColor(accentColor)
+                .autoDismiss(false)
                 .positiveText("Save")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
@@ -1022,7 +1077,29 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         View cv = dialog.getCustomView();
                         if (cv != null) {
                             String str = ((EditText) cv.findViewById(R.id.enter_playlist_name)).getText().toString();
-                            md.dismiss();
+                            if (str.isEmpty())
+                            {
+                                Toast.makeText(getApplicationContext()
+                                        , "Must enter a name!"
+                                        , Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                            else if (!isNewPlaylistName(str))
+                            {
+                                Toast.makeText(getApplicationContext()
+                                        , "Name is already taken!"
+                                        , Toast.LENGTH_SHORT)
+                                        .show();
+                                editText.selectAll();
+                            }
+                            else
+                            {
+                                playlistList.get(pos).setTitle(str);
+                                playlistList.get(pos).setChanged();
+                                sortPlaylistList();
+                                playlistAdt.notifyDataSetChanged();
+                                md.dismiss();
+                            }
                         }
                     }
                 })
@@ -1136,9 +1213,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         MaterialDialog.ListCallback callback = new MaterialDialog.ListCallback()
         {
             @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
+            public void onSelection(MaterialDialog materialDialog, View view, int option, CharSequence charSequence)
             {
-                switch (position)
+                switch (option)
                 {
                     case RENAME_PLAYLIST:
                         renamePlaylistPressed(position, context);
@@ -1146,7 +1223,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     case DELETE_PLAYLIST:
                         String name = playlistList.get(position).getTitle();
                         deletePlaylist(position);
-                        Snackbar.make(coordLay, "Deleted: " + name, Snackbar.LENGTH_SHORT).show();
                         break;
                     default:
                         Toast.makeText(context,"Invalid Selection",Toast.LENGTH_SHORT).show();
@@ -1713,12 +1789,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     return a.getName().compareTo(b.getName());
                 }
             });
-            Collections.sort(playlistList, new Comparator<Playlist>() {
-                @Override
-                public int compare(Playlist lhs, Playlist rhs) {
-                    return lhs.getTitle().compareTo(rhs.getTitle());
-                }
-            });
+            sortPlaylistList();
 
             sortArtistsAlbums();
 
