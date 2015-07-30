@@ -95,9 +95,11 @@ public class ViewPlaylistActivity extends AppCompatActivity {
         idList = currPlaylist.getSongIds();
 
         //Get first valid coverURI from songs in playlist
-        while(coverUri == null && songList != null && i < songList.size() -1)
+        while(songList != null && i < songList.size())
         {
             coverUri = songList.get(i).getCoverURI();
+            if(coverUri != null)
+                break;
             i++;
         }
 
