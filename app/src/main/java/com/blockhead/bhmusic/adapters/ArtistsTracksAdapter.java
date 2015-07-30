@@ -40,6 +40,8 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_album_cover) // resource or drawable
                 .showImageOnFail(R.drawable.default_album_cover)
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(true)
                 .build();
     }
 
