@@ -2,35 +2,30 @@ package com.blockhead.bhmusic.activities;
 
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
+import com.blockhead.bhmusic.utils.SongOptions;
 import com.blockhead.bhmusic.adapters.SearchAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
@@ -63,6 +58,7 @@ public class SearchActivity extends AppCompatActivity {
         if(mActionBar != null)
             mActionBar.hide();
 
+        final CoordinatorLayout coordLay = (CoordinatorLayout)findViewById(R.id.search_coordinator);
         LinearLayout fauxAB = (LinearLayout)findViewById(R.id.search_faux_ab);
         if( fauxAB != null)
             fauxAB.setBackgroundColor(MainActivity.primaryColor);
@@ -107,6 +103,21 @@ public class SearchActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Invalid Selection", Toast.LENGTH_SHORT)
                             .show();
                 }
+            }
+        });
+        songListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                Object obj = songAdt.getItem(position);
+                if (obj instanceof Song)
+                    SongOptions.openSongOptions((Song) obj, SearchActivity.this, coordLay);
+                else {
+                    Toast.makeText(getApplicationContext(), "Invalid Selection", Toast.LENGTH_SHORT)
+                            .show();
+                }
+
+                return true;
             }
         });
 

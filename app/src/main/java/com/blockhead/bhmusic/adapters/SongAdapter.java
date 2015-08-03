@@ -1,9 +1,7 @@
 package com.blockhead.bhmusic.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +10,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Song;
+import com.blockhead.bhmusic.utils.SongOptions;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -80,7 +77,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         ImageView coverView = (ImageView) songLay.findViewById(R.id.artImage);
 
         //get song using position
-        Song currSong = songs.get(postion);
+        final Song currSong = songs.get(postion);
 
         //get/set title and artist strings
         songView.setText(currSong.getTitle());
@@ -106,8 +103,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         songLay.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                main = (MainActivity)context;
-                main.openSongOptions(postion, context);
+                SongOptions.openSongOptions(currSong, context, MainActivity.coordLay);
                 return false;
             }
         });

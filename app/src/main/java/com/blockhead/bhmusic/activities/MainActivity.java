@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private static String abTitle;
     private static SharedPreferences sharedPref;
     public static ArrayList<Song> songList;
-    private static ArrayList<Playlist> playlistList;
+    public static ArrayList<Playlist> playlistList;
     private Intent playIntent;
     private boolean musicBound = false, paused = false, loadInBackground = false;
     public static boolean improveColorSampling = false;
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private ServiceConnection musicConnection;
     public static RotateAnimation repeatRotationAnimation, shuffleAnimation;
     private Drawable playDrawable, pauseDrawable;
-    private static CoordinatorLayout coordLay;
+    public static CoordinatorLayout coordLay;
     private MaterialDialog md;
 
     //DEFINE COLORS FOR USERS TO CHOOSE
@@ -146,8 +146,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     MATERIAL_GREEN=9,MATERIAL_LIGHTGREEN=10,MATERIAL_NEONGREEN=11,MATERIAL_LIME=12,MATERIAL_YELLOW=13,MATERIAL_AMBER=14,
     MATERIAL_ORANGE=15,MATERIAL_DEEPORANGE=16,MATERIAL_GREY=17,MATERIAL_BLUEGREY=18;
 
-    //Define song options
-    static final int ADD_TO_PLAYLIST = 0, GO_TO_ARTIST = 1, GO_TO_ALBUM = 2, FILE_INFO = 3;
     //Define playlist options
     final int RENAME_PLAYLIST = 0, DELETE_PLAYLIST = 1;
 
@@ -824,7 +822,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         writePlaylistToStore(playlist);
     }
 
-    private void sortPlaylistList()
+    public static void sortPlaylistList()
     {
         Collections.sort(playlistList, new Comparator<Playlist>() {
             @Override
@@ -943,101 +941,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    @SuppressWarnings("unused")
-    private void addToPlaylistPressed(final int songPosition, final Context context)
-    {
-        /* Initialize playlists */
-        final int size = playlistList.size();
-        String[] playlists = new String[size + 1];
-        for(int i = 0; i < size; i ++)
-        {
-            playlists[i] = playlistList.get(i).getTitle();
-        }
-        playlists[size] = " + Create New Playlist";
-
-        MaterialDialog.ListCallback playlistCallBack = new MaterialDialog.ListCallback()
-        {
-            @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int playlistPosition, CharSequence charSequence)
-            {
-                if(playlistPosition < size) //Selected An Existing Playlist
-                {
-                    String title = MainActivity.playlistList.get(playlistPosition).getTitle();
-                    MainActivity.playlistList.get(playlistPosition).addSong(songList.get(songPosition));
-                    Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
-                    //updatePlaylistInStore(MainActivity.playlistList.get(playlistPosition));
-                }
-                else    //Create New Playlist
-                {
-                    createNewPlaylistPressed(songPosition, context);
-                }
-            }
-        };
-        md = new MaterialDialog
-                .Builder(context)
-                .title("Add to playlist")
-                .titleColor(accentColor)
-                .items(playlists)
-                .itemsCallback(playlistCallBack)
-                .show();
-    }
-
-    private void createNewPlaylistPressed(final int songPos, final Context context)
-    {
-        View enterNameView = LayoutInflater
-                .from(context)
-                .inflate(R.layout.dialog_new_playlist_enter_name, null);
-
-        final EditText editText = (EditText) enterNameView.findViewById(R.id.enter_playlist_name);
-        Drawable editTextBg = ContextCompat.getDrawable(getApplicationContext(), R.drawable.edit_text_bg);
-        editTextBg.setColorFilter(MainActivity.accentColor, PorterDuff.Mode.SRC_ATOP);
-        editText.setBackground(editTextBg);
-
-        md = new MaterialDialog
-                .Builder(context)
-                .title("Create New Playlist")
-                .titleColor(accentColor)
-                .autoDismiss(false)
-                .positiveText("Save")
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        View cv = dialog.getCustomView();
-                        if (cv != null) {
-                            String str = ((EditText) cv.findViewById(R.id.enter_playlist_name)).getText().toString();
-                            if (str.isEmpty()) {
-                                Toast.makeText(getApplicationContext()
-                                        , "Must enter a name!"
-                                        , Toast.LENGTH_SHORT)
-                                        .show();
-                            } else if (!isNewPlaylistName(str)) {
-                                Toast.makeText(getApplicationContext()
-                                        , "Name is already taken!"
-                                        , Toast.LENGTH_SHORT)
-                                        .show();
-                                editText.selectAll();
-                            } else {
-                                createNewPlaylist(str, songPos);
-                                md.dismiss();
-                            }
-                        }
-                    }
-                })
-                .positiveColor(accentColor)
-                .customView(enterNameView, false)
-                .show();
-    }
-
-    private void createNewPlaylist(String title, int songPos)
-    {
-        Playlist temp = new Playlist(title, title.hashCode());
-        temp.addSong(songList.get(songPos));
-        temp.setNew();
-        playlistList.add(temp);
-        sortPlaylistList();
-        Snackbar.make(coordLay, "Added to: " + title, Snackbar.LENGTH_SHORT).show();
-    }
-
     private boolean isNewPlaylistName(String str)
     {
         for(Playlist pl : playlistList)
@@ -1105,104 +1008,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 })
                 .positiveColor(accentColor)
                 .customView(enterNameView, false)
-                .show();
-    }
-
-    private void goToArtistPressed(int songPos, Context context)
-    {
-        String artist = songList.get(songPos).getArtist();
-
-        for( Artist tempArtist : artistList)
-        {
-            if(artist.equalsIgnoreCase(tempArtist.getName()))
-            {
-                currArtist = tempArtist;
-                Intent intent = new Intent(context, ViewArtistActivity.class);
-                startActivity(intent);
-                return;
-            }
-        }
-    }
-
-    private void goToAlbumPressed(int songPos, Context context)
-    {
-        currAlbum = songList.get(songPos).getAlbumObj();
-        Intent intent = new Intent(context, ViewAlbumActivity.class);
-        startActivity(intent);
-    }
-
-    @SuppressWarnings("unused")
-    private void fileInfoPressed(int songPos, Context context)
-    {
-        Song song = songList.get(songPos);
-
-        MaterialDialog md = new MaterialDialog
-                .Builder(context)
-                .title("File Info")
-                .customView(R.layout.file_info_dialog, false)
-                .titleColor(accentColor)
-                .show();
-
-        View view = md.getView();
-        try
-        {
-            TextView temp = (TextView) (view.findViewById(R.id.file_info_name));
-            temp.setText(song.getTitle());
-            temp = (TextView) (view.findViewById(R.id.file_info_duration));
-            temp.setText(song.getDuration());
-            temp = (TextView) (view.findViewById(R.id.file_info_path));
-            temp.setText(song.getPath());
-            temp = (TextView) (view.findViewById(R.id.file_info_type));
-            temp.setText(song.getExtension());
-            temp = (TextView) (view.findViewById(R.id.file_info_size));
-            temp.setText(song.getSizeFormatted());
-        }
-        catch(NullPointerException e)
-        {
-            md.dismiss();
-            Toast.makeText(getApplicationContext(), "Unable to Retrieve Song Info", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void openSongOptions(final int songPos, final Context context)
-    {
-        /* Callback for when option is chosen */
-        MaterialDialog.ListCallback callback = new MaterialDialog.ListCallback()
-        {
-            @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence)
-            {
-                switch (position)
-                {
-                    case ADD_TO_PLAYLIST:
-                        addToPlaylistPressed(songPos, context);
-                        break;
-                    case GO_TO_ARTIST:
-                        goToArtistPressed(songPos, context);
-                        break;
-                    case GO_TO_ALBUM:
-                        goToAlbumPressed(songPos, context);
-                        break;
-                    case FILE_INFO:
-                        fileInfoPressed(songPos, context);
-                        break;
-                    default:
-                        Toast.makeText(context,"Invalid Selection",Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        };
-
-        /* Create song options dialog */
-        MaterialDialog dialog = new MaterialDialog
-                .Builder(context)
-                .title(songList.get(songPos).getTitle())
-                .titleColor(accentColor)
-                .items(R.array.song_options)
-                .itemsCallback(callback)
-                .negativeText("Cancel")
-                .negativeColor(accentColor)
                 .show();
     }
 
