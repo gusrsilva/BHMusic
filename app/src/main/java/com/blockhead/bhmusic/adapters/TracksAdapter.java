@@ -35,7 +35,7 @@ public class TracksAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int arg0) {
-        return songs.get(arg0).getTitle();
+        return songs.get(arg0);
     }
 
     @Override

@@ -124,8 +124,10 @@ public class SongOptions {
 
     private static void goToArtistPressed(Song song, Context context )
     {
-        String artist = song.getArtist();
+        if(context instanceof ViewArtistActivity)
+            return; //Do nothing if already viewing artist
 
+        String artist = song.getArtist();
         for( Artist tempArtist : MainActivity.artistList)
         {
             if(artist.equalsIgnoreCase(tempArtist.getName()))
@@ -140,9 +142,13 @@ public class SongOptions {
 
     private static void goToAlbumPressed(Song song, Context context )
     {
+        if(context instanceof ViewAlbumActivity)
+            return; //Do nothing if already viewing album
+
         MainActivity.currAlbum = song.getAlbumObj();
         Intent intent = new Intent(context, ViewAlbumActivity.class);
         context.startActivity(intent);
+
     }
 
     @SuppressWarnings("unused")

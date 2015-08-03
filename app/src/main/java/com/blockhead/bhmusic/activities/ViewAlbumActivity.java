@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -35,6 +36,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.TracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Song;
+import com.blockhead.bhmusic.utils.SongOptions;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -161,20 +163,37 @@ public class ViewAlbumActivity extends AppCompatActivity {
         });
 
         /*  Set up Parallax ListView */
-        ParallaxListView memberList = (ParallaxListView) findViewById(R.id.view_album_list);
+        final ParallaxListView memberList = (ParallaxListView) findViewById(R.id.view_album_list);
         memberList.addParallaxedHeaderView(header);
         memberList.addHeaderView(titleHeader);
         memberList.setOnScrollListener(mOnScrollListener);
         memberList.setBackgroundColor(actionBarColor);
         memberList.setDivider(null);
-        TracksAdapter tracksAdt = new TracksAdapter(getApplicationContext(), trackList);
+        final TracksAdapter tracksAdt = new TracksAdapter(getApplicationContext(), trackList);
         memberList.setAdapter(tracksAdt);
         memberList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position <= 1)   // If Header is Clicked Do Nothing
+                    return;         //TODO: On Header Click Show Image & Info
+
                 trackPicked(view);
             }
         });
+        memberList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position > 1)
+                {
+                    int pos = Integer.parseInt(view.getTag().toString());
+                    SongOptions.openSongOptions((Song)tracksAdt.getItem(pos)
+                            , ViewAlbumActivity.this
+                            , (CoordinatorLayout)findViewById(R.id.view_album_coordinator));
+                }
+                return true;
+            }
+        });
+
 
         /* Fill the rest of the list if its not long enough to cover the background */
         if( albumSize <= 3)
