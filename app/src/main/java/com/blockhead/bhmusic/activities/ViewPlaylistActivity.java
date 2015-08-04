@@ -621,6 +621,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {
                 }
                 plAdt.notifyDataSetChanged();
                 currPlaylist.setChanged();
+                MainActivity.playlistAdt.notifyDataSetChanged();
 
             }
             else if (originalPosition > newPosition)  //Moved item up
@@ -632,6 +633,7 @@ public class ViewPlaylistActivity extends AppCompatActivity {
                 }
                 plAdt.notifyDataSetChanged();
                 currPlaylist.setChanged();
+                MainActivity.playlistAdt.notifyDataSetChanged();
             }
 
         }

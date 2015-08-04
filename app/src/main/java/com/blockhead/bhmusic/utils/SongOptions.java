@@ -111,6 +111,8 @@ public class SongOptions {
                     }
 
                     MainActivity.playlistList.get(playlistPosition).addSong(song);
+                    if(MainActivity.playlistAdt != null)
+                        MainActivity.playlistAdt.notifyDataSetChanged();
                     if(coordLay != null)
                         Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
                     else
@@ -246,6 +248,10 @@ public class SongOptions {
         temp.setNew();
         MainActivity.playlistList.add(temp);
         MainActivity.sortPlaylistList();
+
+        if(MainActivity.playlistAdt != null)
+            MainActivity.playlistAdt.notifyDataSetChanged();
+
         if(coordLay != null)
             Snackbar.make(coordLay, "Added to: " + title, Snackbar.LENGTH_SHORT).show();
         else
