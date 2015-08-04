@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -28,6 +30,8 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.ArtistsTracksAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
+import com.blockhead.bhmusic.objects.Song;
+import com.blockhead.bhmusic.utils.SongOptions;
 import com.nirhart.parallaxscroll.views.ParallaxExpandableListView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -72,7 +76,7 @@ public class ViewArtistActivity extends AppCompatActivity {
         });
 
 
-        ParallaxExpandableListView xLV = (ParallaxExpandableListView)findViewById(R.id.expandableListView);
+        final ParallaxExpandableListView xLV = (ParallaxExpandableListView)findViewById(R.id.expandableListView);
         currArtist = MainActivity.currArtist;
         ArrayList<Album> albums = currArtist.getAlbums();
 
@@ -141,7 +145,7 @@ public class ViewArtistActivity extends AppCompatActivity {
         xLV.setBackgroundColor(accentColor);
 
         int headerHeight = getActionBarHeight() + getStatusBarHeight();
-        ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums, headerHeight);
+        final ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums, headerHeight);
         xLV.setAdapter(mArtistsTracksAdapter);
         xLV.setOnScrollListener(mOnScrollListener);
         ExpandableListView.OnChildClickListener mOnClickedListener = new ExpandableListView.OnChildClickListener() {
@@ -153,6 +157,24 @@ public class ViewArtistActivity extends AppCompatActivity {
             }
         };
         xLV.setOnChildClickListener(mOnClickedListener);
+
+        xLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                    int groupPosition = ExpandableListView.getPackedPositionGroup(id);
+                    int childPosition = ExpandableListView.getPackedPositionChild(id);
+
+                    Song song = mArtistsTracksAdapter.getChild(groupPosition, childPosition);
+                    SongOptions.openSongOptions(song
+                            , ViewArtistActivity.this
+                            , (CoordinatorLayout)findViewById(R.id.view_artist_coordinator));
+                    return true;
+                }
+
+                return false;
+            }
+        });
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
             xLV.setIndicatorBoundsRelative(size.x - 150, size.x);
