@@ -41,6 +41,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.PlaylistMembersAdapter;
 import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
+import com.blockhead.bhmusic.utils.SongOptions;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.appearance.simple.SwingBottomInAnimationAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.DynamicListView;
@@ -233,6 +234,20 @@ public class ViewPlaylistActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 playlistTrackPicked(view, position);
+            }
+        });
+        memberList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if(position <= 1)   //If long click on image or title header
+                    return true;
+                int pos = Integer.parseInt(view.getTag().toString());
+                Song song = plAdt.getItem(pos);
+                SongOptions.openSongOptions(song
+                        , ViewPlaylistActivity.this
+                        , (CoordinatorLayout)findViewById(R.id.playlist_coordinator));
+                return true;
             }
         });
 

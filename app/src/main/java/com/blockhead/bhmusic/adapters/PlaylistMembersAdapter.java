@@ -39,8 +39,8 @@ public class PlaylistMembersAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int arg0) {
-        return members.get(arg0).getTitle();
+    public Song getItem(int arg0) {
+        return members.get(arg0);
     }
 
     @Override

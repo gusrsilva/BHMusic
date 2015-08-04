@@ -18,6 +18,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.activities.ViewAlbumActivity;
 import com.blockhead.bhmusic.activities.ViewArtistActivity;
+import com.blockhead.bhmusic.activities.ViewPlaylistActivity;
 import com.blockhead.bhmusic.objects.Artist;
 import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
@@ -99,6 +100,16 @@ public class SongOptions {
                 if(playlistPosition < size) //Selected An Existing Playlist
                 {
                     String title = MainActivity.playlistList.get(playlistPosition).getTitle();
+
+                    if(context instanceof ViewPlaylistActivity
+                            && title.equals(MainActivity.currPlaylist.getTitle()))
+                    {
+                        Toast.makeText(context
+                                , "Song is already on this playlist"
+                                , Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     MainActivity.playlistList.get(playlistPosition).addSong(song);
                     if(coordLay != null)
                         Snackbar.make(coordLay, "Added to " + title, Snackbar.LENGTH_SHORT).show();
