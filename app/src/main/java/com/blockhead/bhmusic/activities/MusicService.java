@@ -33,6 +33,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Playlist;
 import com.blockhead.bhmusic.objects.Song;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -229,16 +230,8 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        //blur and set cover
-        if (coverURI != null && MainActivity.artworkHeader) {
-            MainActivity.fauxAB.setBackgroundColor(cTransparent);
-            MainActivity.pagerTitleStrip.setBackgroundColor(cTransparent);
-            MainActivity.coverArt.setImageBitmap(superBlurredCover);
-        } else {
-            MainActivity.fauxAB.setBackgroundColor(MainActivity.primaryColor);
-            MainActivity.pagerTitleStrip.setBackgroundColor(MainActivity.primaryColor);
-        }
-
+        if(MainActivity.isShowing)
+            MainActivity.updateUI();
 
         //start playback
         mp.start();
@@ -278,7 +271,7 @@ public class MusicService extends Service implements
         songAlbum = playSong.getAlbumTitle();
         //songCover = playSong.getCover();
         coverURI = playSong.getCoverURI();
-        superBlurredCover = blurBitmapStrong(coverURI);
+        superBlurredCover = null;
 
         long currSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(
@@ -665,7 +658,7 @@ public class MusicService extends Service implements
         if (bitmap != null) {
             //Blur & Set coverArt
             bitmap = bitmap.copy(bitmap.getConfig(), true);
-            //this will blur the bitmapOriginal with a radius of 8 and save it in bitmapOriginal
+            //this will blur the bitmapOriginal with a radius of 16 and save it in bitmapOriginal
             rs = RenderScript.create(getApplicationContext());
             final Allocation input = Allocation.createFromBitmap(rs, bitmap); //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
             final Allocation output = Allocation.createTyped(rs, input.getType());

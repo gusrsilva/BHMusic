@@ -288,9 +288,6 @@ public class NowPlayingActivity extends AppCompatActivity {
             tracksAdapter = new npTracksAdapter(this, musicSrv.getCurrSong().getAlbumObj().getTracks());
             npTrackListView.setAdapter(tracksAdapter);
         }
-
-        if (musicSrv.getSuperBlurredCover() != null)
-            npTrackListView.setBackground(new BitmapDrawable(getResources(), musicSrv.getSuperBlurredCover()));
     }
 
     private Album findAlbum(String albumTitle) {
@@ -358,7 +355,10 @@ public class NowPlayingActivity extends AppCompatActivity {
         if (npTrackListView.getVisibility() == View.VISIBLE)
             npFabPressed(null);
         else
+        {
+            MainActivity.updateUI();
             super.onBackPressed();
+        }
     }
 
     //Button Press Actions
@@ -435,6 +435,7 @@ public class NowPlayingActivity extends AppCompatActivity {
                     }
                 });
                 // make the view visible and start the animation
+                npTrackListView.setBackground(new BitmapDrawable(getResources(), musicSrv.getSuperBlurredCover()));
                 npTrackListView.setVisibility(View.VISIBLE);
                 anim.start();
             }
