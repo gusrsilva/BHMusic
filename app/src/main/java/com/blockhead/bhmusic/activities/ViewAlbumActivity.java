@@ -142,6 +142,11 @@ public class ViewAlbumActivity extends AppCompatActivity {
         header.setMaxHeight((int) maxHeight);
         header.setMinimumHeight((int) minHeight);
 
+        /* Background of Image Header for Fade Effect */
+        FrameLayout headerBG = (FrameLayout)findViewById(R.id.view_album_list_bg);
+        headerBG.setMinimumHeight((int)maxHeight);
+        headerBG.setBackgroundColor(actionBarColor);
+
         /* Set title header */
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         View titleHeader = inflater.inflate(R.layout.view_album_title_header, null);
@@ -167,7 +172,7 @@ public class ViewAlbumActivity extends AppCompatActivity {
         memberList.addParallaxedHeaderView(header);
         memberList.addHeaderView(titleHeader);
         memberList.setOnScrollListener(mOnScrollListener);
-        memberList.setBackgroundColor(actionBarColor);
+        memberList.setBackgroundColor(getResources().getColor(R.color.transparent));
         memberList.setDivider(null);
         final TracksAdapter tracksAdt = new TracksAdapter(getApplicationContext(), trackList);
         memberList.setAdapter(tracksAdt);
@@ -190,37 +195,6 @@ public class ViewAlbumActivity extends AppCompatActivity {
                             , ViewAlbumActivity.this
                             , (CoordinatorLayout)findViewById(R.id.view_album_coordinator));
                 }
-                return true;
-            }
-        });
-
-
-        /* Fill the rest of the list if its not long enough to cover the background */
-        if( albumSize <= 3)
-        {
-            View footer = new View(this);
-            footer.setBackgroundColor(getResources().getColor(R.color.background_color));
-            footer.setMinimumWidth(size.x);
-            footer.setMinimumHeight((int) minHeight);
-            footer.setClickable(false);
-            footer.setLongClickable(false);
-            memberList.addFooterView(footer);
-        }
-
-        /* Setup Floating Action Button */
-        fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
-        fab.setClickable(true);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fabPressed();
-            }
-        });
-        fab.setLongClickable(true);
-        fab.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                nowPlayingButtonPressed();
                 return true;
             }
         });
