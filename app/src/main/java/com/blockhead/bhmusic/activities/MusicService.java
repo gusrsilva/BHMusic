@@ -287,6 +287,85 @@ public class MusicService extends Service implements
         player.prepareAsync();
     }
 
+    public void playAlbum(Album alb, int pos) {
+
+        if(currAlbum == null || currAlbum != alb)
+            shuffleStack = new Stack<>();
+
+        if (currAlbum != alb || pos != albumPosn)
+        {
+            currAlbum = alb;
+            albumPosn = pos;
+            albumSongs = alb.tracks;
+
+            player.reset();
+            isPngAlbum = true;
+
+            albumSong = albumSongs.get(albumPosn);
+
+            songTitle = albumSong.getTitle();
+            songArtist = albumSong.getArtist();
+            songAlbum = albumSong.getAlbumTitle();
+            //songCover = albumSong.getCover();
+            coverURI = albumSong.getCoverURI();
+            superBlurredCover = null;
+
+            long currSong = albumSong.getID();
+            Uri trackUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
+
+            try {
+                player.setDataSource(getApplicationContext(), trackUri);
+            } catch (Exception e) {
+                Log.e("BHCA", "Error setting data source", e);
+            }
+
+            //call onPrepared()
+            player.prepareAsync();
+        }
+
+    }
+
+    public void playPlaylist(Playlist playList, int pos) {
+
+        if(currPlaylist == null || currPlaylist != playList)
+            shuffleStack = new Stack<>();
+
+        if (currPlaylist != playList || pos != playlistPosn)
+        {   //If song is different than the one currently playing
+            currPlaylist = playList;
+            playlistSongs = playList.getMembers();
+            playlistPosn = pos % playlistSongs.size();
+
+            player.reset();
+            isPngPlaylist = true;
+
+            playlistSong = playlistSongs.get(playlistPosn);
+
+
+            songTitle = playlistSong.getTitle();
+            songArtist = playlistSong.getArtist();
+            songAlbum = playlistSong.getAlbumTitle();
+            //songCover = albumSong.getCover();
+            coverURI = playlistSong.getCoverURI();
+            superBlurredCover = null;
+
+            long currSong = playlistSong.getID();
+            Uri trackUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
+
+            try {
+                player.setDataSource(getApplicationContext(), trackUri);
+            } catch (Exception e) {
+                Log.e("BHCA", "Error setting data source", e);
+            }
+
+            //call onPrepared()
+            player.prepareAsync();
+        }
+
+    }
+
     public void setSong(int songIndex) {
         songPosn = songIndex;
     }
@@ -671,86 +750,6 @@ public class MusicService extends Service implements
             return bitmap;
         } else
             return null;
-    }
-
-    //Begin Album Functions
-    public void playAlbum(Album alb, int pos) {
-
-        if(currAlbum == null || currAlbum != alb)
-            shuffleStack = new Stack<>();
-
-        if (currAlbum != alb || pos != albumPosn)
-        {
-            currAlbum = alb;
-            albumPosn = pos;
-            albumSongs = alb.tracks;
-
-            player.reset();
-            isPngAlbum = true;
-
-            albumSong = albumSongs.get(albumPosn);
-
-            songTitle = albumSong.getTitle();
-            songArtist = albumSong.getArtist();
-            songAlbum = albumSong.getAlbumTitle();
-            //songCover = albumSong.getCover();
-            coverURI = albumSong.getCoverURI();
-            superBlurredCover = blurBitmapStrong(coverURI);
-
-            long currSong = albumSong.getID();
-            Uri trackUri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
-
-            try {
-                player.setDataSource(getApplicationContext(), trackUri);
-            } catch (Exception e) {
-                Log.e("BHCA", "Error setting data source", e);
-            }
-
-            //call onPrepared()
-            player.prepareAsync();
-        }
-
-    }
-
-    public void playPlaylist(Playlist playList, int pos) {
-
-        if(currPlaylist == null || currPlaylist != playList)
-            shuffleStack = new Stack<>();
-
-        if (currPlaylist != playList || pos != playlistPosn)
-        {   //If song is different than the one currently playing
-            currPlaylist = playList;
-            playlistSongs = playList.getMembers();
-            playlistPosn = pos % playlistSongs.size();
-
-            player.reset();
-            isPngPlaylist = true;
-
-            playlistSong = playlistSongs.get(playlistPosn);
-
-
-            songTitle = playlistSong.getTitle();
-            songArtist = playlistSong.getArtist();
-            songAlbum = playlistSong.getAlbumTitle();
-            //songCover = albumSong.getCover();
-            coverURI = playlistSong.getCoverURI();
-            superBlurredCover = blurBitmapStrong(coverURI);
-
-            long currSong = playlistSong.getID();
-            Uri trackUri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
-
-            try {
-                player.setDataSource(getApplicationContext(), trackUri);
-            } catch (Exception e) {
-                Log.e("BHCA", "Error setting data source", e);
-            }
-
-            //call onPrepared()
-            player.prepareAsync();
-        }
-
     }
 
     //Notification Functions

@@ -594,7 +594,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     protected void onResume() {
-        Toast.makeText(getApplicationContext(), "onResume()", Toast.LENGTH_SHORT).show();
         isShowing = true;
         updateUI();
         super.onResume();
@@ -605,7 +604,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     protected void onStop() {
-        Toast.makeText(getApplicationContext(), "onStop()", Toast.LENGTH_SHORT).show();
         isShowing = false;
         super.onStop();
     }
