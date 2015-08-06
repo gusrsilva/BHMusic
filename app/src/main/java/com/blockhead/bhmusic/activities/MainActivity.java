@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static ArrayList<Playlist> playlistList;
     private Intent playIntent;
     private boolean musicBound = false, paused = false, loadInBackground = false;
-    public static boolean improveColorSampling = false;
+    public static boolean improveColorSampling = true;
     private TextView timePos, timeDur;
     private ServiceConnection musicConnection;
     public static RotateAnimation repeatRotationAnimation, shuffleAnimation;
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         artworkHeader = sharedPref.getBoolean("artwork_header", true);
         abTitle = sharedPref.getString("main_title", "MUSIC");
         loadInBackground = sharedPref.getBoolean("always_load_artist_in_background", false);
-        improveColorSampling = sharedPref.getBoolean("improve_color_sampling", false);
+        improveColorSampling = sharedPref.getBoolean("improve_color_sampling", true);
 
         int primaryColorKey, accentColorKey;
         try {
