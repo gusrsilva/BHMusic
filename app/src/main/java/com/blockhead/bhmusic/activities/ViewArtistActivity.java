@@ -139,10 +139,15 @@ public class ViewArtistActivity extends AppCompatActivity {
         header.setMaxHeight((int) maxHeight);
         header.setMinimumHeight((int) minHeight);
 
+        //Header background for fade effect
+        FrameLayout headerBg = (FrameLayout)findViewById(R.id.expandableListView_bg);
+        headerBg.setMinimumHeight((int)minHeight);
+        headerBg.setBackgroundColor(accentColor);
+
         //Set Expanded List View Properties
         xLV.addParallaxedHeaderView(header);
         xLV.setDivider(null);
-        xLV.setBackgroundColor(accentColor);
+        xLV.setBackgroundColor(Color.TRANSPARENT);
 
         int headerHeight = getActionBarHeight() + getStatusBarHeight();
         final ArtistsTracksAdapter mArtistsTracksAdapter = new ArtistsTracksAdapter(getApplicationContext(), albums, headerHeight);
@@ -180,18 +185,6 @@ public class ViewArtistActivity extends AppCompatActivity {
             xLV.setIndicatorBoundsRelative(size.x - 150, size.x);
         else
             xLV.setIndicatorBounds(size.x - 150,size.x);
-
-        //Fill the rest of the list if its not long enough to cover the background
-        if( currArtist.getAlbums().size() <= 3)
-        {
-            View footer = new View(this);
-            footer.setBackgroundColor(getResources().getColor(R.color.background_color));
-            footer.setMinimumWidth(size.x);
-            footer.setMinimumHeight((int) minHeight);
-            xLV.addFooterView(footer);
-
-
-        }
 
     }//END ON CREATE METHOD
 
