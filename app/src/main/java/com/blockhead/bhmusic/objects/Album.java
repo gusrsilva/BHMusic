@@ -1,8 +1,10 @@
 package com.blockhead.bhmusic.objects;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
@@ -20,6 +22,8 @@ public class Album {
     private int accentColor = Color.WHITE, randomColor = 0;
     private long id;
     private Artist artistObj;
+    private static SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.mContext);
+    private static SharedPreferences.Editor mEditor = sharedPref.edit();
 
     public Album(String albumTitle, String albumCoverURI, String artistTitle, long thisId) {
         title = albumTitle;
@@ -29,18 +33,22 @@ public class Album {
 
         if(URI != null && !URI.isEmpty())
         {
-            int size = (MainActivity.improveColorSampling? 200 : 10);
-            Bitmap smallCover = decodeSampledBitmapFromResource(albumCoverURI, size, size);
-            if(smallCover == null)
-            {
-                Log.d("BHCA-Palette", albumTitle + " cover is null.");
-            }
+            if(sharedPref.contains(albumCoverURI))
+                accentColor = sharedPref.getInt(URI, Color.WHITE);
             else
             {
-                Palette palette = Palette.from(smallCover).generate();
-                accentColor = palette.getVibrantColor(Color.WHITE);
-                if (accentColor == Color.WHITE)
-                    accentColor = palette.getMutedColor(Color.WHITE);
+                int size = (MainActivity.improveColorSampling? 200 : 10);
+                Bitmap smallCover = decodeSampledBitmapFromResource(URI, size, size);
+                if(smallCover != null)
+                {
+                    Palette palette = Palette.from(smallCover).generate();
+                    accentColor = palette.getVibrantColor(Color.WHITE);
+                    if (accentColor == Color.WHITE)
+                        accentColor = palette.getMutedColor(Color.WHITE);
+
+                    mEditor.putInt(URI, accentColor);
+                    mEditor.apply();
+                }
             }
         }
 
