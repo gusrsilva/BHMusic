@@ -309,6 +309,8 @@ public class NowPlayingActivity extends AppCompatActivity {
             coverArt.setRotation(0);
             needsRotation = false;
             vibrantColor = musicSrv.getCurrSong().getAccentColor();
+            if(vibrantColor == Color.WHITE)
+                vibrantColor = getResources().getColor(R.color.dark_grey);
             fauxAB.setBackgroundColor(vibrantColor);
             imageLoader.displayImage(musicSrv.getCoverURI(), coverArt, displayOptions);
         } else {
