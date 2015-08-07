@@ -1,8 +1,10 @@
 package com.blockhead.bhmusic.objects;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
@@ -23,6 +25,8 @@ public class Artist {
     private int accentColor = Color.WHITE;
     private int randomColor;
     private boolean accentColorSet = false;
+    private static SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainActivity.mContext);
+    private static SharedPreferences.Editor mEditor = sharedPref.edit();
 
     public Artist(String artistName)
     {
@@ -117,16 +121,26 @@ public class Artist {
 
     public void setAccentColor()
     {
-        if(!accentColorSet) {
-            Bitmap image = decodeSampledBitmapFromResource(imagePath, 200, 200);
-            if (image != null) {
-                Palette palette = Palette.from(image).generate();
+        if(!accentColorSet)
+        {
+            accentColor = Color.WHITE;  //Default color
 
-                accentColor = palette.getVibrantColor(Color.WHITE);
-                if (accentColor == Color.WHITE)
-                    accentColor = palette.getMutedColor(Color.WHITE);
+            if(sharedPref.contains(imagePath))  //Return cached value
+                accentColor = sharedPref.getInt(imagePath, Color.WHITE);
+            else
+            {
+                Bitmap image = decodeSampledBitmapFromResource(imagePath, 200, 200);
+                if (image != null)
+                {
+                    Palette palette = Palette.from(image).generate();
+                    accentColor = palette.getVibrantColor(Color.WHITE);
+                    if (accentColor == Color.WHITE)
+                        accentColor = palette.getMutedColor(Color.WHITE);
+
+                    mEditor.putInt(imagePath, accentColor); //Add value to cache
+                    mEditor.apply();
+                }
             }
-
             accentColorSet = true;
         }
     }
