@@ -41,9 +41,9 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
         context = c;
         imageLoader = ImageLoader.getInstance();
         options = new DisplayImageOptions.Builder()
-                .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
-                .showImageOnFail(R.drawable.default_cover_xlarge)
-                .resetViewBeforeLoading(true)  // default
+                .showImageForEmptyUri(R.drawable.default_artist_xlarge) // resource or drawable
+                .showImageOnFail(R.drawable.default_artist_xlarge)
+                .resetViewBeforeLoading(true)
                 .cacheInMemory(true)
                 .displayer(new FadeInBitmapDisplayer(500))
                 .build();

@@ -17,6 +17,7 @@ import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Album;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import java.util.ArrayList;
 
@@ -38,8 +39,9 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
                 .showImageOnFail(R.drawable.default_cover_xlarge)
-                .resetViewBeforeLoading(false)  // default
+                .resetViewBeforeLoading(true)  // default
                 .cacheInMemory(true)
+                .displayer(new FadeInBitmapDisplayer(500))
                 .build();
 
         albums = theAlbums;
@@ -86,19 +88,20 @@ public class AlbumAdapter extends BaseAdapter implements SectionIndexer {
 
 
         imageLoader.displayImage(currAlbum.getCoverURI(), coverView, options);
-        coverView.setBackgroundColor(parent.getResources().getColor(currAlbum.getRandomColor()));
 
         //Accent Color
         int accentColor = currAlbum.getAccentColor();
         if (accentColor != Color.WHITE && currAlbum.getCoverURI() != null)
         {
             cardView.setCardBackgroundColor(accentColor);
+            coverView.setBackgroundColor(accentColor);
             albumTitleView.setTextColor(Color.WHITE);
             artistView.setTextColor(parent.getResources().getColor(R.color.hint_white));
         }
         else
         {
             cardView.setCardBackgroundColor(Color.WHITE);
+            coverView.setBackgroundColor(parent.getResources().getColor(currAlbum.getRandomColor()));
             albumTitleView.setTextColor(Color.BLACK);
             artistView.setTextColor(parent.getResources().getColor(R.color.secondary_text_default_material_light));
         }

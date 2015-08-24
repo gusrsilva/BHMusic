@@ -1455,13 +1455,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public class ArtistArtTask extends AsyncTask<Void, Integer, String> {
 
         long t1, t2;
-        private Bitmap.CompressFormat mCompressFormat = Bitmap.CompressFormat.JPEG;
-        private int mCompressQuality = 100;
-        private DiskLruImageCache mDiskLruCache = new DiskLruImageCache(getApplicationContext(), "artists",
-                1024 * 1024 * 10, mCompressFormat, mCompressQuality);
         private SharedPreferences.Editor mEditor = sharedPref.edit();
         private String artistName, fromWhere = "...";
-        private Bitmap nullBitmap;
 
 
         @Override
@@ -1479,8 +1474,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                         .progress(false, MainActivity.artistList.size())
                         .show();
             }
-
-            nullBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.null_bitmap);
         }
 
         @Override
