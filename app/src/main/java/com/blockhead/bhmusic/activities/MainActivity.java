@@ -73,8 +73,10 @@ import com.blockhead.bhmusic.utils.DiskLruImageCache;
 import com.blockhead.bhmusic.utils.IndexableListView;
 import com.blockhead.bhmusic.utils.OnSwipeTouchListener;
 import com.blockhead.bhmusic.utils.XMLParser;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -82,6 +84,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -1487,6 +1490,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             String artistArtUrl = "", encodedArtistName = "", key, sumKey, artistSummary = "No Info Available.";
             String BaseURL = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&api_key=89b0d2bf4200f9b85e3741e5c07b807d&artist=";
             Bitmap artistImage;
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            DisplayImageOptions options = new DisplayImageOptions
+                    .Builder()
+                    .cacheOnDisk(true)
+                    .showImageOnFail(R.drawable.default_artist_xlarge)
+                    .build();
 
             int i = 0;
             for (Artist tempArtist : artistList)
@@ -1496,27 +1505,21 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 key = key.replaceAll("[^a-z0-9_-]+", "");
                 sumKey = key + "summary";
 
-                if (mDiskLruCache.containsKey(key))
+                if (sharedPref.contains(key))
                 {
                     fromWhere = "cache...";
-
-                    artistImage = mDiskLruCache.getBitmap(key);
+                    String path = sharedPref.getString(key, "");
 
                     /* Set Image Path & Summary */
-                    if(artistImage.getByteCount() <= 50)
-                    {
-                        tempArtist.setImagePath(null);
-                    }
-                    else
-                    {
-                        tempArtist.setImagePath(mDiskLruCache.getFilePath(key));
-                    }
+                    tempArtist.setImagePath(path);
 
                     if(sharedPref.contains(sumKey))
                     {
                         artistSummary = sharedPref.getString(sumKey, artistSummary);
                         tempArtist.setSummary(artistSummary);
                     }
+
+                    Log.d("BHCA-CACHE", "Loaded " + artistName + " from cache.");
                 }
                 else
                 {
@@ -1539,22 +1542,23 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
                     /* Set Image, Add to Cache, & Assign to Artist */
                     artistArtUrl = getArtURL(BaseURL + encodedArtistName);
-                    if(artistName.contains("<"))
-                        artistImage = null;
-                    else
-                        artistImage = getBitmapFromURL(artistArtUrl);
+                    artistImage = imageLoader.loadImageSync(artistArtUrl, options);
 
-                    if(artistImage == null)
+                    if(artistImage == null || artistName.contains("<"))
                     {
-                        artistImage = nullBitmap;
+                        mEditor.putString(key, "");
                         tempArtist.setImagePath(null);
-                        mDiskLruCache.put(key, artistImage);
                     }
                     else
                     {
-                        mDiskLruCache.put(key, artistImage);
-                        tempArtist.setImagePath(mDiskLruCache.getFilePath(key));
+                        File file = DiskCacheUtils.findInCache(artistArtUrl, imageLoader.getDiskCache());
+                        String path = file.getAbsolutePath();
+                        mEditor.putString(key, path);
+                        tempArtist.setImagePath(path);
                     }
+
+                    Log.d("BHCA-CACHE", "Loaded " + artistName + " from online.");
+
                 }
                 if(!loadInBackground)
                     publishProgress(++i);

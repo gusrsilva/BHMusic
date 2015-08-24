@@ -126,7 +126,7 @@ public class Artist {
             accentColor = Color.WHITE;  //Default color
 
             if(sharedPref.contains(imagePath))  //Return cached value
-                accentColor = sharedPref.getInt(imagePath, Color.WHITE);
+                accentColor = sharedPref.getInt(imagePath + "accent", Color.WHITE);
             else
             {
                 Bitmap image = decodeSampledBitmapFromResource(imagePath, 200, 200);
@@ -137,7 +137,7 @@ public class Artist {
                     if (accentColor == Color.WHITE)
                         accentColor = palette.getMutedColor(Color.WHITE);
 
-                    mEditor.putInt(imagePath, accentColor); //Add value to cache
+                    mEditor.putInt(imagePath + "accent", accentColor); //Add value to cache
                     mEditor.apply();
                 }
             }
@@ -149,6 +149,7 @@ public class Artist {
 
     public String getImagePath()
     {
+        //return imagePath;
         if(imagePath == null)
             return null;
         else if(imagePath.isEmpty())

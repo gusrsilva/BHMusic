@@ -18,6 +18,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
@@ -114,9 +115,22 @@ public class ViewArtistActivity extends AppCompatActivity {
         DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_artist_xlarge) // resource or drawable
                 .showImageOnFail(R.drawable.default_artist_xlarge)
+                .cacheOnDisk(true)
                 .build();
 
         ImageView header = new ImageView(this);
+
+        //Set Header Max Height
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        double maxHeight = size.y * 0.6667;
+        double minHeight = size.y * 0.5;
+        header.setMaxHeight((int) maxHeight);
+        //header.setMinimumHeight((int) minHeight);
+        AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(size.x , (int)minHeight);
+        header.setLayoutParams(layoutParams);
+
         String coverPath = currArtist.getImagePath();
         if(coverPath == null)
         { //Set default artist art if none
@@ -130,18 +144,9 @@ public class ViewArtistActivity extends AppCompatActivity {
         header.setAdjustViewBounds(true);
         header.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        //Set Header Max Height
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        double maxHeight = size.y * 0.6667;
-        double minHeight = size.y * 0.5;
-        header.setMaxHeight((int) maxHeight);
-        header.setMinimumHeight((int) minHeight);
-
         //Header background for fade effect
         FrameLayout headerBg = (FrameLayout)findViewById(R.id.expandableListView_bg);
-        headerBg.setMinimumHeight((int)minHeight);
+        headerBg.setMinimumHeight((int) maxHeight);
         headerBg.setBackgroundColor(accentColor);
 
         //Set Expanded List View Properties

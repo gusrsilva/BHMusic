@@ -56,6 +56,7 @@ public class SearchAdapter extends BaseAdapter implements StickyListHeadersAdapt
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_cover) // resource or drawable
                 .showImageOnFail(R.drawable.default_cover)
+                .cacheOnDisk(true)
                 .build();
         context = c;
     }

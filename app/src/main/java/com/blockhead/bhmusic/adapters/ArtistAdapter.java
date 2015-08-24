@@ -18,6 +18,7 @@ import com.blockhead.bhmusic.activities.MainActivity;
 import com.blockhead.bhmusic.objects.Artist;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import java.util.ArrayList;
 
@@ -42,8 +43,9 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.default_cover_xlarge) // resource or drawable
                 .showImageOnFail(R.drawable.default_cover_xlarge)
-                .resetViewBeforeLoading(false)  // default
+                .resetViewBeforeLoading(true)  // default
                 .cacheInMemory(true)
+                .displayer(new FadeInBitmapDisplayer(500))
                 .build();
     }
 
@@ -91,27 +93,22 @@ public class ArtistAdapter extends BaseAdapter implements SectionIndexer {
             coverView.setImageBitmap(cover);
             */
         String imgPath = currArtist.getImagePath();
-        if(imgPath != null && !imgPath.isEmpty())
-        {
-            imageLoader.displayImage(currArtist.getImagePath(), coverView, options);
-        }
-        else {
-            //set random cover color
-            coverView.setImageResource(R.drawable.default_artist_xlarge);
-            coverView.setBackgroundColor(parent.getResources().getColor(currArtist.getRandomColor()));
-        }
+        imageLoader.displayImage(imgPath, coverView, options);
 
         //Accent Color
         int accentColor = currArtist.getAccentColor();
         if (accentColor != Color.WHITE && imgPath != null)
         {
             cardView.setCardBackgroundColor(accentColor);
+            coverView.setBackgroundColor(accentColor);
             artistTitleView.setTextColor(parent.getResources().getColor(R.color.white));
             artistTrackNumView.setTextColor(parent.getResources().getColor(R.color.hint_white));
+
         }
         else
         {
             cardView.setCardBackgroundColor(Color.WHITE);
+            coverView.setBackgroundColor(parent.getResources().getColor(currArtist.getRandomColor()));
             artistTitleView.setTextColor(Color.BLACK);
             artistTrackNumView.setTextColor(parent.getResources().getColor(R.color.secondary_text_default_material_light));
         }
