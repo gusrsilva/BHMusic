@@ -80,7 +80,7 @@ public class ArtistsTracksAdapter extends BaseExpandableListAdapter {
                 {
                     Log.d("BHCA1", "Artist: " + mArtist.getName());
                     if(mArtist.getSummaryHTML() != null)
-                        info.setText(Html.fromHtml(mArtist.getSummaryHTML()));
+                        info.setText(mArtist.getSummary());
                     else{
                         lin.removeAllViews();
                     }

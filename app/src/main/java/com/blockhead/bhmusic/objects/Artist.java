@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
+import android.text.Html;
 import android.util.Log;
 
 import com.blockhead.bhmusic.activities.MainActivity;
@@ -162,7 +163,12 @@ public class Artist {
     {
         summaryHTML = sum;
     }
-
+    public String getSummary()
+    {
+        String result = Html.fromHtml(summaryHTML).toString();
+        result = result.replaceFirst(" Read more on Last.fm.", "");
+        return result;
+    }
     public String getSummaryHTML()
     {
         return summaryHTML;
