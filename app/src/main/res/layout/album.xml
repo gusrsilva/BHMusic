@@ -13,7 +13,7 @@
         card_view:cardCornerRadius="2dp"
         android:orientation="vertical"
         android:background="@drawable/rect_ripple_background_color"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="4dp">
 
         <RelativeLayout
             android:layout_width="fill_parent"

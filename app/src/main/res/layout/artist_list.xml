@@ -9,9 +9,9 @@
         android:id="@+id/artistGrid"
         android:numColumns="2"
         android:verticalSpacing="0dp"
-        android:horizontalSpacing="10dp"
+        android:horizontalSpacing="4dp"
         android:stretchMode="columnWidth"
         android:gravity="top"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" />
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp" />
 </RelativeLayout>
