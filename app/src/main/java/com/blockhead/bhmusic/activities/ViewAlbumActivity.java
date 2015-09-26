@@ -77,7 +77,26 @@ public class ViewAlbumActivity extends AppCompatActivity {
         String coverUri = currAlbum.getCoverURI();
         albumSize = currAlbum.getSize();
         ArrayList<Song> trackList = currAlbum.tracks;
+        //Set Fab
         fab = (FloatingActionButton) findViewById(R.id.albumFab);
+        setFabDrawable();
+        fab.setBackgroundTintList(ColorStateList.valueOf(MainActivity.accentColor));
+        fab.setClickable(true);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabPressed();
+            }
+        });
+        fab.setLongClickable(true);
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                nowPlayingButtonPressed();
+                return true;
+            }
+        });
+
         musicSrv = MainActivity.getMusicService();
         setFabDrawable();
 
@@ -265,10 +284,12 @@ public class ViewAlbumActivity extends AppCompatActivity {
     {
         Drawable pauseDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_pause_white_36dp);
         Drawable playDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_play_white_36dp);
-        if(musicSrv.isPng())
-            fab.setImageDrawable(pauseDrawable);
-        else
+        if(musicSrv == null)
             fab.setImageDrawable(playDrawable);
+        else if(!musicSrv.isPng())
+            fab.setImageDrawable(playDrawable);
+        else
+            fab.setImageDrawable(pauseDrawable);
     }
     private void fabPressed()
     {

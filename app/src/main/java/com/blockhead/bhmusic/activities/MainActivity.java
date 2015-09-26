@@ -632,6 +632,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             startActivity(intent);
             return true;
         }
+        if (id == R.id.action_about) {
+            MaterialDialog md = new MaterialDialog
+                    .Builder(this)
+                    .customView(R.layout.about_dialog, false)
+                    .negativeColor(accentColor)
+                    .negativeText("Dismiss")
+                    .show();
+            return true;
+        }
         if (id == R.id.action_now_playing) {
             nowPlayingButtonPressed(null);
             return true;
