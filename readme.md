@@ -1,4 +1,7 @@
 BH Music is a free and open-source music player that is simple, light, and functional and designed with material in mind.
+Still in beta.
+<a href="https://plus.google.com/communities/112489760566151580483">
+Join the beta testing community on Google+ </a>
 
 Screenshots
 ===========
