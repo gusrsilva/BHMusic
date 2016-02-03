@@ -12,7 +12,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.Menu;
@@ -38,6 +40,8 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 public class ViewArtistActivity extends AppCompatActivity {
@@ -54,6 +58,14 @@ public class ViewArtistActivity extends AppCompatActivity {
         final android.support.v7.app.ActionBar mActionBar = getSupportActionBar();
         if(mActionBar != null)
             mActionBar.setTitle("");
+
+        setEnterSharedElementCallback(new SharedElementCallback() {
+            @Override
+            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                Log.d("ANIM", "ENTER (Artist) | Names: " + names.toString() + "\n shareElementsKeys: " + sharedElements.keySet().toArray().toString());
+                super.onMapSharedElements(names, sharedElements);
+            }
+        });
 
         musicSrv = MainActivity.getMusicService();
         /* Setup Floating Action Button */
@@ -127,6 +139,7 @@ public class ViewArtistActivity extends AppCompatActivity {
         double maxHeight = size.y * 0.6667;
         double minHeight = size.y * 0.5;
         header.setMaxHeight((int) maxHeight);
+        header.setTransitionName("artistImage");
         //header.setMinimumHeight((int) minHeight);
         AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(size.x , (int)minHeight);
         header.setLayoutParams(layoutParams);

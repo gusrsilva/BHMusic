@@ -4,14 +4,9 @@
     android:background="@color/background_color">
 
 
-    <GridView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:id="@+id/album_grid"
-        android:numColumns="2"
-        android:horizontalSpacing="4dp"
-        android:stretchMode="columnWidth"
-        android:gravity="center_vertical"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp" />
+        android:gravity="center_vertical"/>
 </RelativeLayout>

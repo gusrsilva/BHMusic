@@ -33,9 +33,12 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -64,6 +67,7 @@ import com.blockhead.bhmusic.R;
 import com.blockhead.bhmusic.adapters.AlbumAdapter;
 import com.blockhead.bhmusic.adapters.ArtistAdapter;
 import com.blockhead.bhmusic.adapters.PlaylistListAdapter;
+import com.blockhead.bhmusic.adapters.RAlbumAdapter;
 import com.blockhead.bhmusic.adapters.SongAdapter;
 import com.blockhead.bhmusic.objects.Album;
 import com.blockhead.bhmusic.objects.Artist;
@@ -95,7 +99,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -120,13 +126,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public static android.support.v7.app.ActionBar mActionBar;
     public static boolean artworkHeader = true;
     public static int primaryColor, accentColor;
-    private static GridView albumView;
+    private static RecyclerView albumView;
     private static MusicService musicSrv = new MusicService();
     private static boolean playbackPaused = false;
     private static SeekBar seekBar;
     private static IndexableListView mListView;
     private static SongAdapter songAdt;
-    private static AlbumAdapter albumAdt;
+    private static RAlbumAdapter albumAdt;
     private static ArtistAdapter artistAdt;
     public static PlaylistListAdapter playlistAdt;
     private static String abTitle;
@@ -179,6 +185,21 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         mActionBar = getSupportActionBar();
         mContext = MainActivity.this;
+
+        setEnterSharedElementCallback(new SharedElementCallback() {
+            @Override
+            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                Log.d("ANIM", "ENTER | Names: " + names.toString() + "\n shareElements: " + sharedElements.toString());
+                super.onMapSharedElements(names, sharedElements);
+            }
+        });
+        setExitSharedElementCallback(new SharedElementCallback() {
+            @Override
+            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                Log.d("ANIM", "EXIT | Names: " + names.toString() + "\n shareElements: " + sharedElements.toString());
+                super.onMapSharedElements(names, sharedElements);
+            }
+        });
 
         // Create global configuration and initialize ImageLoader with this config
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
@@ -239,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
 
         songAdt = new SongAdapter(this, songList);
-        albumAdt = new AlbumAdapter(this, albumList);
+        albumAdt = new RAlbumAdapter(this, albumList);
         artistAdt = new ArtistAdapter(this, artistList);
         playlistAdt = new PlaylistListAdapter(this, playlistList);
 
@@ -1105,14 +1126,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         int pos = Integer.parseInt(view.getTag().toString());
         currArtist = artistList.get(pos);
-        //View artistImage = findViewById(R.id.artistImage);
+        View artistImage = findViewById(R.id.artistImage);
 
         Intent intent = new Intent(this, ViewArtistActivity.class);
         if(isLollipop())
         {
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
                     Pair.create((View) fab, "fab")
-                    //,Pair.create(artistImage, "artistImage") TODO: Glitchy will fix later
+                    ,Pair.create(artistImage, "artistImage")
             );
             startActivity(intent, options.toBundle());
         }
@@ -1434,10 +1455,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             {
                 rootView = inflater.inflate(R.layout.album_list, container, false);
 
-                albumView = (GridView) rootView.findViewById(R.id.album_grid);
+                albumView = (RecyclerView) rootView.findViewById(R.id.album_grid);
 
-                if (albumView != null)
+                if (albumView != null) {
+                    albumView.setLayoutManager(new GridLayoutManager(mContext, 2));
                     albumView.setAdapter(albumAdt);
+                }
             }
             else if (page == 3)
             {
